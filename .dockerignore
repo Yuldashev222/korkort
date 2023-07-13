@@ -1,0 +1,17 @@
+.git
+.gitignore
+
+
+.docker
+
+webapp/__pycache__/
+webapp/*/__pycache__/
+webapp/*/*/__pycache__/
+webapp/*/*/*/__pycache__/
+webapp/*/*/*/*/__pycache__/
+webapp/*/*/*/*/*/__pycache__/
+.env/
+.venv/
+venv
+
+data/

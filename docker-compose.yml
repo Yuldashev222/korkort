@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  webapp:
+    build:
+      context: ./webapp
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./webapp/src:/src
+      - ./webapp/data/web:/vol/web
+    environment:
+      - SECRET_KEY=devsecretkey
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+
+#  redis:
+#    image: redis
+#    restart: always
+#
+#
+#  celery-worker:
+#    restart: always
+#    build:
+#      context: ./webapp
+#    command: [ "celery", "--workdir=./src", "-A", "config", "worker" ]
+#
+#
+#  celery-beat:
+#    restart: always
+#    build:
+#      context: ./webapp
+#    volumes:
+#      - ./webapp/src/db.sqlite3:/src/db.sqlite3  # change
+#    command: [ "celery", "--workdir=./src", "-A", "config", "beat", "-l", "info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler" ]
+#
+#
+#  flower:
+#    image: mher/flower
+#    ports:
+#      - "5555:5555"
+#    volumes:
+#      - ./wait-for-it.sh:/wait-for-it.sh
+#    command: [ "/wait-for-it.sh" ]
