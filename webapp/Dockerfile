@@ -1,5 +1,5 @@
 FROM python:3.10-alpine3.17
-LABEL maintainer="report.uz"
+LABEL maintainer="e-report.uz"
 
 ENV PYTHONUNBUFFERED 1
 
