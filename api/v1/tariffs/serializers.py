@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
-from .models import TariffDay, Tariff
+from .models import Tariff, TariffInfo
 
 
 class TariffSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TariffDay
-        exclude = ['tariff', 'discount', 'student_discount_price', 'is_active', 'created_at']
+        model = Tariff
+        exclude = ['tariff_info', 'discount', 'is_active', 'created_at']
 
 
 class TariffInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tariff
+        model = TariffInfo
         fields = '__all__'

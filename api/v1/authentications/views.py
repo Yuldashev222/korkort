@@ -102,6 +102,7 @@ def verify_email(request, uidb64, token):
 
 # google auth view
 class GoogleSignInAPIView(CreateAPIView):
+    permission_classes = ()
     serializer_class = GoogleSignInSerializer
 
     def perform_create(self, serializer):

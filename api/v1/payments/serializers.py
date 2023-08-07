@@ -1,47 +1,59 @@
+from datetime import timedelta
+
+from django.utils.timezone import now
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.payments.models import Order
-from api.v1.discounts.models import StudentDiscount
-from api.v1.accounts.models import CustomUser, StudentCalledEmail
-from api.v1.tariffs.models import TariffDay
+from api.v1.accounts.models import CustomUser
+from api.v1.tariffs.models import Tariff
 
 
 class StripeCheckoutSerializer(serializers.Serializer):
     tariff_id = serializers.IntegerField()
+    use_bonus_money = serializers.BooleanField(default=False)
     user_code = serializers.CharField(required=False)
 
     def validate(self, attrs):
-        student = self.context['request'].user
-        user_code = attrs.get('user_code', '')
+        called_student = None
         tariff_id = attrs.get('tariff_id')
+        use_bonus_money = attrs.get('use_bonus_money')
+        user_code = attrs.get('user_code', '')
+        student = self.context['request'].user
+
+        # last
+        Order.objects.filter(student=student, is_paid=False, created_at__gt=now() - timedelta(minutes=10)).delete()
 
         try:
-            tariff_day = TariffDay.objects.select_related('tariff').get(pk=tariff_id)
-        except TariffDay.DoesNotExist:
+            tariff = Tariff.objects.select_related('tariff_info').get(pk=tariff_id)
+        except Tariff.DoesNotExist:
             raise ValidationError({'tariff_id': ['not found']})
 
         if user_code:
+            if not tariff.student_discount:
+                raise ValidationError({'user_code': ['Currently, the coupon system is not working for this tariff']})
             if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
                 raise ValidationError({'user_code': ['not found']})
-            called_user = CustomUser.objects.get(user_code=user_code)
-            obj, created = StudentCalledEmail.objects.get_or_create(email=called_user.email, student=student)
-            if not created:
+            called_student = CustomUser.objects.get(user_code=user_code)
+            if Order.objects.filter(called_student_email=called_student.email, student=student).exists():
                 raise ValidationError({'user_code': ['You have already registered this code']})
 
-        if user_code:
-            try:
-                obj = StudentDiscount.objects.first()
-                if not obj.is_active:
-                    del attrs['user_code']
-            except ValueError:
-                del attrs['user_code']
+        order = Order.objects.create(student=student, tariff=tariff, called_student=called_student)
 
-        order = Order.objects.create(student_id=student.id, tariff_id=tariff_day.id, called_student_code=user_code)
+        if use_bonus_money and student.bonus_money:
+            remaining_amount = order.tariff_price - (order.student_discount_amount + order.tariff_discount_amount)
+            if remaining_amount > 0:
+                if student.bonus_money >= remaining_amount:
+                    student.bonus_money -= remaining_amount
+                    order.student_bonus_amount = remaining_amount
+                else:
+                    order.student_bonus_amount = student.bonus_money
+                    student.bonus_money = 0
+                student.save()
+                order.save()
 
         attrs['order'] = order
-        attrs['tariff_day'] = tariff_day
-        attrs['tariff'] = tariff_day.tariff
+        attrs['tariff_info'] = tariff.tariff_info
         return attrs
 
 

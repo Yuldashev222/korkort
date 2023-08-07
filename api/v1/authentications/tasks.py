@@ -20,6 +20,7 @@ def send_password_reset_email(user_id, token, domain, email_address):
     mail_subject = 'Password Reset'
     uid = urlsafe_base64_encode(force_bytes(user_id))
     reset_link = f'http://{domain}/api/v1/auth/password-reset/confirm/{uid}/{token}/'
+    # reset_link = settings.ANDROID_FORGOT_PASSWORD_URL + f'?uid={uid}&token={token}'
     message = render_to_string(
         'authentications/password_reset_email.html', {'link': reset_link}  # last
     )

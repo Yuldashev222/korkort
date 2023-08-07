@@ -30,7 +30,7 @@ class CustomUser(AbstractUser):
     from_google_auth = models.BooleanField(default=False)
 
     user_code = models.CharField(max_length=400, unique=True)
-    bonus_price = models.PositiveBigIntegerField(default=0)
+    bonus_money = models.PositiveBigIntegerField(default=0)
 
     def __str__(self):
         return self.get_full_name()
@@ -63,16 +63,30 @@ class CustomUser(AbstractUser):
             else:
                 self.user_code = CustomUser.generate_unique_string()
 
-        self.bonus_price = round(self.bonus_price, 1)
+        self.bonus_money = round(self.bonus_money, 1)
         super().save(*args, **kwargs)
 
         CustomUser.objects.filter(date_joined__lt=now() - timedelta(minutes=30), is_verified=False).delete()
-
-
-class StudentCalledEmail(models.Model):
-    email = models.EmailField()
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ['student', 'email']
+#
+#
+# class StudentCalledEmail(models.Model):
+#     email = models.EmailField()
+#     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+#     order = models.ForeignKey('payments.Order', on_delete=models.CASCADE, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     bonus_added = models.BooleanField(default=False)
+#
+#     class Meta:
+#         unique_together = ['student', 'email']
+#
+#     def save(self, *args, **kwargs):
+#         order = self.order
+#         if order and order.is_paid and not self.bonus_added:
+#             try:
+#                 called_student = CustomUser.objects.get(email=self.email)
+#                 called_student.bonus_price += order.student_discount_price
+#                 called_student.save()
+#                 self.bonus_added = True
+#             except CustomUser.DoesNotExist:
+#                 pass
+#         super().save(*args, **kwargs)

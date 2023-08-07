@@ -153,7 +153,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [],
     'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'rest_framework.negotiation.DefaultContentNegotiation',
 
-    'DEFAULT_PAGINATION_CLASS': None,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
 
     'DEFAULT_FILTER_BACKENDS': [],
@@ -195,6 +195,7 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY_TEST')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
+ANDROID_FORGOT_PASSWORD_URL = 'https://'
 
 # smtp configs
 EMAIL_USE_TLS = True

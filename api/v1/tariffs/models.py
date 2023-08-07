@@ -1,12 +1,13 @@
-from django.core.exceptions import ValidationError
+from django.core.cache import cache
 from django.db import models
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 from api.v1.discounts.models import StudentDiscount
 from api.v1.general.services import normalize_text
 
 
-class Tariff(models.Model):
+class TariffInfo(models.Model):
     title = models.CharField(max_length=200)
     image = models.ImageField(upload_to='tariffs/images/', blank=True, null=True)
     desc = models.CharField(max_length=255, blank=True)
@@ -14,49 +15,50 @@ class Tariff(models.Model):
     def __str__(self):
         return f'{self.title}'
 
-    # def clean(self):
-    #     if not self.tariffday_set.exists():
-    #         raise ValidationError('tariff day required')
-
     def save(self, *args, **kwargs):
         self.desc = normalize_text(self.desc)
         self.title = normalize_text(self.title)
         super().save(*args, **kwargs)
 
 
-class TariffDay(models.Model):
-    tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE)
+class Tariff(models.Model):
+    tariff_info = models.ForeignKey(TariffInfo, on_delete=models.CASCADE)
     day = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     price = models.PositiveIntegerField()
     discount = models.ForeignKey('discounts.TariffDiscount', on_delete=models.PROTECT, blank=True, null=True)
-    discount_price = models.PositiveIntegerField(default=0)
-    student_discount_price = models.PositiveIntegerField(default=0)
+    tariff_discount_amount = models.PositiveIntegerField(default=0)
+    student_discount_amount = models.PositiveIntegerField(default=0)
+    student_discount = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if self.discount:
-            if not self.discount.is_percent:
-                self.discount_price = self.discount.discount_value
-            else:
-                self.discount_price = self.price * self.discount.discount_value / 100
-
-            self.discount_price = round(self.discount_price, 1)
-        else:
-            self.discount_price = 0  # last
-
-        student_discount = StudentDiscount.objects.first()
-        if student_discount and student_discount.is_active:
-            if not student_discount.is_percent:
-                self.student_discount_price = student_discount.discount_value
-            else:
-                self.student_discount_price = self.price * student_discount.discount_value / 100
-
-            self.student_discount_price = round(self.student_discount_price, 1)
-        else:
-            self.student_discount_price = 0  # last
-
-        super().save(*args, **kwargs)
+    def clean(self):
+        if self.student_discount and not StudentDiscount.objects.exists():
+            raise ValidationError({'student_discount': 'not found'})
 
     def __str__(self):
         return f'Tariff: {self.day} days'
+
+    def save(self, *args, **kwargs):
+        discount = self.discount
+        if discount:
+            self.tariff_discount_amount = discount.discount_value
+            if discount.is_percent:
+                self.tariff_discount_amount = self.price * discount.discount_value / 100
+                self.tariff_discount_amount = round(self.tariff_discount_amount, 1)
+
+        student_discount = cache.get('student_discount')
+        if not student_discount:
+            student_discount = StudentDiscount.objects.first()
+            if student_discount:
+                student_discount.set_redis()
+                student_discount = cache.get('student_discount')
+
+        if student_discount and self.student_discount:
+            if student_discount['is_percent']:
+                self.student_discount_amount = self.price * student_discount['discount_value'] / 100
+                self.student_discount_amount = round(self.student_discount_amount, 1)
+            else:
+                self.student_discount_amount = student_discount['discount_value']
+
+        super().save(*args, **kwargs)

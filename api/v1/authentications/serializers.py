@@ -117,13 +117,17 @@ class GoogleSignInSerializer(serializers.Serializer):
     def validate(self, attrs):
         token = attrs.get('id_token')
         try:
-            # Verify the ID token received from the Android app
             id_info = id_token.verify_oauth2_token(token, google_requests.Request())
-
+            print(id_info, 11111111111)
             if id_info['aud'] not in settings.SOCIAL_SIGN_IN_IDS:
                 raise ValidationError({'msg': 'Invalid client ID.'})
 
             user, created = CustomUser.objects.get_or_create(email=id_info['email'])
+            print(user)
+            print(user)
+            print(user)
+            print(user)
+            print(user)
             print(user.is_active, user.is_deleted, '*******')
 
             if created:
@@ -145,8 +149,8 @@ class GoogleSignInSerializer(serializers.Serializer):
             CustomToken.objects.filter(user=user).delete()
             token = CustomToken.objects.create(user=user)
             attrs['token'] = token.key
-        except ValueError:
-            raise ValidationError({'msg': 'Invalid token.'})
+        except Exception as e:
+            raise ValidationError({'msg': str(e)})
         return attrs
 
 
