@@ -12,6 +12,6 @@ urlpatterns = [
     path('facebook-signin/', views.FacebookSignInAPIView.as_view(), name='facebook-signin'),
 
     path('password-reset/', views.PasswordResetView.as_view(), name='password-reset'),
-    path('password-reset/confirm/<str:uidb64>/<str:token>/', views.PasswordResetConfirmView.as_view(),
+    path('password-reset/confirm/', views.PasswordResetConfirmView.as_view(),
          name='password-reset-confirm')
 ]

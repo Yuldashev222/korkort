@@ -4,9 +4,9 @@ from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, CreateAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.models import CustomUser
 
@@ -70,15 +70,6 @@ class PasswordResetConfirmView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response('Your password has been successfully reset', status=status.HTTP_200_OK)
-
-    def get_serializer_context(self):
-        return {
-            'uidb64': self.kwargs.get('uidb64'),
-            'token': self.kwargs.get('token'),
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
 
 
 # verify email view

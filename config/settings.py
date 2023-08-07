@@ -195,7 +195,9 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY_TEST')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
-ANDROID_FORGOT_PASSWORD_URL = 'https://'
+ANDROID_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
+IOS_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
+DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
 
 # smtp configs
 EMAIL_USE_TLS = True

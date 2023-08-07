@@ -65,6 +65,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
+    link_type = serializers.ChoiceField(choices=[['ios', 'ios'], ['android', 'android'], ['web', 'web']])
 
     def validate_email(self, value):
         try:
@@ -76,24 +77,27 @@ class PasswordResetSerializer(serializers.Serializer):
     def save(self):
         token = default_token_generator.make_token(self.user)
         current_site = get_current_site(self.context['request'])
-        send_password_reset_email.delay(self.user.id, token, current_site.domain, self.user.email)
+        send_password_reset_email.delay(self.user.id, token, current_site.domain, self.user.email,
+                                        self.validated_data.get('link_type'))
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField(write_only=True)
+    token = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True,
                                          style={'input_type': 'password'},
                                          trim_whitespace=False,
                                          validators=[validate_password])
 
     def validate(self, attrs):
-        uid = self.context['uidb64']
-        token = self.context['token']
+        uid = attrs.get('uid')
+        token = attrs.get('token')
         new_password = attrs.get('new_password')
 
         try:
             uid = force_str(urlsafe_base64_decode(uid))
             self.user = CustomUser.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        except (TypeError, ValueError, OverflowError, AttributeError, CustomUser.DoesNotExist):
             raise ValidationError('Invalid password reset link')
 
         form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
