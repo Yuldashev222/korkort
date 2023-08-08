@@ -1,6 +1,5 @@
 import stripe
 
-from django.urls import reverse
 from django.conf import settings
 
 from rest_framework import status
@@ -28,10 +27,11 @@ class StripeCheckoutAPIView(CreateAPIView):
         data = serializer.validated_data
         tariff_info = data['tariff_info']
         order = data['order']
+        link_type = data['link_type']
         user = self.request.user
 
         if order.is_paid:
-            return Response({'checkout_url': None, 'is_paid': True}, status=status.HTTP_200_OK)
+            return Response({'checkout_url': None, 'is_paid': order.is_paid}, status=status.HTTP_200_OK)
 
         product_data = {
             'name': tariff_info.title,
@@ -44,17 +44,15 @@ class StripeCheckoutAPIView(CreateAPIView):
             del product_data['description']
 
         try:
-            success_url = request.build_absolute_uri(reverse('completed'))
-            cancel_url = request.build_absolute_uri(reverse('canceled'))
             session_data = {
                 'mode': 'payment',
                 'payment_method_types': ['card'],
                 'client_reference_id': order.id,
                 'customer_email': user.email,
-                'success_url': success_url,
-                'cancel_url': cancel_url,
                 'line_items': [],
                 'discounts': [],
+                'success_url': settings.PAYMENT_URLS[link_type]['success_url'],
+                'cancel_url': settings.PAYMENT_URLS[link_type]['cancel_url']
             }
             session_data['line_items'].append({
                 'price_data': {
@@ -64,48 +62,40 @@ class StripeCheckoutAPIView(CreateAPIView):
                 },
                 'quantity': 1
             })
-            #
-            # if order.tariff_discount:
-            #     data = {
-            #         'name': order.tariff_discount_title,
-            #         'duration': 'once',
-            #         'currency': 'SEK'
-            #     }
-            #     if order.tariff_discount_is_percent:
-            #         data['percent_off'] = order.tariff_discount_value
-            #     else:
-            #         data['amount_off'] = order.tariff_discount_value
-            #
-            #     stripe_coupon = stripe.Coupon.create(**data)
-            #     session_data['discounts'].append({'coupon': stripe_coupon.id})
 
-            if order.student_discount_value:
+            discount_title = ''
+            discount_amount = 0
+
+            if order.tariff_discount:
+                print(order, order.tariff_discount_amount, 1111111111111)
+                discount_title += 'tariff'
+                discount_amount += order.tariff_discount_amount
+
+            if order.student_discount_amount > 0:
+                print(order, order.student_discount_amount, 22222222222222222)
+                discount_title += ', student discount'
+                discount_amount += order.student_discount_amount
+
+            if order.use_bonus_money and order.student_bonus_amount > 0:
+                print(order, order.student_bonus_amount, 333333333333333333)
+                discount_title += ', bonus money'
+                discount_amount += order.student_bonus_amount
+
+            if discount_amount > 0:
                 data = {
-                    'name': 'Student Code Discount',
+                    'name': discount_title,
+                    'amount_off': discount_amount * 100,
                     'duration': 'once',
                     'currency': 'SEK'
                 }
-                if order.student_discount_is_percent:
-                    data['percent_off'] = order.student_discount_value
-                else:
-                    data['amount_off'] = order.student_discount_value
 
                 stripe_coupon = stripe.Coupon.create(**data)
                 session_data['discounts'].append({'coupon': stripe_coupon.id})
-            #
-            # if order.student_bonus_amount:
-            #     data = {
-            #         'name': 'Student Bonus Discount',
-            #         'amount_off': order.student_bonus_amount,
-            #         'duration': 'once',
-            #         'currency': 'SEK'
-            #     }
-            #
-            #     stripe_coupon = stripe.Coupon.create(**data)
-            #     session_data['discounts'].append({'coupon': stripe_coupon.id})
 
             checkout_session = stripe.checkout.Session.create(**session_data)
-            return Response({'checkout_url': checkout_session.url, 'is_paid': False}, status=status.HTTP_200_OK)
+            order.payment_link = checkout_session.url
+            order.save()
+            return Response({'checkout_url': checkout_session.url, 'is_paid': order.is_paid}, status=status.HTTP_200_OK)
         except Exception as e:
             order.delete()  # last
             return Response(

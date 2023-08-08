@@ -52,7 +52,10 @@ class TariffDiscount(DiscountMixin):
 class StudentDiscount(DiscountMixin):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        self.set_redis()
+        StudentDiscount.set_redis()
 
-    def set_redis(self):
-        cache.set('student_discount', {'is_percent': self.is_percent, 'discount_value': self.discount_value})
+    @classmethod
+    def set_redis(cls):
+        obj = cls.objects.first()
+        if obj:
+            cache.set('student_discount', {'is_percent': obj.is_percent, 'discount_value': obj.discount_value})

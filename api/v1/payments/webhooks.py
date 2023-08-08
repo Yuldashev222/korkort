@@ -8,7 +8,6 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-from api.v1.accounts.models import CustomUser
 from .models import Order
 
 stripe.api_key = settings.STRIPE_SECRET_KEY

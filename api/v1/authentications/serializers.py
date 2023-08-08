@@ -20,6 +20,7 @@ from api.v1.accounts.models import CustomUser
 
 from .models import CustomToken
 from .tasks import send_confirm_link_email, send_password_reset_email
+from ..general.enums import LINK_TYPES
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -65,7 +66,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    link_type = serializers.ChoiceField(choices=[['ios', 'ios'], ['android', 'android'], ['web', 'web']])
+    link_type = serializers.ChoiceField(choices=LINK_TYPES)
 
     def validate_email(self, value):
         try:

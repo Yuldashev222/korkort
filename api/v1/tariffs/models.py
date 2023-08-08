@@ -1,5 +1,5 @@
-from django.core.cache import cache
 from django.db import models
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
@@ -47,18 +47,17 @@ class Tariff(models.Model):
                 self.tariff_discount_amount = self.price * discount.discount_value / 100
                 self.tariff_discount_amount = round(self.tariff_discount_amount, 1)
 
-        student_discount = cache.get('student_discount')
-        if not student_discount:
-            student_discount = StudentDiscount.objects.first()
-            if student_discount:
-                student_discount.set_redis()
+        if self.student_discount:
+            student_discount = cache.get('student_discount')
+            if not student_discount:
+                StudentDiscount.set_redis()
                 student_discount = cache.get('student_discount')
 
-        if student_discount and self.student_discount:
-            if student_discount['is_percent']:
-                self.student_discount_amount = self.price * student_discount['discount_value'] / 100
-                self.student_discount_amount = round(self.student_discount_amount, 1)
-            else:
-                self.student_discount_amount = student_discount['discount_value']
+            if student_discount:
+                if student_discount['is_percent']:
+                    self.student_discount_amount = self.price * student_discount['discount_value'] / 100
+                    self.student_discount_amount = round(self.student_discount_amount, 1)
+                else:
+                    self.student_discount_amount = student_discount['discount_value']
 
         super().save(*args, **kwargs)

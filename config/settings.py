@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_celery_beat',
     'drf_yasg',
+    'debug_toolbar',
 
     'api.v1.general.apps.GeneralConfig',
     'api.v1.accounts.apps.AccountsConfig',
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -199,6 +201,19 @@ ANDROID_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
 IOS_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
 DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
 
+ANDROID_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
+ANDROID_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
+IOS_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
+IOS_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
+DESKTOP_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
+DESKTOP_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
+
+PAYMENT_URLS = {
+    'ios': {'success_url': IOS_SUCCESS_PAYMENT_URL, 'cancel_url': IOS_FAILURE_PAYMENT_URL},
+    'android': {'success_url': ANDROID_SUCCESS_PAYMENT_URL, 'cancel_url': ANDROID_FAILURE_PAYMENT_URL},
+    'web': {'success_url': DESKTOP_SUCCESS_PAYMENT_URL, 'cancel_url': DESKTOP_FAILURE_PAYMENT_URL},
+}
+
 # smtp configs
 EMAIL_USE_TLS = True
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
@@ -209,3 +224,11 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+INTERNAL_IPS = [
+    'localhost',
+    "127.0.0.1",
+]
+
+if DEBUG:
+    INTERNAL_IPS += ALLOWED_HOSTS
