@@ -26,8 +26,6 @@ def send_password_reset_email(user_id, token, domain, email_address, link_type):
         reset_link = settings.ANDROID_FORGOT_PASSWORD_URL
     else:
         reset_link = settings.DESKTOP_FORGOT_PASSWORD_URL
-    reset_link += f'?uid={uid}&token={token}&reset-password=true'
-    message = render_to_string(
-        'authentications/password_reset_email.html', {'link': reset_link}  # last
-    )
+    reset_link = reset_link.format(token, uid)
+    message = render_to_string('authentications/password_reset_email.html', {'link': reset_link})  # last
     send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email_address], html_message=message)

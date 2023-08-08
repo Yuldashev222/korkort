@@ -197,10 +197,9 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY_TEST')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
-ANDROID_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
+ANDROID_FORGOT_PASSWORD_URL = 'https://korkort.page.link?amv=0&apn=com.example.korkort&link=https%3A%2F%2Fkorkort.page.link%2Fproductpage%3Ftoken%3D{}%26uid%3D{}'
 IOS_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
 DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
-
 ANDROID_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
 ANDROID_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
 IOS_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
