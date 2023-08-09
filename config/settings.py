@@ -197,20 +197,19 @@ STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY_TEST')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
-ANDROID_FORGOT_PASSWORD_URL = 'https://korkort.page.link?amv=0&apn=com.example.korkort&link=https%3A%2F%2Fkorkort.page.link%2Fproductpage%3Ftoken%3D{}%26uid%3D{}'
-IOS_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
-DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'  # changeme
-ANDROID_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
-ANDROID_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
-IOS_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
-IOS_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
-DESKTOP_SUCCESS_PAYMENT_URL = 'https://google.com'  # changeme
-DESKTOP_FAILURE_PAYMENT_URL = 'https://google.com'  # changeme
+
+MOBILE_FORGOT_PASSWORD_URL = ('https://korkort.page.link?amv=0&apn=com.example.korkort&link=https%3A%2F%2F'
+                              'korkort.page.link%2Fproductpage%3Ftoken%3D{}%26uid%3D{}')
+DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
+
+MOBILE_SUCCESS_PAYMENT_URL = 'https://korkort.page.link/success_stripe'
+MOBILE_FAILURE_PAYMENT_URL = 'https://korkort.page.link/cancel'
+DESKTOP_SUCCESS_PAYMENT_URL = 'https://google.com'
+DESKTOP_FAILURE_PAYMENT_URL = 'https://google.com'
 
 PAYMENT_URLS = {
-    'ios': {'success_url': IOS_SUCCESS_PAYMENT_URL, 'cancel_url': IOS_FAILURE_PAYMENT_URL},
-    'android': {'success_url': ANDROID_SUCCESS_PAYMENT_URL, 'cancel_url': ANDROID_FAILURE_PAYMENT_URL},
-    'web': {'success_url': DESKTOP_SUCCESS_PAYMENT_URL, 'cancel_url': DESKTOP_FAILURE_PAYMENT_URL},
+    'mobile': {'success_url': MOBILE_SUCCESS_PAYMENT_URL, 'cancel_url': MOBILE_FAILURE_PAYMENT_URL},
+    'desktop': {'success_url': DESKTOP_SUCCESS_PAYMENT_URL, 'cancel_url': DESKTOP_FAILURE_PAYMENT_URL},
 }
 
 # smtp configs

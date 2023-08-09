@@ -30,10 +30,8 @@ def send_password_reset_email(user_id, token, domain, email_address, link_type):
     mail_subject = 'Password Reset'
     uid = urlsafe_base64_encode(force_bytes(user_id))
     # reset_link = f'http://{domain}/api/v1/auth/password-reset/confirm?uid={uid}&token={token}'
-    if link_type == 'ios':
-        reset_link = settings.IOS_FORGOT_PASSWORD_URL
-    elif link_type == 'android':
-        reset_link = settings.ANDROID_FORGOT_PASSWORD_URL
+    if link_type == 'mobile':
+        reset_link = settings.MOBILE_FORGOT_PASSWORD_URL
     else:
         reset_link = settings.DESKTOP_FORGOT_PASSWORD_URL
     reset_link += f'?uid={uid}&token={token}&reset-password=true'
