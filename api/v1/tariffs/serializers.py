@@ -18,8 +18,7 @@ class TariffSerializer(serializers.ModelSerializer):
             student_discount = cache.get('student_discount')
             if student_discount:
                 ret['student_discount_is_percent'] = student_discount['is_percent']
-                if ret['student_discount_is_percent']:
-                    ret['student_discount_value'] = student_discount['discount_value']
+                ret['student_discount_value'] = student_discount['discount_value']
             else:
                 ret['student_discount'] = False
                 ret['student_discount_amount'] = 0
