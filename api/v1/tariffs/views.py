@@ -6,6 +6,9 @@ from .serializers import TariffSerializer, TariffInfoSerializer
 
 
 class TariffAPIView(GenericViewSet):
+    permission_classes = ()
+    serializer_class = TariffSerializer
+    queryset = Tariff.objects.filter(is_active=True).order_by('-created_at')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -14,7 +17,3 @@ class TariffAPIView(GenericViewSet):
         tariff_info = TariffInfoSerializer(obj).data
 
         return Response({'tariff_info': tariff_info, 'objects': serializer.data})
-
-    permission_classes = ()
-    serializer_class = TariffSerializer
-    queryset = Tariff.objects.filter(is_active=True).order_by('-created_at')
