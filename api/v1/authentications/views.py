@@ -19,6 +19,7 @@ from .serializers import (
     PasswordResetConfirmSerializer,
     GoogleSignInSerializer, FacebookSignInSerializer, AppleSignInSerializer
 )
+from api.v1.accounts.serializers import ProfileSerializer
 
 
 # login view
@@ -33,7 +34,8 @@ class AuthTokenAPIView(GenericAPIView):
         user = serializer.validated_data['user']
         CustomToken.objects.filter(user=user).delete()
         token = CustomToken.objects.create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
+        user_data = ProfileSerializer(user).data
+        return Response({'token': token.key, 'user': user_data}, status=status.HTTP_200_OK)
 
 
 # register view
