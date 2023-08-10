@@ -71,11 +71,15 @@ class StripeCheckoutAPIView(CreateAPIView):
                 discount_amount += order.tariff_discount_amount
 
             if order.student_discount_amount > 0:
-                discount_title += ', student discount'
+                if discount_title:
+                    discount_title += ', '
+                discount_title += 'student discount'
                 discount_amount += order.student_discount_amount
 
             if order.use_bonus_money and order.student_bonus_amount > 0:
-                discount_title += ', bonus money'
+                if discount_title:
+                    discount_title += ', '
+                discount_title += 'bonus money'
                 discount_amount += order.student_bonus_amount
 
             if discount_amount > 0:
