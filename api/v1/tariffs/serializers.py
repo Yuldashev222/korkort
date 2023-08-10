@@ -5,6 +5,8 @@ from .models import Tariff, TariffInfo
 
 
 class TariffSerializer(serializers.ModelSerializer):
+    student_discount_is_percent = serializers.BooleanField(default=False)
+
     class Meta:
         model = Tariff
         exclude = ['tariff_info', 'discount', 'is_active', 'created_at']
