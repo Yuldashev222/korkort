@@ -64,5 +64,7 @@ class Tariff(models.Model):
             else:
                 self.student_discount_amount = 0
                 self.student_discount = False
+        else:
+            self.student_discount_amount = 0
 
         super().save(*args, **kwargs)

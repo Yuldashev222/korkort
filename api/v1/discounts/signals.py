@@ -15,8 +15,7 @@ def update_tariff_discount(instance, *args, **kwargs):
 @receiver(post_delete, sender=StudentDiscount)
 def update_tariff_discount(instance, *args, **kwargs):
     StudentDiscount.set_redis()
-    for tariff in Tariff.objects.all():
-        tariff.save()
+    Tariff.objects.update(student_discount=False)
 
 
 @receiver(post_save, sender=TariffDiscount)
