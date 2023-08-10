@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -5,6 +6,7 @@ from rest_framework.viewsets import GenericViewSet
 from .models import Tariff, TariffInfo
 from .serializers import TariffSerializer, TariffInfoSerializer
 from api.v1.accounts.permissions import IsStudent
+from api.v1.discounts.models import StudentDiscount
 
 
 class TariffAPIView(GenericViewSet):
@@ -18,4 +20,21 @@ class TariffAPIView(GenericViewSet):
         obj = TariffInfo.objects.first()
         tariff_info = TariffInfoSerializer(obj).data
         student = self.request.user
-        return Response({'tariff_info': tariff_info, 'student_bonus_money': student.bonus_money, 'objects': serializer.data})
+        student_discount = cache.get('student_discount')
+        if not student_discount:
+            StudentDiscount.set_redis()
+
+        if not student_discount:
+            student_discount_value = 0
+            student_discount_is_percent = False
+        else:
+            student_discount_value = student_discount.get('discount_value')
+            student_discount_is_percent = student_discount.get('is_percent')
+
+        return Response({
+            'student_discount_value': student_discount_value,
+            'student_discount_is_percent': student_discount_is_percent,
+            'student_bonus_money': student.bonus_money,
+            'tariff_info': tariff_info,
+            'objects': serializer.data
+        })

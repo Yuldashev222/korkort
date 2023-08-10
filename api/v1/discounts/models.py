@@ -49,5 +49,5 @@ class StudentDiscount(DiscountMixin):
         obj = cls.objects.first()
         if obj:
             cache.set('student_discount', {'is_percent': obj.is_percent, 'discount_value': obj.discount_value})
-        else:
+        elif cache.get('student_discount'):
             cache.delete('student_discount')
