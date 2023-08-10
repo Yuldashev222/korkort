@@ -37,12 +37,6 @@ class TariffDiscount(DiscountMixin):
         if self.valid_from and self.valid_to and self.valid_from > self.valid_to:
             raise ValidationError({'valid_from': 'the start time must be less than the end time.'})
 
-    def save(self, *args, **kwargs):
-        if self.pk:
-            for tariff in self.tariff_set.all():
-                tariff.save()
-        super().save(*args, **kwargs)
-
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['discount_value', 'is_percent'], name='unique discounts')
@@ -50,10 +44,6 @@ class TariffDiscount(DiscountMixin):
 
 
 class StudentDiscount(DiscountMixin):
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        StudentDiscount.set_redis()
-
     @classmethod
     def set_redis(cls):
         obj = cls.objects.first()

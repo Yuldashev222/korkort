@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from api.v1.general.enums import LINK_TYPES
 from api.v1.tariffs.models import Tariff
@@ -48,3 +48,19 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         exclude = ['student', 'stripe_id', 'stripe_url']
+
+
+class CheckCouponSerializer(serializers.Serializer):
+    user_code = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_user_code(self, value):
+        student = self.context['request'].user
+
+        if value == student.user_code or not CustomUser.user_id_exists(value):
+            raise ValidationError('not valid')
+
+        called_student = CustomUser.objects.get(user_code=value)
+        if Order.objects.filter(called_student=called_student, student=student).exists():
+            raise ValidationError('You have already registered this code')
+
+        return value

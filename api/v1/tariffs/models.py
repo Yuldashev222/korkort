@@ -46,6 +46,8 @@ class Tariff(models.Model):
             if discount.is_percent:
                 self.tariff_discount_amount = self.price * discount.discount_value / 100
                 self.tariff_discount_amount = round(self.tariff_discount_amount, 1)
+        else:
+            self.tariff_discount_amount = 0
 
         if self.student_discount:
             student_discount = cache.get('student_discount')
@@ -59,5 +61,7 @@ class Tariff(models.Model):
                     self.student_discount_amount = round(self.student_discount_amount, 1)
                 else:
                     self.student_discount_amount = student_discount['discount_value']
+            else:
+                self.student_discount_amount = 0
 
         super().save(*args, **kwargs)
