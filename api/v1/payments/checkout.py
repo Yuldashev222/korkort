@@ -85,7 +85,7 @@ class StripeCheckoutAPIView(CreateAPIView):
             if discount_amount > 0:
                 data = {
                     'name': discount_title,
-                    'amount_off': discount_amount * 100,
+                    'amount_off': int(discount_amount * 100),
                     'duration': 'once',
                     'currency': 'SEK'
                 }
@@ -98,7 +98,7 @@ class StripeCheckoutAPIView(CreateAPIView):
             order.save()
             return Response({'checkout_url': checkout_session.url, 'is_paid': order.is_paid}, status=status.HTTP_200_OK)
         except Exception as e:
-            order.delete()  # last
+            order.delete()
             return Response(
                 {'msg': 'something went wrong while creating stripe session', 'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
