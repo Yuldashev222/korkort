@@ -15,5 +15,5 @@ class TariffAPIView(GenericViewSet):
         serializer = self.get_serializer(queryset, many=True)
         obj = TariffInfo.objects.first()
         tariff_info = TariffInfoSerializer(obj).data
-        student = self.request.
-        return Response({'tariff_info': tariff_info, 'student_bonus_money': '', 'objects': serializer.data})
+        student = self.request.user
+        return Response({'tariff_info': tariff_info, 'student_bonus_money': student.bonus_money, 'objects': serializer.data})
