@@ -11,8 +11,8 @@ from api.v1.discounts.models import StudentDiscount
 class Order(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, related_name='orders')
     student_email = models.EmailField(editable=False)
-    student_bonus_amount = models.PositiveIntegerField(default=0)
-    student_discount_amount = models.PositiveIntegerField(default=0)
+    student_bonus_amount = models.FloatField(default=0)
+    student_discount_amount = models.FloatField(default=0)
     student_discount_value = models.PositiveIntegerField(default=0)
     student_discount_is_percent = models.BooleanField(default=True)
 
@@ -34,7 +34,7 @@ class Order(models.Model):
 
     tariff_discount = models.ForeignKey('discounts.TariffDiscount', on_delete=models.SET_NULL, blank=True, null=True)
     tariff_discount_title = models.CharField(max_length=200, blank=True, editable=False)
-    tariff_discount_amount = models.PositiveIntegerField(default=0, editable=False)
+    tariff_discount_amount = models.FloatField(default=0, editable=False)
     tariff_discount_value = models.PositiveIntegerField(default=0, editable=False)
     tariff_discount_is_percent = models.BooleanField(default=True, editable=False)
 

@@ -28,7 +28,7 @@ class CustomUser(AbstractUser):
     from_google_auth = models.BooleanField(default=False)
 
     user_code = models.CharField(max_length=400, unique=True)
-    bonus_money = models.PositiveBigIntegerField(default=0)
+    bonus_money = models.FloatField(default=0)
 
     def __str__(self):
         return self.get_full_name()
