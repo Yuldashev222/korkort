@@ -27,7 +27,6 @@ class StripeCheckoutAPIView(CreateAPIView):
         data = serializer.validated_data
         tariff_info = data['tariff_info']
         order = data['order']
-        link_type = data['link_type']
         user = self.request.user
 
         if order.is_paid:
@@ -51,8 +50,8 @@ class StripeCheckoutAPIView(CreateAPIView):
                 'customer_email': user.email,
                 'line_items': [],
                 'discounts': [],
-                'success_url': settings.PAYMENT_URLS[link_type]['success_url'],
-                'cancel_url': settings.PAYMENT_URLS[link_type]['cancel_url']
+                'success_url': settings.SUCCESS_PAYMENT_URL,
+                'cancel_url': settings.FAILURE_PAYMENT_URL
             }
             session_data['line_items'].append({
                 'price_data': {

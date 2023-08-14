@@ -202,15 +202,8 @@ MOBILE_FORGOT_PASSWORD_URL = ('https://korkort.page.link?amv=0&apn=com.example.k
                               'korkort.page.link%2Fproductpage%3Ftoken%3D{}%26uid%3D{}')
 DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
 
-MOBILE_SUCCESS_PAYMENT_URL = 'https://korkort.page.link/success_stripe'
-MOBILE_FAILURE_PAYMENT_URL = 'https://korkort.page.link/cancel'
-DESKTOP_SUCCESS_PAYMENT_URL = 'https://google.com'
-DESKTOP_FAILURE_PAYMENT_URL = 'https://google.com'
-
-PAYMENT_URLS = {
-    'mobile': {'success_url': MOBILE_SUCCESS_PAYMENT_URL, 'cancel_url': MOBILE_FAILURE_PAYMENT_URL},
-    'desktop': {'success_url': DESKTOP_SUCCESS_PAYMENT_URL, 'cancel_url': DESKTOP_FAILURE_PAYMENT_URL},
-}
+SUCCESS_PAYMENT_URL = 'https://google.com'
+FAILURE_PAYMENT_URL = 'https://youtube.com'
 
 # smtp configs
 EMAIL_USE_TLS = True

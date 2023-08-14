@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.exceptions import ValidationError
 
-from api.v1.general.enums import LINK_TYPES
 from api.v1.tariffs.models import Tariff
 from api.v1.payments.models import Order
 from api.v1.accounts.models import CustomUser
@@ -9,7 +8,6 @@ from api.v1.accounts.models import CustomUser
 
 class StripeCheckoutSerializer(serializers.Serializer):
     tariff_id = serializers.IntegerField()
-    link_type = serializers.ChoiceField(choices=LINK_TYPES)
     use_bonus_money = serializers.BooleanField(default=False)
     user_code = serializers.CharField(required=False, allow_null=True)
 
