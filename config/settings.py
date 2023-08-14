@@ -202,7 +202,7 @@ MOBILE_FORGOT_PASSWORD_URL = ('https://korkort.page.link?amv=0&apn=com.example.k
                               'korkort.page.link%2Fproductpage%3Ftoken%3D{}%26uid%3D{}')
 DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
 
-SUCCESS_PAYMENT_URL = 'https://google.com'
+SUCCESS_PAYMENT_URL = 'http://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
 # smtp configs

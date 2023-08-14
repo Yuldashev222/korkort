@@ -50,8 +50,8 @@ class StripeCheckoutAPIView(CreateAPIView):
                 'customer_email': user.email,
                 'line_items': [],
                 'discounts': [],
-                'success_url': settings.SUCCESS_PAYMENT_URL,
-                'cancel_url': settings.FAILURE_PAYMENT_URL
+                'success_url': f'{settings.SUCCESS_PAYMENT_URL}?order_id={order.id}',
+                'cancel_url': f'{settings.FAILURE_PAYMENT_URL}?order_id={order.id}'
             }
             session_data['line_items'].append({
                 'price_data': {

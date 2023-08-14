@@ -1,3 +1,4 @@
+import random
 from datetime import timedelta
 
 from django.db import models
@@ -9,6 +10,7 @@ from api.v1.discounts.models import StudentDiscount
 
 
 class Order(models.Model):
+    order_id = models.CharField(max_length=10)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, related_name='orders')
     student_email = models.EmailField(editable=False)
     student_bonus_amount = models.FloatField(default=0)
@@ -47,12 +49,20 @@ class Order(models.Model):
     def delete_student_expire_orders(cls):
         cls.objects.filter(is_paid=False, created_at__gt=now() - timedelta(minutes=10)).delete()
 
+    @property
+    def generate_unique_order_id(self):
+        while True:
+            number = random.randint(1000000, 9999999)
+            if not Order.objects.filter(order_id=number).exists():
+                return number
+
     def save(self, *args, **kwargs):
         tariff = self.tariff
         discount = self.tariff.discount
         student = self.student
         called_student = self.called_student
         if not self.pk:
+            self.order_id = self.generate_unique_order_id
             self.student_email = student.email
 
             self.tariff_title = tariff.tariff_info.title
