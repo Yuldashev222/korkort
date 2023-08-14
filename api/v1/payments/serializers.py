@@ -11,7 +11,7 @@ class StripeCheckoutSerializer(serializers.Serializer):
     tariff_id = serializers.IntegerField()
     link_type = serializers.ChoiceField(choices=LINK_TYPES)
     use_bonus_money = serializers.BooleanField(default=False)
-    user_code = serializers.CharField(required=False)
+    user_code = serializers.CharField(required=False, allow_null=True)
 
     def validate(self, attrs):
         called_student = None
@@ -28,6 +28,8 @@ class StripeCheckoutSerializer(serializers.Serializer):
             raise ValidationError({'tariff_id': ['not found']})
 
         if user_code:
+            if use_bonus_money:
+                raise ValidationError({'use_bonus_money': 'choice'})
             if not tariff.student_discount:
                 raise ValidationError({'user_code': ['Currently, the coupon system is not working for this tariff']})
             if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
