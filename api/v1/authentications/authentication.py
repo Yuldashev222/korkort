@@ -23,7 +23,7 @@ class CustomTokenAuthentication(TokenAuthentication):
         if not token.user.is_active or token.user.is_deleted:
             raise AuthenticationFailed({'msg': 'User inactive or deleted.'})
 
-        if token.expires_at is not None and now() - token.created > timedelta(days=settings.TOKEN_EXPIRE_DAY):
+        if token.expires_at is not None and now() >= token.expires_at:
             token.delete()
             raise AuthenticationFailed({'msg': 'Token has expired.'})
 
