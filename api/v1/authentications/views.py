@@ -104,6 +104,7 @@ class GoogleSignInAPIView(CreateAPIView):
 
 # facebook auth view
 class FacebookSignInAPIView(CreateAPIView):
+    permission_classes = ()
     serializer_class = FacebookSignInSerializer
 
     def perform_create(self, serializer):
@@ -111,4 +112,5 @@ class FacebookSignInAPIView(CreateAPIView):
 
 
 class AppleSignInCallbackView(CreateAPIView):
+    permission_classes = ()
     serializer_class = AppleSignInSerializer

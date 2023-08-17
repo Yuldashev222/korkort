@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'drf_yasg',
     'debug_toolbar',
+    'ckeditor',
+    'ckeditor_uploader',
 
     'api.v1.general.apps.GeneralConfig',
     'api.v1.accounts.apps.AccountsConfig',
@@ -36,6 +38,9 @@ INSTALLED_APPS = [
     'api.v1.payments.apps.PaymentsConfig',
     'api.v1.discounts.apps.DiscountsConfig',
     'api.v1.tariffs.apps.TariffsConfig',
+    'api.v1.chapters.apps.ChaptersConfig',
+    'api.v1.lessons.apps.LessonsConfig',
+    'api.v1.levels.apps.LevelsConfig',
 ]
 
 MIDDLEWARE = [
@@ -125,6 +130,9 @@ MEDIA_URL = 'media/'
 STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
+CKEDITOR_UPLOAD_PATH = "ckeditor/uploads/"
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TOKEN_EXPIRE_DAY = 7
@@ -198,11 +206,10 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
 
-MOBILE_FORGOT_PASSWORD_URL = ('https://korkort.page.link?amv=0&apn=com.example.korkort&link=https%3A%2F%2F'
-                              'korkort.page.link%2Fproductpage%3Ftoken%3D{}%26uid%3D{}')
+MOBILE_FORGOT_PASSWORD_URL = 'https://korkort.page.link/homepage'
 DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
 
-SUCCESS_PAYMENT_URL = 'http://google.com'
+SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
 # smtp configs
@@ -218,7 +225,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 INTERNAL_IPS = [
     'localhost',
-    "127.0.0.1",
+    '127.0.0.1',
 ]
 
 if DEBUG:

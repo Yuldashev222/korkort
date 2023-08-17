@@ -24,10 +24,9 @@ class TariffAPIView(GenericViewSet):
         if not student_discount:
             StudentDiscount.set_redis()
 
-        if not student_discount:
-            student_discount_value = 0
-            student_discount_is_percent = False
-        else:
+        student_discount_value = 0
+        student_discount_is_percent = False
+        if student_discount:
             student_discount_value = student_discount.get('discount_value')
             student_discount_is_percent = student_discount.get('is_percent')
 

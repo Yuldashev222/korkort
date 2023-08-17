@@ -10,6 +10,7 @@ from api.v1.general.services import normalize_text
 
 from .managers import CustomUserManager
 from .tasks import delete_not_confirmed_accounts
+from ..levels.models import Level
 
 
 class CustomUser(AbstractUser):
@@ -26,6 +27,10 @@ class CustomUser(AbstractUser):
     is_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=128, blank=True)
     from_google_auth = models.BooleanField(default=False)
+    facebook_id = models.CharField(max_length=100, blank=True)
+    avatar = models.ImageField(upload_to='students/avatars', blank=True, null=True)
+
+    level = models.ForeignKey('levels.Level', on_delete=models.PROTECT, editable=False, null=True)
 
     user_code = models.CharField(max_length=400, unique=True)
     bonus_money = models.FloatField(default=0)
@@ -60,6 +65,7 @@ class CustomUser(AbstractUser):
                 self.is_verified = True
             else:
                 self.user_code = CustomUser.generate_unique_string()
+                self.level, _ = Level.objects.get_or_create(level=0, title='beginner')  # last
 
         self.bonus_money = round(self.bonus_money, 1)
         super().save(*args, **kwargs)

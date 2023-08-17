@@ -48,6 +48,8 @@ class StudentDiscount(DiscountMixin):
     def set_redis(cls):
         obj = cls.objects.first()
         if obj:
-            cache.set('student_discount', {'is_percent': obj.is_percent, 'discount_value': obj.discount_value})
+            cache.set('student_discount',
+                      {'is_percent': obj.is_percent, 'discount_value': obj.discount_value},
+                      60 * 60 * 24)
         elif cache.get('student_discount'):
             cache.delete('student_discount')

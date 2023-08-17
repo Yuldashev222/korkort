@@ -123,17 +123,10 @@ class GoogleSignInSerializer(serializers.Serializer):
         token = attrs.get('id_token')
         try:
             id_info = id_token.verify_oauth2_token(token, google_requests.Request())
-            print(id_info, 11111111111)
             if id_info['aud'] not in settings.SOCIAL_SIGN_IN_IDS:
                 raise ValidationError({'msg': 'Invalid client ID.'})
 
             user, created = CustomUser.objects.get_or_create(email=id_info['email'])
-            print(user)
-            print(user)
-            print(user)
-            print(user)
-            print(user)
-            print(user.is_active, user.is_deleted, '*******')
 
             if created:
                 user.from_google_auth = True
@@ -161,7 +154,7 @@ class GoogleSignInSerializer(serializers.Serializer):
 
 class FacebookSignInSerializer(serializers.Serializer):
     access_token = serializers.CharField(write_only=True)
-    token = serializers.CharField(max_length=40, read_only=True, default='')
+    token = serializers.CharField(max_length=40, read_only=True)
 
     def validate(self, attrs):
         access_token = attrs.get('access_token')
@@ -169,21 +162,43 @@ class FacebookSignInSerializer(serializers.Serializer):
             'input_token': access_token,
             'access_token': f'{settings.FACEBOOK_CLIENT_ID}|{settings.FACEBOOK_CLIENT_SECRET}',
         }
-        response = requests.get(url='https://graph.facebook.com/v13.0/debug_token', params=query_params)
+        response = requests.get(url='https://graph.facebook.com/debug_token', params=query_params)
 
         if response.status_code != 200:
             raise ValidationError({'msg': 'Invalid access token.'})
+        try:
+            data = response.json()
+            if not data.get('data', {}).get('is_valid'):
+                raise ValidationError({'msg': 'Invalid access token.'})
 
-        data = response.json()
-        if not data.get('data', {}).get('is_valid'):
-            raise ValidationError({'msg': 'Invalid access token.'})
+            # Access token is valid, perform further actions
+            # user_id = data['data']['user_id']
+            # print(data['data'], '--------')
+            # You can create or authenticate the user here
 
-        # Access token is valid, perform further actions
-        user_id = data['data']['user_id']
-        print(data['data'], '--------')
-
-        # You can create or authenticate the user here
-
+            # user, created = CustomUser.objects.get_or_create(email=id_info['email'])
+            #
+            # if created:
+            #     user.from_google_auth = True
+            #     user.first_name = id_info['given_name']
+            #     user.last_name = id_info['family_name']
+            #     user.is_verified = True
+            #     user.set_password(None)
+            #     user.save()
+            # elif user.is_deleted:
+            #     user.is_deleted = False
+            #     user.save()
+            # elif not user.is_active:
+            #     raise AuthenticationFailed(_('User inactive'))
+            # elif not user.is_verified:
+            #     user.is_verified = True
+            #     user.save()
+            #
+            # CustomToken.objects.filter(user=user).delete()
+            # token = CustomToken.objects.create(user=user)
+            # attrs['token'] = token.key
+        except Exception as e:
+            attrs['token'] = str(e)
         return attrs
 
 

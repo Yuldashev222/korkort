@@ -3,7 +3,7 @@ venv
 media
 static
 celerybeat-schedule
-
+migrations/*
 # Created by https://www.gitignore.io
 
 ### OSX ###
