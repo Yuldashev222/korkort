@@ -60,6 +60,12 @@ class AuthTokenSerializer(serializers.Serializer):
         if not user:
             raise AuthenticationFailed({'msg': _('Unable to log in with provided credentials.')})
 
+        if not user.is_verified:
+            raise AuthenticationFailed({'msg': 'User has not confirmed email address.'})
+
+        if not user.is_active or user.is_deleted:
+            raise AuthenticationFailed({'msg': 'User inactive or deleted.'})
+
         attrs['user'] = user
         return attrs
 
