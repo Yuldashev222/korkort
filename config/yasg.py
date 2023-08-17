@@ -2,7 +2,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework.permissions import AllowAny
 
-from api.v1.authentications.authenticaton import CustomTokenAuthentication
+from api.v1.authentications.authentication import CustomTokenAuthentication
 
 schema_view = get_schema_view(
     openapi.Info(

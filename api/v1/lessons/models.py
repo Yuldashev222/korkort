@@ -39,15 +39,24 @@ class Lesson(models.Model):
         super().save(*args, **kwargs)
 
 
-class WordInfo(models.Model):
+class LessonWordInfo(models.Model):
     text = models.CharField(max_length=300)
     info = models.TextField(max_length=500)
+
+    lesson = models.ManyToManyField(Lesson)
 
     def save(self, *args, **kwargs):
         self.text = ' '.join(self.text.split())
         self.info = ' '.join(self.info.split())
         super().save(*args, **kwargs)
 
-# class LessonStudent(models.Model):
-#     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-#     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+
+class LessonSource(models.Model):
+    text = models.CharField(max_length=500)
+    link = models.URLField()
+
+    lesson = models.ManyToManyField(Lesson)
+
+    def save(self, *args, **kwargs):
+        self.text = ' '.join(self.text.split())
+        super().save(*args, **kwargs)

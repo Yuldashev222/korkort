@@ -153,7 +153,7 @@ SOCIAL_SIGN_IN_IDS = [GOOGLE_CLIENT_ID_ANDROID, GOOGLE_CLIENT_ID_IOS, GOOGLE_CLI
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication'
+        'api.v1.authentications.authentication.CustomTokenAuthentication'
     ],
 
     'DEFAULT_PERMISSION_CLASSES': [

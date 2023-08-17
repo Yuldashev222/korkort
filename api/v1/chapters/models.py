@@ -1,6 +1,6 @@
+from django.db import models
 from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
-from django.db import models
 
 
 class Chapter(models.Model):
