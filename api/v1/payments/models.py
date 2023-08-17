@@ -12,11 +12,11 @@ from api.v1.discounts.models import StudentDiscount
 class Order(models.Model):
     order_id = models.CharField(max_length=10)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, related_name='orders')
-    student_email = models.EmailField(editable=False)
+    student_email = models.EmailField()
     student_bonus_amount = models.FloatField(default=0)
     student_discount_amount = models.FloatField(default=0)
     student_discount_value = models.PositiveIntegerField(default=0)
-    student_discount_is_percent = models.BooleanField(default=True)
+    student_discount_is_percent = models.BooleanField(default=False)
 
     expire_at = models.DateTimeField(blank=True, null=True)
     purchased_at = models.DateTimeField(blank=True, null=True)
@@ -30,24 +30,25 @@ class Order(models.Model):
     stripe_url = models.URLField(blank=True)
 
     tariff = models.ForeignKey('tariffs.Tariff', on_delete=models.SET_NULL, null=True)
-    tariff_title = models.CharField(max_length=100, editable=False)
-    tariff_price = models.PositiveIntegerField(editable=False)
-    tariff_day = models.PositiveSmallIntegerField(editable=False)
+    tariff_title = models.CharField(max_length=100)
+    tariff_price = models.PositiveIntegerField()
+    tariff_day = models.PositiveSmallIntegerField()
 
     tariff_discount = models.ForeignKey('discounts.TariffDiscount', on_delete=models.SET_NULL, blank=True, null=True)
-    tariff_discount_title = models.CharField(max_length=200, blank=True, editable=False)
-    tariff_discount_amount = models.FloatField(default=0, editable=False)
-    tariff_discount_value = models.PositiveIntegerField(default=0, editable=False)
-    tariff_discount_is_percent = models.BooleanField(default=True, editable=False)
+    tariff_discount_title = models.CharField(max_length=200, blank=True)
+    tariff_discount_amount = models.FloatField(default=0)
+    tariff_discount_value = models.PositiveIntegerField(default=0)
+    tariff_discount_is_percent = models.BooleanField(default=True)
 
     called_student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, blank=True)
-    called_student_code = models.CharField(max_length=6, blank=True, editable=False)
-    called_student_email = models.EmailField(blank=True, editable=False)
-    called_student_bonus_added = models.BooleanField(default=False, editable=False)
+    called_student_code = models.CharField(max_length=6, blank=True)
+    called_student_email = models.EmailField(blank=True)
+    called_student_bonus_added = models.BooleanField(default=False)
 
     @classmethod
-    def delete_student_expire_orders(cls):
-        cls.objects.filter(is_paid=False, created_at__gt=now() - timedelta(minutes=10)).delete()
+    def expire_orders(cls):
+        return cls.objects.filter(created_at__lte=now() - timedelta(minutes=settings.STRIPE_CHECKOUT_TIMEOUT),
+                                  is_paid=False)
 
     @property
     def generate_unique_order_id(self):
@@ -76,42 +77,42 @@ class Order(models.Model):
                 self.tariff_discount_is_percent = discount.is_percent
                 self.tariff_discount_amount = tariff.tariff_discount_amount
 
-            if tariff.student_discount:
-                student_discount = cache.get('student_discount')
-                if not student_discount:
-                    StudentDiscount.set_redis()
-                    student_discount = cache.get('student_discount')
+            if self.use_bonus_money:
+                if student.bonus_money > 0:
+                    remaining_amount = self.tariff_price - self.tariff_discount_amount
+                    if remaining_amount > 0:
+                        if student.bonus_money >= remaining_amount:
+                            student.bonus_money -= remaining_amount
+                            self.student_bonus_amount = remaining_amount
+                        else:
+                            self.student_bonus_amount = student.bonus_money
+                            student.bonus_money = 0
+                        student.save()
 
-                if student_discount:
-                    self.student_discount_value = student_discount.get('discount_value')
-                    self.student_discount_is_percent = student_discount.get('is_percent')
-                    self.student_discount_amount = tariff.student_discount_amount
-
-            if called_student:
+            elif called_student:
                 self.called_student_code = called_student.user_code
                 self.called_student_email = called_student.email
 
-            if self.use_bonus_money and student.bonus_money > 0:
-                remaining_amount = self.tariff_price - (self.student_discount_amount + self.tariff_discount_amount)
-                if remaining_amount > 0:
-                    if student.bonus_money >= remaining_amount:
-                        student.bonus_money -= remaining_amount
-                        self.student_bonus_amount = remaining_amount
-                    else:
-                        self.student_bonus_amount = student.bonus_money
-                        student.bonus_money = 0
-                    student.save()
+                if tariff.student_discount:
+                    student_discount = cache.get('student_discount')
+                    if not student_discount:
+                        StudentDiscount.set_redis()
+                        student_discount = cache.get('student_discount')
+
+                    if student_discount:
+                        self.student_discount_value = student_discount.get('discount_value')
+                        self.student_discount_is_percent = student_discount.get('is_percent')
+                        self.student_discount_amount = tariff.student_discount_amount
 
         all_discounts = self.student_discount_amount + self.tariff_discount_amount + self.student_bonus_amount
-        if self.tariff_price - all_discounts <= 0:
+        if self.tariff_price <= all_discounts:
             self.is_paid = True
 
         if self.is_paid:
             self.purchased_at = now()
             self.expire_at = self.purchased_at + timedelta(days=self.tariff_day)
 
-            if self.called_student and not self.called_student_bonus_added:
-                called_student = self.called_student
+            if called_student and not self.called_student_bonus_added:
                 called_student.bonus_money += round(self.student_discount_amount, 1)
                 called_student.save()
                 self.called_student_bonus_added = True

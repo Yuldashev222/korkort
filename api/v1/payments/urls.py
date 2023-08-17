@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .checkout import StripeCheckoutAPIView
 from .views import OrderAPIView, CheckCouponAPIView
+from .checkout import StripeCheckoutAPIView
 from .webhooks import StripeWebhookView
 
 urlpatterns = [

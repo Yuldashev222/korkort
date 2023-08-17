@@ -14,11 +14,9 @@ class StripeCheckoutSerializer(serializers.Serializer):
     def validate(self, attrs):
         called_student = None
         tariff_id = attrs.get('tariff_id')
-        use_bonus_money = attrs.get('use_bonus_money')
+        use_bonus_money = attrs.get('use_bonus_money', False)
         user_code = attrs.get('user_code', '')
         student = self.context['request'].user
-
-        Order.delete_student_expire_orders()
 
         try:
             tariff = Tariff.objects.select_related('tariff_info').get(pk=tariff_id)
@@ -33,7 +31,7 @@ class StripeCheckoutSerializer(serializers.Serializer):
             if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
                 raise ValidationError({'user_code': ['not found']})
             called_student = CustomUser.objects.get(user_code=user_code)
-            if Order.objects.filter(called_student_email=called_student.email, student=student).exists():
+            if Order.objects.filter(called_student=called_student, student=student).exists():
                 raise ValidationError({'user_code': ['You have already registered this code']})
 
         order = Order.objects.create(student=student, tariff=tariff, called_student=called_student,

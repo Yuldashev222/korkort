@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'django_celery_beat',
     'drf_yasg',
     'debug_toolbar',
     'ckeditor',
@@ -41,6 +40,8 @@ INSTALLED_APPS = [
     'api.v1.chapters.apps.ChaptersConfig',
     'api.v1.lessons.apps.LessonsConfig',
     'api.v1.levels.apps.LevelsConfig',
+    'api.v1.balls.apps.BallsConfig',
+    'api.v1.exams.apps.ExamsConfig',
 ]
 
 MIDDLEWARE = [
@@ -203,6 +204,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY_TEST')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY_TEST')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+STRIPE_CHECKOUT_TIMEOUT = 15  # in minute
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
 

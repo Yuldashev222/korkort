@@ -49,9 +49,9 @@ class StripeCheckoutAPIView(CreateAPIView):
                 'client_reference_id': order.id,
                 'customer_email': user.email,
                 'line_items': [],
-                'discounts': [],
                 'success_url': f'{settings.SUCCESS_PAYMENT_URL}?order_id={order.id}',
-                'cancel_url': f'{settings.FAILURE_PAYMENT_URL}?order_id={order.id}'
+                'cancel_url': f'{settings.FAILURE_PAYMENT_URL}?order_id={order.id}',
+                'expires_at': settings.STRIPE_CHECKOUT_TIMEOUT * 60
             }
             session_data['line_items'].append({
                 'price_data': {
@@ -69,17 +69,17 @@ class StripeCheckoutAPIView(CreateAPIView):
                 discount_title += 'tariff'
                 discount_amount += order.tariff_discount_amount
 
-            if order.student_discount_amount > 0:
-                if discount_title:
-                    discount_title += ', '
-                discount_title += 'student discount'
-                discount_amount += order.student_discount_amount
-
-            if order.use_bonus_money and order.student_bonus_amount > 0:
+            if order.student_bonus_amount > 0:
                 if discount_title:
                     discount_title += ', '
                 discount_title += 'bonus money'
                 discount_amount += order.student_bonus_amount
+
+            elif order.student_discount_amount > 0:
+                if discount_title:
+                    discount_title += ', '
+                discount_title += 'student discount'
+                discount_amount += order.student_discount_amount
 
             if discount_amount > 0:
                 data = {
@@ -90,7 +90,7 @@ class StripeCheckoutAPIView(CreateAPIView):
                 }
 
                 stripe_coupon = stripe.Coupon.create(**data)
-                session_data['discounts'].append({'coupon': stripe_coupon.id})
+                session_data['discounts'] = [{'coupon': stripe_coupon.id}]
 
             checkout_session = stripe.checkout.Session.create(**session_data)
             order.payment_link = checkout_session.url
