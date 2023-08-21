@@ -14,6 +14,6 @@ def delete_not_confirmed_accounts():
 
 @shared_task
 def add_student_lessons(student_id):
-    first_chapter_lesson_ids = Lesson.objects.filter(chapter=1).values_list('id', flat=True)
+    first_chapter_lesson_ids = Lesson.objects.values_list('id', flat=True)
     objs = (LessonStudent(lesson_id=lesson_id, student_id=student_id) for lesson_id in first_chapter_lesson_ids)
     LessonStudent.objects.bulk_create(objs)  # last

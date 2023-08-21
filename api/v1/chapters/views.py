@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework.generics import ListAPIView
 
-# Create your views here.
+
+# class ChapterAPIView(ListAPIView):
+#     serializer_class = ChapterSerializer
+#
+#     def get_queryset(self):

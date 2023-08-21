@@ -100,11 +100,10 @@ def verify_email(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
-    if user is not None and default_token_generator.check_token(user, token) and user.verification_token:
+    if user is not None and default_token_generator.check_token(user, token):
         if not user.is_deleted:
             user.is_verified = True
             user.is_active = True
-            user.verification_token = ''
             user.save()
             return HttpResponse('<h1>Verification Success</h1>')
 

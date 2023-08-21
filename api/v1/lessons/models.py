@@ -44,7 +44,7 @@ class LessonWordInfo(models.Model):
     text = models.CharField(max_length=300)
     info = models.TextField(max_length=500)
 
-    lesson = models.ManyToManyField(Lesson)
+    lessons = models.ManyToManyField(Lesson)
 
     def save(self, *args, **kwargs):
         self.text = ' '.join(self.text.split())
@@ -56,7 +56,7 @@ class LessonSource(models.Model):
     text = models.TextField(max_length=500)
     link = models.URLField()
 
-    lesson = models.ManyToManyField(Lesson)
+    lessons = models.ManyToManyField(Lesson)
 
     def save(self, *args, **kwargs):
         self.text = ' '.join(self.text.split())

@@ -40,7 +40,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
         token = default_token_generator.make_token(user)
-        user.verification_token = token
         user.save()
 
         current_site = get_current_site(self.context['request'])
