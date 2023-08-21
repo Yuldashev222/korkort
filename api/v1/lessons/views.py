@@ -1,4 +1,5 @@
 from django_filters import rest_framework as filters
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -11,7 +12,7 @@ from api.v1.accounts.permissions import IsStudent
 class LessonAPIView(ReadOnlyModelViewSet):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ('lesson__chapter',)
-    permission_classes = (IsStudent, OldLessonCompleted)
+    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted)
 
     def get_queryset(self):
         student = self.request.user
@@ -24,7 +25,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         if not request.query_params.get('chapter'):
-            return self.get_queryset().none()
+            return Response([])
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

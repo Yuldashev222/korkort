@@ -8,7 +8,7 @@ class Lesson(models.Model):
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
     lesson_time = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], help_text='in minute')
-    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
+    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
     image = models.ImageField(blank=True, null=True)
 
     title_swe = models.CharField(max_length=300, blank=True)

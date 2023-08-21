@@ -106,7 +106,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True,
                                          style={'input_type': 'password'},
                                          trim_whitespace=False,
-                                         validators=[validate_password])
+                                         validators=[validate_password], allow_null=True)
 
     def validate(self, attrs):
         uid = attrs.get('uid')
@@ -118,6 +118,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             self.user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, AttributeError, CustomUser.DoesNotExist):
             raise ValidationError('Invalid password reset link')
+
+        if not new_password:
+            raise ValidationError({'new_password': 'This field is required.'})
 
         form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
         if not form.is_valid():
@@ -151,6 +154,9 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
         if cache.get(f'{email}_reset_password') != code:
             raise ValidationError({'code': 'not valid or expired'})
+
+        if not new_password:
+            raise ValidationError({'new_password': 'This field is required.'})
 
         form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
         if not form.is_valid():

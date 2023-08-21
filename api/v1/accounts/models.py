@@ -10,7 +10,6 @@ from api.v1.levels.models import Level
 from api.v1.general.services import normalize_text
 
 from .managers import CustomUserManager
-# from .tasks import add_student_lessons
 
 
 class CustomUser(AbstractUser):
@@ -62,18 +61,12 @@ class CustomUser(AbstractUser):
         self.last_name = normalize_text(self.last_name)
         self.bonus_money = round(self.bonus_money, 1)
 
-        student_joined = False
         if not self.pk:
             if self.is_staff:
                 self.user_code = self.email
                 self.is_verified = True
             else:
                 self.user_code = self.generate_unique_user_code
-                student_joined = True
+                self.level, _ = Level.objects.get_or_create(level=0, title='beginner')  # last
 
         super().save(*args, **kwargs)
-
-        if student_joined:
-            self.level, _ = Level.objects.get_or_create(level=0, title='beginner')  # last
-
-            # add_student_lessons.delay(self.pk)

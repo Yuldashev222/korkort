@@ -24,6 +24,9 @@ def send_password_reset_email(user_id, domain, email_address, link_type, token=N
         uid = urlsafe_base64_encode(force_bytes(user_id))
         link = reset_link.format(uid, token)
 
+    elif not code:
+        return
+
     context = {'code': code, 'link': link}
     message = render_to_string('authentications/password_reset_email.html', context)  # last
     send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email_address], html_message=message)
