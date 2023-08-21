@@ -13,6 +13,7 @@ from api.v1.lessons.serializers import (
     LessonRetrieveSerializer
 )
 from api.v1.questions.models import LessonQuestion
+from api.v1.questions.serializers import LessonQuestionSerializer
 
 
 class LessonAPIView(ReadOnlyModelViewSet):
@@ -50,11 +51,12 @@ class LessonAPIView(ReadOnlyModelViewSet):
         sources = LessonSourceSerializer(sources_queryset, many=True).data
         data['sources'] = sources
 
-        lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter)
+        lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter
+                                                        ).order_by('lesson__ordering_number')
         lessons = LessonListSerializer(lessons_queryset, many=True).data
         data['lessons'] = lessons
 
-        questions_queryset = LessonQuestion.objects.filter(lesson=instance.lesson)
+        questions_queryset = LessonQuestion.objects.filter(lesson=instance.lesson).order_by('ordering_number')
         questions = LessonQuestionSerializer(questions_queryset, many=True).data
         data['questions'] = questions
 

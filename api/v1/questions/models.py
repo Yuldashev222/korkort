@@ -10,15 +10,14 @@ class QuestionCategory(models.Model):
         return self.name
 
 
-class Question(models.Model):
+class QuestionAbstractMixin(models.Model):
     DIFFICULTY_LEVEL = [
-        ['easy', 1],
-        ['average', 2],
-        ['difficult', 3]
+        [1, 'easy'],
+        [2, 'normal'],
+        [3, 'hard']
     ]
-    difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][1])
-    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
-    category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
+    difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
+    category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT, null=True)  # last
 
     text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
@@ -28,7 +27,7 @@ class Question(models.Model):
     video_eng = models.FileField(blank=True, null=True)
     video_easy_swe = models.FileField(blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -45,22 +44,27 @@ class Question(models.Model):
         if not (self.text_en or self.text_swe or self.text_easy_swe):
             raise ValidationError('Enter the text')
 
+    class Meta:
+        abstract = True
 
-class LessonQuestion(Question):
-    chapter = None
+
+class Question(QuestionAbstractMixin):
+    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
+
+
+class LessonQuestion(QuestionAbstractMixin):
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, null=True)
     ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
 
 
-class Variant(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class VariantAbstractMixin(models.Model):
     is_correct = models.BooleanField(default=False)
 
     text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
     text_easy_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)  # last
 
     def __str__(self):
         text = self.text_swe or self.text_easy_swe or self.text_en
@@ -73,25 +77,28 @@ class Variant(models.Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        if self.is_correct and Variant.objects.exclude(pk=self.pk).filter(question=self.question,
-                                                                          is_correct=True).exists():
-            raise ValidationError('there must be only one correct answer!')
-
         if not (self.text_en or self.text_swe or self.text_easy_swe):
             raise ValidationError('Enter the text')
 
 
-class LessonVariant(Variant):
-    question = None
+class Variant(VariantAbstractMixin):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.is_correct and Variant.objects.exclude(pk=self.pk).filter(question=self.question,
+                                                                          is_correct=True).exists():
+            raise ValidationError('there must be only one correct answer!')
+        super().clean()
+
+
+class LessonVariant(VariantAbstractMixin):
     lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE)
 
     def clean(self):
         if self.is_correct and LessonVariant.objects.exclude(pk=self.pk).filter(lesson_question=self.lesson_question,
                                                                                 is_correct=True).exists():
             raise ValidationError('there must be only one correct answer!')
-
-        if not (self.text_en or self.text_swe or self.text_easy_swe):
-            raise ValidationError('Enter the text')
+        super().clean()
 
 
 class WrongQuestionStudent(models.Model):
