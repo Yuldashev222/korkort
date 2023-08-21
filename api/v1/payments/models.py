@@ -1,4 +1,5 @@
-import random
+import string
+import secrets
 from datetime import timedelta
 
 from django.db import models
@@ -10,7 +11,7 @@ from api.v1.discounts.models import StudentDiscount
 
 
 class Order(models.Model):
-    order_id = models.CharField(max_length=10)
+    order_id = models.CharField(max_length=7)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, related_name='orders')
     student_email = models.EmailField()
     student_bonus_amount = models.FloatField(default=0)
@@ -53,9 +54,9 @@ class Order(models.Model):
     @property
     def generate_unique_order_id(self):
         while True:
-            number = random.randint(1000000, 9999999)
-            if not Order.objects.filter(order_id=number).exists():
-                return number
+            value = ''.join(secrets.choice(string.digits) for _ in range(7))
+            if not Order.objects.filter(order_id=value).exists():
+                return value
 
     def save(self, *args, **kwargs):
         tariff = self.tariff
@@ -110,7 +111,10 @@ class Order(models.Model):
 
         if self.is_paid:
             self.purchased_at = now()
-            self.expire_at = self.purchased_at + timedelta(days=self.tariff_day)
+            max_expire_at = Order.objects.filter(is_paid=True, expire_at__gt=self.purchased_at
+                                                 ).aggregate(max_expire_at=models.Max('expire_at'))['max_expire_at']
+            max_expire_at = max_expire_at if max_expire_at else self.purchased_at
+            self.expire_at = max_expire_at + timedelta(days=self.tariff_day)
 
             if called_student and not self.called_student_bonus_added:
                 called_student.bonus_money += round(self.student_discount_amount, 1)

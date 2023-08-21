@@ -7,7 +7,8 @@ from django.core.validators import MinValueValidator
 class Lesson(models.Model):
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
-    lesson_time = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    lesson_time = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], help_text='in minute')
+    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
     image = models.ImageField(blank=True, null=True)
 
     title_swe = models.CharField(max_length=300, blank=True)
@@ -52,7 +53,7 @@ class LessonWordInfo(models.Model):
 
 
 class LessonSource(models.Model):
-    text = models.CharField(max_length=500)
+    text = models.TextField(max_length=500)
     link = models.URLField()
 
     lesson = models.ManyToManyField(Lesson)
@@ -60,3 +61,14 @@ class LessonSource(models.Model):
     def save(self, *args, **kwargs):
         self.text = ' '.join(self.text.split())
         super().save(*args, **kwargs)
+
+
+class LessonStudent(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+
+    is_completed = models.BooleanField(default=False)
+    ball = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        unique_together = ['lesson', 'student']

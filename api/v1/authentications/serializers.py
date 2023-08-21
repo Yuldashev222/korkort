@@ -1,6 +1,10 @@
+import secrets
+import string
+
 import jwt
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import authenticate
 from django.utils.encoding import force_str
@@ -72,7 +76,6 @@ class AuthTokenSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    link_type = serializers.ChoiceField(choices=LINK_TYPES)
 
     def validate_email(self, value):
         try:
@@ -84,8 +87,17 @@ class PasswordResetSerializer(serializers.Serializer):
     def save(self):
         token = default_token_generator.make_token(self.user)
         current_site = get_current_site(self.context['request'])
-        send_password_reset_email.delay(self.user.id, token, current_site.domain, self.user.email,
-                                        self.validated_data.get('link_type'))
+        send_password_reset_email.delay(user_id=self.user.id, token=token, domain=current_site.domain,
+                                        email_address=self.user.email, link_type=self.validated_data.get('link_type'))
+
+
+class PasswordResetCodeSerializer(PasswordResetSerializer):
+    def save(self):
+        code = ''.join(secrets.choice(string.digits) for _ in range(6))
+        cache.set(f'{self.user.email}_reset_password', code, 60 * 60 * 10)
+        current_site = get_current_site(self.context['request'])
+        send_password_reset_email.delay(user_id=self.user.id, code=code, domain=current_site.domain,
+                                        email_address=self.user.email, link_type=self.validated_data.get('link_type'))
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
@@ -119,6 +131,37 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     def save(self):
         self.user.set_password(self.validated_data['new_password'])
         self.user.save()
+
+
+class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
+    uid = None
+    token = None
+    code = serializers.CharField(write_only=True)
+    email = serializers.EmailField(write_only=True)
+
+    def validate(self, attrs):
+        code = attrs.get('code')
+        new_password = attrs.get('new_password')
+        email = attrs.get('email')
+
+        try:
+            self.user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise ValidationError({'email': 'not found'})
+
+        if cache.get(f'{email}_reset_password') != code:
+            raise ValidationError({'code': 'not valid or expired'})
+
+        form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
+        if not form.is_valid():
+            raise ValidationError(form.errors)
+
+        return attrs
+
+    def save(self):
+        self.user.set_password(self.validated_data['new_password'])
+        self.user.save()
+        cache.delete(f'{self.user.email}_reset_password')
 
 
 class GoogleSignInSerializer(serializers.Serializer):

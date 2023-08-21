@@ -20,5 +20,9 @@ app.conf.beat_schedule = {
     'delete-expire-orders-every-12-minutes': {
         'task': 'api.v1.payments.tasks.delete_expire_orders',
         'schedule': crontab(minute=12)
+    },
+    'delete-not-confirmed-accounts-every-30-minutes': {
+        'task': 'api.v1.accounts.tasks.delete_not_confirmed_accounts',
+        'schedule': crontab(minute=30)
     }
 }

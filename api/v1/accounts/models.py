@@ -6,11 +6,11 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
+from api.v1.levels.models import Level
 from api.v1.general.services import normalize_text
 
 from .managers import CustomUserManager
-from .tasks import delete_not_confirmed_accounts
-from ..levels.models import Level
+# from .tasks import add_student_lessons
 
 
 class CustomUser(AbstractUser):
@@ -23,27 +23,29 @@ class CustomUser(AbstractUser):
     password = models.CharField(_("password"), max_length=128, validators=[validate_password])
     first_name = models.CharField(_("first name"), max_length=50)
     last_name = models.CharField(_("last name"), max_length=100)
-    is_deleted = models.BooleanField(default=False)
-    is_verified = models.BooleanField(default=False)
-    verification_token = models.CharField(max_length=128, blank=True)
-    from_google_auth = models.BooleanField(default=False)
-    facebook_id = models.CharField(max_length=100, blank=True)
+
     avatar = models.ImageField(upload_to='students/avatars', blank=True, null=True)
-
-    level = models.ForeignKey('levels.Level', on_delete=models.PROTECT, editable=False, null=True)
-
     user_code = models.CharField(max_length=400, unique=True)
     bonus_money = models.FloatField(default=0)
+
+    is_deleted = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
+
+    google_id = models.CharField(max_length=100, blank=True)
+    facebook_id = models.CharField(max_length=100, blank=True)
+
+    level = models.ForeignKey('levels.Level', on_delete=models.PROTECT, null=True)
+
+    tariff_expire_date = models.DateTimeField(null=True)
 
     def __str__(self):
         return self.get_full_name()
 
-    @classmethod
-    def generate_unique_string(cls):
-        characters = string.ascii_letters + string.digits
+    @property
+    def generate_unique_user_code(self):
         while True:
-            value = ''.join(secrets.choice(characters) for _ in range(6))
-            if not cls.objects.filter(user_code=value).exists():
+            value = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(6))
+            if not CustomUser.objects.filter(user_code=value).exists():
                 return value
 
     @property
@@ -58,16 +60,20 @@ class CustomUser(AbstractUser):
     def save(self, *args, **kwargs):
         self.first_name = normalize_text(self.first_name)
         self.last_name = normalize_text(self.last_name)
+        self.bonus_money = round(self.bonus_money, 1)
 
+        student_joined = False
         if not self.pk:
             if self.is_staff:
                 self.user_code = self.email
                 self.is_verified = True
             else:
-                self.user_code = CustomUser.generate_unique_string()
-                self.level, _ = Level.objects.get_or_create(level=0, title='beginner')  # last
+                self.user_code = self.generate_unique_user_code
+                student_joined = True
 
-        self.bonus_money = round(self.bonus_money, 1)
         super().save(*args, **kwargs)
 
-        delete_not_confirmed_accounts.delay()
+        if student_joined:
+            self.level, _ = Level.objects.get_or_create(level=0, title='beginner')  # last
+
+            # add_student_lessons.delay(self.pk)

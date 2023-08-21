@@ -16,14 +16,14 @@ def send_confirm_link_email(username, user_id, token, domain, email_address):
 
 
 @shared_task
-def send_password_reset_email(user_id, token, domain, email_address, link_type):
+def send_password_reset_email(user_id, domain, email_address, link_type, token=None, code=None):
     mail_subject = 'Password Reset'
-    uid = urlsafe_base64_encode(force_bytes(user_id))
-    # reset_link = f'http://{domain}/api/v1/auth/password-reset/confirm?uid={uid}&token={token}'
-    if link_type == 'mobile':
-        reset_link = settings.MOBILE_FORGOT_PASSWORD_URL
-    else:
-        reset_link = settings.DESKTOP_FORGOT_PASSWORD_URL
-    reset_link = reset_link.format(token, uid)
-    message = render_to_string('authentications/password_reset_email.html', {'link': reset_link})  # last
+    link = None
+    if token:
+        reset_link = settings.WEB_FORGOT_PASSWORD_URL
+        uid = urlsafe_base64_encode(force_bytes(user_id))
+        link = reset_link.format(uid, token)
+
+    context = {'code': code, 'link': link}
+    message = render_to_string('authentications/password_reset_email.html', context)  # last
     send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email_address], html_message=message)

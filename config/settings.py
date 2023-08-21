@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'ckeditor',
     'ckeditor_uploader',
+    'django_filters',
 
     'api.v1.general.apps.GeneralConfig',
     'api.v1.accounts.apps.AccountsConfig',
@@ -164,8 +165,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [],
     'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'rest_framework.negotiation.DefaultContentNegotiation',
 
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10,
+    'DEFAULT_PAGINATION_CLASS': None,
+    'PAGE_SIZE': None,
 
     'DEFAULT_FILTER_BACKENDS': [],
 
@@ -208,8 +209,7 @@ STRIPE_CHECKOUT_TIMEOUT = 15  # in minute
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
 
-MOBILE_FORGOT_PASSWORD_URL = 'https://korkort.page.link/homepage'
-DESKTOP_FORGOT_PASSWORD_URL = 'https://korkort.page.link/2hwP'
+WEB_FORGOT_PASSWORD_URL = 'https://korkort.page.link/?uid={}&token={}'
 
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'

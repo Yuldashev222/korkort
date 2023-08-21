@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from api.v1.tariffs.models import Tariff
 from api.v1.payments.models import Order
@@ -59,6 +59,6 @@ class CheckCouponSerializer(serializers.Serializer):
 
         called_student = CustomUser.objects.get(user_code=value)
         if Order.objects.filter(called_student=called_student, student=student).exists():
-            raise ValidationError('You have already registered this code')
+            raise PermissionDenied('You have already registered this code')
 
         return value

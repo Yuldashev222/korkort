@@ -17,7 +17,8 @@ from .serializers import (
     RegisterSerializer,
     PasswordResetSerializer,
     PasswordResetConfirmSerializer,
-    GoogleSignInSerializer, FacebookSignInSerializer, AppleSignInSerializer
+    GoogleSignInSerializer, FacebookSignInSerializer, AppleSignInSerializer, PasswordResetCodeSerializer,
+    CodePasswordResetConfirmSerializer
 )
 from api.v1.accounts.serializers import ProfileSerializer
 
@@ -51,7 +52,7 @@ class RegisterAPIView(CreateAPIView):
 
 
 # password reset view
-class PasswordResetView(CreateAPIView):
+class LinkPasswordResetView(CreateAPIView):
     permission_classes = ()
     serializer_class = PasswordResetSerializer
 
@@ -62,8 +63,20 @@ class PasswordResetView(CreateAPIView):
         return Response('The password reset link has been sent to the email', status=status.HTTP_200_OK)
 
 
+# password reset view
+class CodePasswordResetView(CreateAPIView):
+    permission_classes = ()
+    serializer_class = PasswordResetCodeSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response('The password reset code has been sent to the email', status=status.HTTP_200_OK)
+
+
 # password reset confirm view
-class PasswordResetConfirmView(CreateAPIView):
+class LinkPasswordResetConfirmView(CreateAPIView):
     permission_classes = ()
     serializer_class = PasswordResetConfirmSerializer
 
@@ -72,6 +85,11 @@ class PasswordResetConfirmView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response('Your password has been successfully reset', status=status.HTTP_200_OK)
+
+
+# password reset confirm view
+class CodePasswordResetConfirmView(LinkPasswordResetConfirmView):
+    serializer_class = CodePasswordResetConfirmSerializer
 
 
 # verify email view

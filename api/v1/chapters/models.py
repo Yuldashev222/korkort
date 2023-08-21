@@ -1,6 +1,7 @@
 from django.db import models
 from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 
 
 class Chapter(models.Model):
@@ -14,6 +15,7 @@ class Chapter(models.Model):
 
     image = models.ImageField(blank=True, null=True)
 
+    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
     chapter_hour = models.PositiveSmallIntegerField(default=0, editable=False)
     chapter_minute = models.PositiveSmallIntegerField(default=0, editable=False)
 

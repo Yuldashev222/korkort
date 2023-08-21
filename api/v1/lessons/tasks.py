@@ -3,6 +3,7 @@ from django.db.models import Max
 from django.utils.timezone import now
 
 from api.v1.accounts.models import CustomUser
+from api.v1.lessons.models import LessonStudent
 from api.v1.payments.models import Order
 
 
@@ -26,3 +27,8 @@ def change_student_tariff_expire_date(student_id):
     else:
         student.tariff_expire_date = None
     student.save()
+
+
+# @shared_task
+# def add_lesson_to_students(lesson_id):
+#     students = CustomUser.objects.filter(is_staff=False)

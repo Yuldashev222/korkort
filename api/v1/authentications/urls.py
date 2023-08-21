@@ -10,7 +10,10 @@ urlpatterns = [
     path('google-signin/', views.GoogleSignInAPIView.as_view(), name='google-signin'),
     path('facebook-signin/', views.FacebookSignInAPIView.as_view(), name='facebook-signin'),
 
-    path('password-reset/', views.PasswordResetView.as_view(), name='password-reset'),
-    path('password-reset/confirm/', views.PasswordResetConfirmView.as_view(),
-         name='password-reset-confirm')
+    path('password-reset/link/', views.LinkPasswordResetView.as_view(), name='password-reset-web'),
+    path('password-reset/code/', views.CodePasswordResetView.as_view(), name='password-reset-mobile'),
+    path('password-reset/confirm/link/', views.LinkPasswordResetConfirmView.as_view(),
+         name='password-reset-confirm-link'),
+    path('password-reset/confirm/code/', views.CodePasswordResetConfirmView.as_view(),
+         name='password-reset-confirm-code')
 ]
