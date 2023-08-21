@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator
 
 
 class QuestionCategory(models.Model):
-    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     name = models.CharField(max_length=300)
 
     def __str__(self):
@@ -18,6 +17,7 @@ class Question(models.Model):
         ['difficult', 3]
     ]
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][1])
+    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
 
     text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
@@ -46,6 +46,12 @@ class Question(models.Model):
             raise ValidationError('Enter the text')
 
 
+class LessonQuestion(Question):
+    chapter = None
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, null=True)
+    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
+
+
 class Variant(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     is_correct = models.BooleanField(default=False)
@@ -69,6 +75,19 @@ class Variant(models.Model):
     def clean(self):
         if self.is_correct and Variant.objects.exclude(pk=self.pk).filter(question=self.question,
                                                                           is_correct=True).exists():
+            raise ValidationError('there must be only one correct answer!')
+
+        if not (self.text_en or self.text_swe or self.text_easy_swe):
+            raise ValidationError('Enter the text')
+
+
+class LessonVariant(Variant):
+    question = None
+    lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE)
+
+    def clean(self):
+        if self.is_correct and LessonVariant.objects.exclude(pk=self.pk).filter(lesson_question=self.lesson_question,
+                                                                                is_correct=True).exists():
             raise ValidationError('there must be only one correct answer!')
 
         if not (self.text_en or self.text_swe or self.text_easy_swe):

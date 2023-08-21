@@ -72,3 +72,13 @@ class LessonStudent(models.Model):
 
     class Meta:
         unique_together = ['lesson', 'student']
+
+
+class LessonStudentStatistics(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+
+    viewed_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['lesson', 'student']

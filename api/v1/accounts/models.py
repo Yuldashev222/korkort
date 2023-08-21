@@ -23,7 +23,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(_("first name"), max_length=50)
     last_name = models.CharField(_("last name"), max_length=100)
 
-    avatar = models.ImageField(upload_to='students/avatars', blank=True, null=True)
+    avatar_id = models.PositiveSmallIntegerField(blank=True, null=True)
     user_code = models.CharField(max_length=400, unique=True)
     bonus_money = models.FloatField(default=0)
 
