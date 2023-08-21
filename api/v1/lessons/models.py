@@ -15,13 +15,13 @@ class Lesson(models.Model):
     title_en = models.CharField(max_length=300, blank=True)
     title_easy_swe = models.CharField(max_length=300, blank=True)
 
-    text_swe = RichTextField(verbose_name='Swedish', blank=True)
-    text_en = RichTextField(verbose_name='English', blank=True)
-    text_easy_swe = RichTextField(verbose_name='Easy Swedish', blank=True)
+    text_swe = RichTextField(verbose_name='Swedish', blank=True, max_length=700)
+    text_en = RichTextField(verbose_name='English', blank=True, max_length=700)
+    text_easy_swe = RichTextField(verbose_name='Easy Swedish', blank=True, max_length=700)
 
-    video_swe = models.FileField(blank=True, null=True)
-    video_en = models.FileField(blank=True, null=True)
-    video_easy_swe = models.FileField(blank=True, null=True)
+    video_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
+    video_en = models.FileField(blank=True, null=True, upload_to='lesson/videos')
+    video_easy_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -34,8 +34,8 @@ class Lesson(models.Model):
             raise ValidationError('Enter the text or video')
 
     def save(self, *args, **kwargs):
-        self.title_swe = ' '.join(self.title_swe.split())
         self.title_en = ' '.join(self.title_en.split())
+        self.title_swe = ' '.join(self.title_swe.split())
         self.title_easy_swe = ' '.join(self.title_easy_swe.split())
         super().save(*args, **kwargs)
 

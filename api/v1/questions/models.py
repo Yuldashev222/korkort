@@ -3,6 +3,14 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 
+class QuestionCategory(models.Model):
+    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
+    name = models.CharField(max_length=300)
+
+    def __str__(self):
+        return self.name
+
+
 class Question(models.Model):
     DIFFICULTY_LEVEL = [
         ['easy', 1],
@@ -10,10 +18,7 @@ class Question(models.Model):
         ['difficult', 3]
     ]
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][1])
-    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT, blank=True, null=True)
-    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.PROTECT)
-    for_lesson = models.BooleanField(default=False)
-    sorting_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
+    category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
 
     text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
@@ -26,20 +31,19 @@ class Question(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        text = self.text_swe or self.text_easy_swe or self.text_en
+        return f'{self.id}::{text}'
+
     def save(self, *args, **kwargs):
         self.text_swe = ' '.join(self.text_swe.split())
         self.text_en = ' '.join(self.text_en.split())
         self.text_easy_swe = ' '.join(self.text_easy_swe.split())
-        if not self.chapter and self.for_lesson:
-            self.chapter = self.lesson.chapter
         super().save(*args, **kwargs)
 
     def clean(self):
         if not (self.text_en or self.text_swe or self.text_easy_swe):
             raise ValidationError('Enter the text')
-
-        if self.chapter and self.for_lesson or not (self.chapter or self.for_lesson):
-            raise ValidationError('Select one: Chapter or Lesson')
 
 
 class Variant(models.Model):
@@ -51,6 +55,10 @@ class Variant(models.Model):
     text_easy_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        text = self.text_swe or self.text_easy_swe or self.text_en
+        return f'{self.id}::{text}'
 
     def save(self, *args, **kwargs):
         self.text_swe = ' '.join(self.text_swe.split())
@@ -73,9 +81,15 @@ class WrongQuestionStudent(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f'{self.question}'
+
 
 class SavedQuestionStudent(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.question}'

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.v1.lessons.models import Lesson, LessonWordInfo, LessonSource
+from api.v1.lessons.models import LessonWordInfo, LessonSource
 
 
 class LessonListSerializer(serializers.Serializer):

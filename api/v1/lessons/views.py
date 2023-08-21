@@ -49,8 +49,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
         sources = LessonSourceSerializer(sources_queryset, many=True).data
         data['sources'] = sources
 
-        chapter = request.query_params.get('lesson__chapter')
-        lessons_queryset = LessonStudent.objects.filter(lesson__chapter=chapter)
+        lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.chapter)
         lessons = LessonListSerializer(lessons_queryset, many=True).data
         data['lessons'] = lessons
 
