@@ -82,3 +82,9 @@ class LessonStudentStatistics(models.Model):
 
     class Meta:
         unique_together = ['lesson', 'student']
+
+
+class LessonStudentStatisticsByDay(models.Model):
+    count = models.PositiveIntegerField(default=0)
+    date = models.DateField(unique=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)

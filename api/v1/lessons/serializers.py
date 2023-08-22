@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.v1.lessons.models import LessonWordInfo, LessonSource
+from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudentStatisticsByDay
 
 
 class LessonListSerializer(serializers.Serializer):
@@ -33,3 +33,15 @@ class LessonSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonSource
         fields = ['id', 'text', 'link']
+
+
+class LessonStudentStatisticsByDaySerializer(serializers.ModelSerializer):
+    weekday = serializers.SerializerMethodField()
+
+    def get_weekday(self, instance):
+        print(instance)
+        return instance.date.weekday()
+
+    class Meta:
+        model = LessonStudentStatisticsByDay
+        fields = ['count', 'weekday']

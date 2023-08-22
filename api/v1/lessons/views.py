@@ -1,19 +1,32 @@
+from datetime import timedelta
+
 from django_filters import rest_framework as filters
+from django.utils.timezone import now
+from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.lessons.models import LessonStudent, LessonWordInfo, LessonSource
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.accounts.permissions import IsStudent
+from api.v1.lessons.tasks import change_student_lesson_view_statistics
+from api.v1.questions.models import LessonQuestion
+from api.v1.questions.serializers import LessonQuestionSerializer
+
 from api.v1.lessons.serializers import (
     LessonListSerializer,
     LessonWordInfoSerializer,
     LessonSourceSerializer,
-    LessonRetrieveSerializer
+    LessonRetrieveSerializer,
+    LessonStudentStatisticsByDaySerializer
 )
-from api.v1.questions.models import LessonQuestion
-from api.v1.questions.serializers import LessonQuestionSerializer
+
+from api.v1.lessons.models import (
+    LessonStudent,
+    LessonWordInfo,
+    LessonSource,
+    LessonStudentStatisticsByDay
+)
 
 
 class LessonAPIView(ReadOnlyModelViewSet):
@@ -40,6 +53,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        change_student_lesson_view_statistics.delay(student_id=self.request.user.id, lesson_id=instance.lesson_id)
         serializer = self.get_serializer(instance)
         data = {'main': serializer.data}
 
@@ -61,3 +75,19 @@ class LessonAPIView(ReadOnlyModelViewSet):
         data['questions'] = questions
 
         return Response(data)
+
+
+class LessonStudentStatisticsByDayAPIView(ListModelMixin, GenericViewSet):
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = LessonStudentStatisticsByDaySerializer
+
+    def get_queryset(self):
+        student = self.request.user
+        today_date = now().date()
+        return LessonStudentStatisticsByDay.objects.filter(student=student, date__gt=today_date - timedelta(days=7)
+                                                           ).order_by('date')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
