@@ -1,6 +1,9 @@
+import time
+
 import stripe
 
 from django.conf import settings
+from django.utils.timezone import now
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -51,7 +54,7 @@ class StripeCheckoutAPIView(CreateAPIView):
                 'line_items': [],
                 'success_url': f'{settings.SUCCESS_PAYMENT_URL}?order_id={order.id}',
                 'cancel_url': f'{settings.FAILURE_PAYMENT_URL}?order_id={order.id}',
-                'expires_at': settings.STRIPE_CHECKOUT_TIMEOUT * 60
+                'expires_at': int(time.time()) + settings.STRIPE_CHECKOUT_TIMEOUT * 60
             }
             session_data['line_items'].append({
                 'price_data': {

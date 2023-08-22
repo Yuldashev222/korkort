@@ -39,7 +39,6 @@ class LessonStudentStatisticsByDaySerializer(serializers.ModelSerializer):
     weekday = serializers.SerializerMethodField()
 
     def get_weekday(self, instance):
-        print(instance)
         return instance.date.weekday()
 
     class Meta:

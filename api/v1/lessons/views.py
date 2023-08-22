@@ -7,10 +7,10 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
-from api.v1.accounts.permissions import IsStudent
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.questions.models import LessonQuestion
+from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
+from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers import LessonQuestionSerializer
 
 from api.v1.lessons.serializers import (
