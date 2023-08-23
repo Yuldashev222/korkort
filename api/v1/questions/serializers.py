@@ -8,10 +8,11 @@ from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion
 class VariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Variant
-        fields = ['is_correct', 'text_swe', 'text_en', 'text_easy_swe']
+        fields = ['id', 'is_correct', 'text_swe', 'text_en', 'text_easy_swe']
 
 
 class LessonQuestionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     question_text_swe = serializers.CharField(source='text_swe')
     question_text_en = serializers.CharField(source='text_en')
     question_text_easy_swe = serializers.CharField(source='text_easy_swe')
