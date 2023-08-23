@@ -17,12 +17,12 @@ def debug_task(self):
 
 
 app.conf.beat_schedule = {
-    'delete-expire-orders-every-12-minutes': {
+    'delete-expire-orders-every-25-minutes': {
         'task': 'api.v1.payments.tasks.delete_expire_orders',
-        'schedule': crontab(minute=12)
+        'schedule': crontab(minute=25)
     },
     'delete-not-confirmed-accounts-every-30-minutes': {
         'task': 'api.v1.accounts.tasks.delete_not_confirmed_accounts',
-        'schedule': crontab(minute=30)
+        'schedule': crontab(minute=20)
     }
 }

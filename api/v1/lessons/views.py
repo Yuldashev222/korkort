@@ -53,7 +53,8 @@ class LessonAPIView(ReadOnlyModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        change_student_lesson_view_statistics.delay(student_id=self.request.user.id, lesson_id=instance.lesson_id)
+        student = self.request.user
+        change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.lesson_id)
         serializer = self.get_serializer(instance)
         data = {'main': serializer.data}
 
@@ -65,7 +66,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
         sources = LessonSourceSerializer(sources_queryset, many=True).data
         data['sources'] = sources
 
-        lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter
+        lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter, student=student
                                                         ).order_by('lesson__ordering_number')
         lessons = LessonListSerializer(lessons_queryset, many=True).data
         data['lessons'] = lessons

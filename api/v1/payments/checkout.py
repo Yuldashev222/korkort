@@ -1,18 +1,13 @@
 import time
-
 import stripe
-
 from django.conf import settings
-from django.utils.timezone import now
-
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.permissions import IsStudent
-
-from .serializers import StripeCheckoutSerializer
+from api.v1.payments.serializers import StripeCheckoutSerializer
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 

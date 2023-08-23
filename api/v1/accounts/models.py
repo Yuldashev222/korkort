@@ -67,6 +67,6 @@ class CustomUser(AbstractUser):
                 self.is_verified = True
             else:
                 self.user_code = self.generate_unique_user_code
-                self.level, _ = Level.objects.get_or_create(level=0, title='beginner')  # last
+                self.level, _ = Level.objects.get_or_create(level=1, title='beginner')
 
         super().save(*args, **kwargs)
