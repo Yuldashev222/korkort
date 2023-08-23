@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 
 from api.v1.balls.models import TestBall
 from api.v1.lessons.models import LessonStudent
-from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion
+from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion, WrongQuestionStudent
 
 
 class VariantSerializer(serializers.ModelSerializer):
@@ -106,10 +106,11 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
             ):
                 unique_question_ids.append(answer['question_id'])
                 unique_questions.append(answer)
-        return unique_questions
+        return unique_questions, unique_question_ids
 
     def save(self):
-        answers = self.get_unique_answers(self.validated_data, self.lesson_student.lesson_id)
+        student = self.context['request'].user
+        answers, unique_question_ids = self.get_unique_answers(self.validated_data, self.lesson_student.lesson_id)
         if self.lesson_student is not None and answers:
             test_ball = cache.get('test_ball')
             if not test_ball:
@@ -119,10 +120,13 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
                 return
 
             self.lesson_student.ball = len(answers) * test_ball
-            correct_answers_count = self.lesson_student.lesson.lessonquestion_set.count() - len(answers)
+            questions = self.lesson_student.lesson.lessonquestion_set.all()
+            correct_answers_count = questions.count() - len(answers)
             if correct_answers_count == 0:
                 self.lesson_student.is_completed = True
             else:
-                print(1)
+                for question in questions.exclude(id__in=[unique_question_ids]):
+                    WrongQuestionStudent.objects.get_or_create(lesson_question=question, student=student)
+
             self.lesson_student.save()
         return {}
