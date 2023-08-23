@@ -56,7 +56,7 @@ class ExamAnswerSerializer(serializers.Serializer):
             question_model, variant_query = self.get_question_model_and_variant_query(variant_id, question_id)
             question = question_model.objects.get(id=question_id)
             variant = Variant.objects.get(**variant_query)
-        except (ExamQuestion.DoesNotExist, Variant.DoesNotExist):
+        except (ExamQuestion.DoesNotExist, Variant.DoesNotExist, LessonQuestion.DoesNotExist):
             raise ValidationError('question_id or variant_id not valid')
 
         if variant.is_correct:
@@ -119,7 +119,10 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
                 return
 
             self.lesson_student.ball = len(answers) * test_ball
-            if len(answers) == self.lesson_student.lesson.lessonquestion_set.count():
+            correct_answers_count = self.lesson_student.lesson.lessonquestion_set.count() - len(answers)
+            if correct_answers_count == 0:
                 self.lesson_student.is_completed = True
+            else:
+                print(1)
             self.lesson_student.save()
         return {}

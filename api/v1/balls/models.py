@@ -11,6 +11,9 @@ class TestBall(models.Model):  # last | on change
         if not self.pk and TestBall.objects.exists():
             raise ValidationError('old ball object exists')
 
+    def __str__(self):
+        return str(self.ball)
+
     @classmethod
     def set_redis(cls):
         obj = cls.objects.first()
