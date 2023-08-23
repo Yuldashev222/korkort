@@ -1,6 +1,8 @@
+from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from api.v1.balls.models import TestBall
 from api.v1.lessons.models import LessonStudent
 from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion
 
@@ -42,11 +44,6 @@ class LessonQuestionSerializer(serializers.Serializer):
         return None
 
 
-class ExamAnswerListSerializer(serializers.ListSerializer):
-    def create(self, validated_data):
-        return 1
-
-
 class ExamAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     variant_id = serializers.IntegerField()
@@ -64,6 +61,10 @@ class ExamAnswerSerializer(serializers.Serializer):
 
         if variant.is_correct:
             attrs['is_correct'] = True
+            try:
+                attrs['lesson_id'] = question.lesson_id  # last | test
+            except AttributeError:
+                pass
         return attrs
 
     @staticmethod
@@ -79,28 +80,46 @@ class QuestionAnswerSerializer(ExamAnswerSerializer):
 
 
 class LessonQuestionAnswerSerializer(serializers.Serializer):
+    lesson_student = None
     lesson_id = serializers.IntegerField()
     answers = QuestionAnswerSerializer(many=True, allow_null=True, required=False)
 
     def validate_lesson_id(self, lesson_id):
         try:
-            LessonStudent.objects.get(id=lesson_id, student=self.context['request'].user)
+            lesson = LessonStudent.objects.get(id=lesson_id, student=self.context['request'].user)
         except LessonStudent.DoesNotExist:
             raise ValidationError({'lesson_id': 'not found.'})
+        self.lesson_student = lesson
         return lesson_id
 
     @staticmethod
-    def get_unique_answers(validated_data):
+    def get_unique_answers(validated_data, lesson_id):
         unique_question_ids, unique_questions = [], []
         answers = validated_data['answers']
         for answer in answers:
-            if answer['question_id'] not in unique_question_ids:
+            if (
+                    answer.get('is_correct')
+                    and
+                    answer.get('lesson_id') == lesson_id
+                    and
+                    answer['question_id'] not in unique_question_ids
+            ):
                 unique_question_ids.append(answer['question_id'])
                 unique_questions.append(answer)
         return unique_questions
 
     def save(self):
-        lesson_id = self.validated_data['lesson_id']
-        answers = self.get_unique_answers(self.validated_data)
+        answers = self.get_unique_answers(self.validated_data, self.lesson_student.lesson_id)
+        if self.lesson_student is not None and answers:
+            test_ball = cache.get('test_ball')
+            if not test_ball:
+                TestBall.set_redis()
+                test_ball = cache.get('test_ball')
+            if not test_ball:
+                return
 
+            self.lesson_student.ball = len(answers) * test_ball
+            if len(answers) == self.lesson_student.lesson.lessonquestion_set.count():
+                self.lesson_student.is_completed = True
+            self.lesson_student.save()
         return 1

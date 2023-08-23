@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 
-class TestBall(models.Model):
+class TestBall(models.Model):  # last | on change
     ball = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     def clean(self):
