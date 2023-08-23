@@ -49,7 +49,7 @@ class ExamAnswerListSerializer(serializers.ListSerializer):
 class ExamAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     variant_id = serializers.IntegerField()
-    is_correct = serializers.BooleanField(default=False)
+    is_correct = serializers.BooleanField(default=False, read_only=True)
 
     def validate(self, attrs):
         question_id = attrs.get('question_id')
@@ -79,7 +79,7 @@ class QuestionAnswerSerializer(ExamAnswerSerializer):
 
 class LessonQuestionAnswerSerializer(serializers.Serializer):
     lesson_id = serializers.IntegerField()
-    answers = QuestionAnswerSerializer(many=True)
+    answers = QuestionAnswerSerializer(many=True, allow_null=True, required=False)
 
     def validate_lesson_id(self, lesson_id):
         try:

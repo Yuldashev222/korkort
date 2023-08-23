@@ -1,8 +1,8 @@
 from django.conf import settings
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_201_CREATED, HTTP_413_REQUEST_ENTITY_TOO_LARGE, HTTP_400_BAD_REQUEST
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers import ExamAnswerSerializer, LessonQuestionAnswerSerializer
