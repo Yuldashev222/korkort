@@ -122,4 +122,4 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
             if len(answers) == self.lesson_student.lesson.lessonquestion_set.count():
                 self.lesson_student.is_completed = True
             self.lesson_student.save()
-        return 1
+        return {}
