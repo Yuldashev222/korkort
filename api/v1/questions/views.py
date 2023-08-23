@@ -5,7 +5,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from api.v1.accounts.permissions import IsStudent
-from api.v1.questions.serializers import ExamAnswerSerializer, LessonAnswerSerializer
+from api.v1.questions.serializers import ExamAnswerSerializer, LessonQuestionAnswerSerializer
 
 
 class ExamAnswerAPIView(GenericAPIView):
@@ -15,17 +15,15 @@ class ExamAnswerAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         data = request.data.copy()
         try:
-            if not isinstance(data, list):
-                return Response(status=HTTP_400_BAD_REQUEST)
-            elif len(data) > settings.MAX_EXAM_QUESTION_ANSWERS:
+            if len(data['answers']) > settings.MAX_EXAM_QUESTION_ANSWERS:
                 return Response(status=HTTP_413_REQUEST_ENTITY_TOO_LARGE)
         except Exception as e:
             print(e)
-        serializer = self.get_serializer(data=data, many=True)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         data = serializer.save()
         return Response(data, status=HTTP_201_CREATED)
 
 
 class LessonAnswerAPIView(ExamAnswerAPIView):
-    serializer_class = LessonAnswerSerializer
+    serializer_class = LessonQuestionAnswerSerializer

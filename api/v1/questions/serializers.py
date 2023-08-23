@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from api.v1.lessons.models import LessonStudent
 from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion
 
 
@@ -23,15 +24,26 @@ class LessonQuestionSerializer(serializers.Serializer):
 
     def get_video_swe(self, instance):
         request = self.context.get('request')
-        return request.build_absolute_uri(instance.video_swe.url)
+        if instance.video_swe:
+            return request.build_absolute_uri(instance.video_swe.url)
+        return None
 
     def get_video_eng(self, instance):
         request = self.context.get('request')
-        return request.build_absolute_uri(instance.video_eng.url)
+        if instance.video_eng:
+            return request.build_absolute_uri(instance.video_eng.url)
+        return None
 
     def get_video_easy_swe(self, instance):
         request = self.context.get('request')
-        return request.build_absolute_uri(instance.video_easy_swe.url)
+        if instance.video_easy_swe:
+            return request.build_absolute_uri(instance.video_easy_swe.url)
+        return None
+
+
+class ExamAnswerListSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        return 1
 
 
 class ExamAnswerSerializer(serializers.Serializer):
@@ -57,19 +69,37 @@ class ExamAnswerSerializer(serializers.Serializer):
     def get_question_model_and_variant_query(variant_id, question_id):
         return ExamQuestion, {'id': variant_id, 'exam_question': question_id}
 
-    def save(self, **kwargs):
-        answers = self.validated_data
-        unique_question_ids = list()
-        unique_answers = list()
-        for answer in answers:  # last
-            if answer['question_id'] not in unique_question_ids:
-                unique_question_ids.append(answer['question_id'])
-                unique_answers.append(answer)
-        return answers
 
-
-class LessonAnswerSerializer(ExamAnswerSerializer):
+class QuestionAnswerSerializer(ExamAnswerSerializer):
 
     @staticmethod
     def get_question_model_and_variant_query(variant_id, question_id):
         return LessonQuestion, {'id': variant_id, 'lesson_question': question_id}
+
+
+class LessonQuestionAnswerSerializer(serializers.Serializer):
+    lesson_id = serializers.IntegerField()
+    answers = QuestionAnswerSerializer(many=True)
+
+    def validate_lesson_id(self, lesson_id):
+        try:
+            LessonStudent.objects.get(id=lesson_id, student=self.context['request'].user)
+        except LessonStudent.DoesNotExist:
+            raise ValidationError({'lesson_id': 'not found.'})
+        return lesson_id
+
+    @staticmethod
+    def get_unique_answers(validated_data):
+        unique_question_ids, unique_questions = [], []
+        answers = validated_data['answers']
+        for answer in answers:
+            if answer['question_id'] not in unique_question_ids:
+                unique_question_ids.append(answer['question_id'])
+                unique_questions.append(answer)
+        return unique_questions
+
+    def save(self):
+        lesson_id = self.validated_data['lesson_id']
+        answers = self.get_unique_answers(self.validated_data)
+
+        return 1
