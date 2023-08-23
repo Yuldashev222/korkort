@@ -35,8 +35,3 @@ class LessonWordInfoAdmin(admin.ModelAdmin):
 @admin.register(LessonSource)
 class LessonSourceAdmin(admin.ModelAdmin):
     list_display = ['id', 'text']
-
-#
-# @admin.register(LessonStudentStatisticsByDay)
-# class LessonStudentStatisticsByDayAdmin(admin.ModelAdmin):
-#     list_display = ['id']

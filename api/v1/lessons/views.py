@@ -36,8 +36,8 @@ class LessonAPIView(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         student = self.request.user
-        return LessonStudent.objects.filter(student=student).select_related('lesson'
-                                                                            ).order_by('lesson__ordering_number')
+        return LessonStudent.objects.filter(student=student).select_related('lesson').order_by('lesson__ordering_number'
+                                                                                               )
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -72,7 +72,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
         data['lessons'] = lessons
 
         questions_queryset = LessonQuestion.objects.filter(lesson=instance.lesson).order_by('ordering_number')
-        questions = LessonQuestionSerializer(questions_queryset, many=True).data
+        questions = LessonQuestionSerializer(questions_queryset, many=True, context={'request': request}).data
         data['questions'] = questions
 
         return Response(data)

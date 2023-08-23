@@ -48,15 +48,6 @@ class QuestionAbstractMixin(models.Model):
         abstract = True
 
 
-class Question(QuestionAbstractMixin):
-    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
-
-
-class LessonQuestion(QuestionAbstractMixin):
-    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, null=True)
-    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
-
-
 class VariantAbstractMixin(models.Model):
     is_correct = models.BooleanField(default=False)
 
@@ -81,28 +72,37 @@ class VariantAbstractMixin(models.Model):
             raise ValidationError('Enter the text')
 
 
-class Variant(VariantAbstractMixin):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+class ExamQuestion(QuestionAbstractMixin):
+    chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
+
+
+class LessonQuestion(QuestionAbstractMixin):
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, null=True)
+    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
+
+
+class ExamVariant(VariantAbstractMixin):
+    question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
 
     def clean(self):
-        if self.is_correct and Variant.objects.exclude(pk=self.pk).filter(question=self.question,
-                                                                          is_correct=True).exists():
+        if self.is_correct and ExamVariant.objects.exclude(pk=self.pk).filter(question=self.question,
+                                                                              is_correct=True).exists():
             raise ValidationError('there must be only one correct answer!')
         super().clean()
 
 
 class LessonVariant(VariantAbstractMixin):
-    lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE)
+    question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE)
 
     def clean(self):
-        if self.is_correct and LessonVariant.objects.exclude(pk=self.pk).filter(lesson_question=self.lesson_question,
+        if self.is_correct and LessonVariant.objects.exclude(pk=self.pk).filter(lesson_question=self.question,
                                                                                 is_correct=True).exists():
             raise ValidationError('there must be only one correct answer!')
         super().clean()
 
 
 class WrongQuestionStudent(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -112,7 +112,7 @@ class WrongQuestionStudent(models.Model):
 
 
 class SavedQuestionStudent(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

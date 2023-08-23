@@ -5,7 +5,7 @@ from api.v1.questions.models import LessonQuestion, QuestionCategory, LessonVari
 
 class LessonVariantInline(admin.TabularInline):
     model = LessonVariant
-    fk_name = 'lesson_question'
+    fk_name = 'question'
 
 
 @admin.register(LessonQuestion)
