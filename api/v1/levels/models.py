@@ -8,6 +8,9 @@ class Level(models.Model):
     car = models.ImageField(upload_to='levels/cars/', blank=True, null=True)
     level = models.PositiveSmallIntegerField(unique=True, validators=[MinValueValidator(1)])
 
+    def __str__(self):
+        return self.title
+
     def clean(self):
         if self.level == 1:
             raise ValidationError({'level': 'already exists.'})

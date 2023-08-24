@@ -9,12 +9,15 @@ from api.v1.questions.models import ExamQuestion
 class ProfileSerializer(serializers.ModelSerializer):
     all_lessons_count = serializers.SerializerMethodField()
     all_questions_count = serializers.SerializerMethodField()
+    level = serializers.StringRelatedField()
+    level_number = serializers.IntegerField(source='level.level')
 
     class Meta:
         model = CustomUser
         fields = [
             'first_name', 'last_name', 'email', 'avatar_id', 'user_code', 'bonus_money', 'ball',
-            'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers', 'last_exams_result'
+            'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers',
+            'last_exams_result', 'level', 'level_number'
         ]
 
     def get_all_lessons_count(self, instance):
