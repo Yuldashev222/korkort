@@ -15,6 +15,7 @@ class Chapter(models.Model):
 
     image = models.ImageField(blank=True, null=True)
 
+    lessons = models.PositiveSmallIntegerField(default=0)
     ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
     chapter_hour = models.PositiveSmallIntegerField(default=0, editable=False)
     chapter_minute = models.PositiveSmallIntegerField(default=0, editable=False)

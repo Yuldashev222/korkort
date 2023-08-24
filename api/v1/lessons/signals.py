@@ -10,13 +10,16 @@ from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatistics
 def update_chapter_time(instance, *args, **kwargs):
     if instance.chapter:
         chapter = instance.chapter
-        time_in_minute = Lesson.objects.filter(chapter=chapter).aggregate(time=Sum('lesson_time'))['time']
+        data = Lesson.objects.filter(chapter=chapter).aggregate(time=Sum('lesson_time'), cnt=Count('id'))
+        time_in_minute, lessons = data.get('time'), data.get('cnt')
         if not time_in_minute:
             chapter.chapter_hour = 0
             chapter.chapter_minute = 0
         else:
             chapter.chapter_hour = time_in_minute // 60
             chapter.chapter_minute = time_in_minute % 60
+
+        chapter.lessons = lessons if lessons else 0
         chapter.save()
     Lesson.set_redis()
 
