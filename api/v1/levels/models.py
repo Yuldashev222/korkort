@@ -4,12 +4,11 @@ from django.core.validators import MinValueValidator
 
 
 class Level(models.Model):
-    title = models.CharField(max_length=200)
+    title_en = models.CharField(max_length=200, blank=True)
+    title_swe = models.CharField(max_length=200, blank=True)
+    title_easy_swe = models.CharField(max_length=200, blank=True)
     car = models.ImageField(upload_to='levels/cars/', blank=True, null=True)
     level = models.PositiveSmallIntegerField(unique=True, validators=[MinValueValidator(1)])
-
-    def __str__(self):
-        return self.title
 
     def clean(self):
         if self.level == 1:
@@ -18,5 +17,7 @@ class Level(models.Model):
             raise ValidationError({'level': f'{self.level - 1} level not found'})
 
     def save(self, *args, **kwargs):
-        self.title = ' '.join(self.title.split())
+        self.title = ' '.join(self.title_en.split())
+        self.title = ' '.join(self.title_swe.split())
+        self.title = ' '.join(self.title_easy_swe.split())
         super().save(*args, **kwargs)

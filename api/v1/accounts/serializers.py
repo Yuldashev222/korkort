@@ -9,7 +9,7 @@ from api.v1.questions.models import ExamQuestion
 class ProfileSerializer(serializers.ModelSerializer):
     all_lessons_count = serializers.SerializerMethodField()
     all_questions_count = serializers.SerializerMethodField()
-    level = serializers.StringRelatedField()
+    level = serializers.SerializerMethodField()
     level_number = serializers.IntegerField(source='level.level')
 
     class Meta:
@@ -19,6 +19,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers',
             'last_exams_result', 'level', 'level_number'
         ]
+
+    def get_level(self, instance):
+        language = self.context['request'].query_params.get('language')
+        if language not in ['swe', 'en', 'easy_swe']:
+            return ''
+        return getattr(instance.level, 'title_' + language)
 
     def get_all_lessons_count(self, instance):
         cnt = cache.get('all_lessons_count')

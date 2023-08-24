@@ -28,5 +28,5 @@ class ProfileAPIView(mixins.ListModelMixin,
 
     def get(self, request, *args, **kwargs):
         student = self.get_object()
-        serializer = ProfileSerializer(student)
+        serializer = ProfileSerializer(student, context={'request': request})
         return Response(serializer.data)

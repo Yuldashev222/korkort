@@ -35,7 +35,7 @@ class AuthTokenAPIView(GenericAPIView):
         user = serializer.validated_data['user']
         CustomToken.objects.filter(user=user).delete()
         token = CustomToken.objects.create(user=user)
-        user_data = ProfileSerializer(user).data
+        user_data = ProfileSerializer(user, context={'request': request}).data
         return Response({'token': token.key, 'user': user_data}, status=status.HTTP_200_OK)
 
 
