@@ -45,7 +45,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
         return LessonRetrieveSerializer
 
     def list(self, request, *args, **kwargs):
-        if not (request.query_params.get('lesson__chapter') or request.query_params.get('language')):
+        if not (request.query_params.get('lesson__chapter') and request.query_params.get('language')):
             return Response([])
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
