@@ -1,5 +1,5 @@
 from django.dispatch import receiver
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Q
 from django.db.models.signals import post_save, post_delete
 
 from api.v1.accounts.models import CustomUser
@@ -36,3 +36,16 @@ def add_to_student_on_create(instance, created, *args, **kwargs):
         student_ids = CustomUser.objects.filter(is_staff=False).values_list('id', flat=True)
         objs = (LessonStudent(student_id=student_id, lesson_id=instance.id) for student_id in student_ids)
         LessonStudent.objects.bulk_create(objs)
+
+
+@receiver([post_save, post_delete], sender=LessonStudent)
+def update_student_ball(instance, *args, **kwargs):
+    if instance.student:
+        ball = LessonStudent.objects.filter(
+            student=instance.student).aggregate(completed_lessons=Count('id', filter=Q(is_completed=True)),
+                                                ball=Sum('ball'))['ball']
+        if ball:
+            instance.student.ball = ball
+        else:
+            instance.student.ball = 0
+        instance.student.save()

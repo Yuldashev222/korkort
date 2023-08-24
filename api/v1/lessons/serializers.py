@@ -29,7 +29,7 @@ class LessonRetrieveSerializer(LessonListSerializer):
         language = request.query_params.get('language')
 
         if getattr(instance.lesson, 'video_' + language, None):
-            return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
+            return request.build_absolute_uri(eval(f'instance.lesson.video_{language}.url'))
         return None
 
 

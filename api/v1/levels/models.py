@@ -9,6 +9,8 @@ class Level(models.Model):
     level = models.PositiveSmallIntegerField(unique=True, validators=[MinValueValidator(1)])
 
     def clean(self):
+        if self.level == 1:
+            raise ValidationError({'level': 'already exists.'})
         if self.level != 1 and not Level.objects.filter(level=self.level - 1).exists():
             raise ValidationError({'level': f'{self.level - 1} level not found'})
 
