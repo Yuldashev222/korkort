@@ -30,10 +30,6 @@ class QuestionAbstractMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        text = self.text_swe or self.text_easy_swe or self.text_en
-        return f'{self.id}::{text}'
-
     def save(self, *args, **kwargs):
         self.text_swe = ' '.join(self.text_swe.split())
         self.text_en = ' '.join(self.text_en.split())
@@ -69,10 +65,6 @@ class Variant(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, null=True)  # last
 
-    def __str__(self):
-        text = self.text_swe or self.text_easy_swe or self.text_en
-        return f'{self.id}::{text}'
-
     def save(self, *args, **kwargs):
         self.text_swe = ' '.join(self.text_swe.split())
         self.text_en = ' '.join(self.text_en.split())
@@ -98,11 +90,14 @@ class WrongQuestionStudent(models.Model):
 
 
 class SavedQuestionStudent(models.Model):
-    exam_question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
-    lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE)
+    exam_question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE, blank=True, null=True)
+    lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE, blank=True, null=True)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.question}'
+        return str(self.exam_question) or str(self.lesson_question)
+
+    class Meta:
+        unique_together = [['exam_question', 'student'], ['lesson_question', 'student']]

@@ -1,7 +1,8 @@
 from django.urls import path
 
-from .views import ExamAnswerAPIView
+from .views import SavedQuestionStudentAPIVIew, SavedQuestionStudentDestroyAPIVIew
 
 urlpatterns = [
-    path('answers/', ExamAnswerAPIView.as_view()),
+    path('saved/', SavedQuestionStudentAPIVIew.as_view()),
+    path('saved/<int:pk>/', SavedQuestionStudentDestroyAPIVIew.as_view()),
 ]

@@ -126,15 +126,44 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
         return {}
 
 
-class SavedQuestionStudentSerializer(serializers.ModelSerializer):
-    exam_question_name = serializers.StringRelatedField(read_only=True)
-    lesson_question_name = serializers.StringRelatedField(read_only=True)
+class SavedQuestionStudentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedQuestionStudent
+        fields = ['exam_question', 'lesson_question']
+
+    def validate(self, attrs):
+        student = self.context['request'].user
+        exam_question = attrs.get('exam_question')
+        lesson_question = attrs.get('lesson_question')
+
+        if exam_question and lesson_question or not (exam_question, lesson_question):
+            raise ValidationError('choice exam or lesson')
+
+        if exam_question and SavedQuestionStudent.objects.filter(exam_question=exam_question, student=student).exists():
+            raise ValidationError({'exam_question': ['This field is already added.']})
+
+        if lesson_question and SavedQuestionStudent.objects.filter(lesson_question=lesson_question,
+                                                                   student=student).exists():
+            raise ValidationError({'lesson_question': ['This field is already added.']})
+
+        return attrs
+
+
+class SavedQuestionStudentRetrieveSerializer(serializers.ModelSerializer):
+    question = serializers.SerializerMethodField()
+    question_id = serializers.SerializerMethodField()
 
     class Meta:
         model = SavedQuestionStudent
-        fields = ['exam_question_name', 'lesson_question_name', 'exam_question', 'lesson_question']
+        fields = ['id', 'question', 'question_id']
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
+    def get_question(self, instance):
+        language = self.context['request'].query_params.get('language')
+        if instance.exam_question:
+            return getattr(instance.exam_question, 'text_' + language, None)
+        return getattr(instance.lesson_question, 'text_' + language, None)
 
-        return ret
+    def get_question_id(self, instance):
+        if instance.exam_question:
+            return instance.exam_question_id
+        return instance.lesson_question_id
