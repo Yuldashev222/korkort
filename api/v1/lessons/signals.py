@@ -3,6 +3,7 @@ from django.db.models import Sum, Count, Q
 from django.db.models.signals import post_save, post_delete
 
 from api.v1.accounts.models import CustomUser
+from api.v1.chapters.models import ChapterStudent
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatistics, LessonStudentStatisticsByDay
 
 
@@ -10,7 +11,8 @@ from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatistics
 def update_chapter_time(instance, *args, **kwargs):
     if instance.chapter:
         chapter = instance.chapter
-        data = Lesson.objects.filter(chapter=chapter).aggregate(time=Sum('lesson_time'), cnt=Count('id'))
+        data = Lesson.objects.filter(chapter=chapter).aggregate(time=Sum('lesson_time'),
+                                                                cnt=Count('id'))
         time_in_minute, lessons = data.get('time'), data.get('cnt')
         if not time_in_minute:
             chapter.chapter_hour = 0
@@ -60,3 +62,6 @@ def update_student_ball(instance, *args, **kwargs):
         else:
             instance.student.completed_lessons = 0
         instance.student.save()
+        obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
+        obj.completed_lessons = instance.student.completed_lessons
+        obj.save()
