@@ -5,34 +5,60 @@ from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudentSta
 
 class LessonListSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    title_swe = serializers.CharField(source='lesson.title_swe')
-    title_en = serializers.CharField(source='lesson.title_en')
-    title_easy_swe = serializers.CharField(source='lesson.title_easy_swe')
+    title = serializers.SerializerMethodField()
     is_open = serializers.BooleanField(source='lesson.is_open')
     is_completed = serializers.BooleanField()
     lesson_time = serializers.IntegerField(source='lesson.lesson_time')
 
+    def get_title(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance.lesson, 'title_' + language, None)
+
 
 class LessonRetrieveSerializer(LessonListSerializer):
     image = serializers.FileField(source='lesson.image')
-    text_swe = serializers.CharField(source='lesson.text_swe')
-    text_en = serializers.CharField(source='lesson.text_en')
-    text_easy_swe = serializers.CharField(source='lesson.text_easy_swe')
-    video_swe = serializers.FileField(source='lesson.video_swe')
-    video_en = serializers.FileField(source='lesson.video_en')
-    video_easy_swe = serializers.FileField(source='lesson.video_easy_swe')
+    text = serializers.SerializerMethodField()
+    video = serializers.SerializerMethodField()
+
+    def get_text(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance.lesson, 'text_' + language, None)
+
+    def get_video(self, instance):
+        language = self.context['request'].query_params.get('language')
+        try:
+            return eval(f'instance.lesson.video_{language}.url')  # last
+        except (ValueError, AttributeError):
+            return None
 
 
 class LessonWordInfoSerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField()
+    info = serializers.SerializerMethodField()
+
     class Meta:
         model = LessonWordInfo
         fields = ['id', 'text', 'info']
 
+    def get_text(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, None)
+
+    def get_info(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, None)
+
 
 class LessonSourceSerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField()
+
     class Meta:
         model = LessonSource
         fields = ['id', 'text', 'link']
+
+    def get_text(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, None)
 
 
 class LessonStudentStatisticsByDaySerializer(serializers.ModelSerializer):

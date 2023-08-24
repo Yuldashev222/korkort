@@ -41,25 +41,37 @@ class Lesson(models.Model):
 
 
 class LessonWordInfo(models.Model):
-    text = models.CharField(max_length=300)
-    info = models.TextField(max_length=500)
+    text_swe = models.CharField(max_length=300)
+    text_en = models.CharField(max_length=300)
+    text_easy_swe = models.CharField(max_length=300)
+    info_swe = models.TextField(max_length=500)
+    info_en = models.TextField(max_length=500)
+    info_easy_swe = models.TextField(max_length=500)
 
     lessons = models.ManyToManyField(Lesson)
 
     def save(self, *args, **kwargs):
-        self.text = ' '.join(self.text.split())
-        self.info = ' '.join(self.info.split())
+        self.text = ' '.join(self.text_swe.split())
+        self.text = ' '.join(self.text_en.split())
+        self.text = ' '.join(self.text_easy_swe.split())
+        self.info = ' '.join(self.info_swe.split())
+        self.info = ' '.join(self.info_en.split())
+        self.info = ' '.join(self.info_easy_swe.split())
         super().save(*args, **kwargs)
 
 
 class LessonSource(models.Model):
-    text = models.TextField(max_length=500)
+    text_swe = models.TextField(max_length=500)
+    text_en = models.TextField(max_length=500)
+    text_easy_swe = models.TextField(max_length=500)
     link = models.URLField()
 
     lessons = models.ManyToManyField(Lesson)
 
     def save(self, *args, **kwargs):
-        self.text = ' '.join(self.text.split())
+        self.text = ' '.join(self.text_swe.split())
+        self.text = ' '.join(self.text_en.split())
+        self.text = ' '.join(self.text_easy_swe.split())
         super().save(*args, **kwargs)
 
 

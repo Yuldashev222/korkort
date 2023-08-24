@@ -4,44 +4,38 @@ from rest_framework.exceptions import ValidationError
 
 from api.v1.balls.models import TestBall
 from api.v1.lessons.models import LessonStudent
-from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion, WrongQuestionStudent
+from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion, WrongQuestionStudent, SavedQuestionStudent
 
 
 class VariantSerializer(serializers.ModelSerializer):
+    text = serializers.SerializerMethodField()
+
     class Meta:
         model = Variant
-        fields = ['id', 'is_correct', 'text_swe', 'text_en', 'text_easy_swe']
+        fields = ['id', 'is_correct', 'text']
+
+    def get_text(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, None)
 
 
 class LessonQuestionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    question_text_swe = serializers.CharField(source='text_swe')
-    question_text_en = serializers.CharField(source='text_en')
-    question_text_easy_swe = serializers.CharField(source='text_easy_swe')
-    question_video_swe = serializers.SerializerMethodField(source='video_swe', method_name='get_video_swe')
-    question_video_eng = serializers.SerializerMethodField(source='video_eng', method_name='get_video_eng')
-    question_video_easy_swe = serializers.SerializerMethodField(source='video_easy_swe',
-                                                                method_name='get_video_easy_swe')
+    question_text = serializers.SerializerMethodField()
+    question_video = serializers.SerializerMethodField()
 
-    lessonvariant_set = VariantSerializer(many=True)
+    variant_set = VariantSerializer(many=True)
 
-    def get_video_swe(self, instance):
+    def get_question_video(self, instance):
         request = self.context.get('request')
-        if instance.video_swe:
-            return request.build_absolute_uri(instance.video_swe.url)
+        language = self.context['request'].query_params.get('language')
+        if getattr(instance, 'video_' + language, None):
+            return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
         return None
 
-    def get_video_eng(self, instance):
-        request = self.context.get('request')
-        if instance.video_eng:
-            return request.build_absolute_uri(instance.video_eng.url)
-        return None
-
-    def get_video_easy_swe(self, instance):
-        request = self.context.get('request')
-        if instance.video_easy_swe:
-            return request.build_absolute_uri(instance.video_easy_swe.url)
-        return None
+    def get_question_text(self, instance):
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, None)
 
 
 class ExamAnswerSerializer(serializers.Serializer):
@@ -130,3 +124,17 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
 
             self.lesson_student.save()
         return {}
+
+
+class SavedQuestionStudentSerializer(serializers.ModelSerializer):
+    exam_question_name = serializers.StringRelatedField(read_only=True)
+    lesson_question_name = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = SavedQuestionStudent
+        fields = ['exam_question_name', 'lesson_question_name', 'exam_question', 'lesson_question']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+
+        return ret

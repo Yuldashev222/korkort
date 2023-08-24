@@ -1,11 +1,14 @@
 from django.conf import settings
+from rest_framework import mixins
 from rest_framework.status import HTTP_201_CREATED, HTTP_413_REQUEST_ENTITY_TOO_LARGE, HTTP_400_BAD_REQUEST
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.permissions import IsStudent
-from api.v1.questions.serializers import ExamAnswerSerializer, LessonQuestionAnswerSerializer
+from api.v1.questions.models import SavedQuestionStudent
+from api.v1.questions.serializers import ExamAnswerSerializer, LessonQuestionAnswerSerializer, \
+    SavedQuestionStudentSerializer
 
 
 class ExamAnswerAPIView(GenericAPIView):
@@ -27,3 +30,15 @@ class ExamAnswerAPIView(GenericAPIView):
 
 class LessonAnswerAPIView(ExamAnswerAPIView):
     serializer_class = LessonQuestionAnswerSerializer
+
+
+class SavedQuestionStudentAPIVIew(mixins.CreateModelMixin,
+                                  mixins.ListModelMixin,
+                                  mixins.DestroyModelMixin,
+                                  GenericAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = SavedQuestionStudentSerializer
+
+    def get_queryset(self):
+        student = self.request.user
+        return SavedQuestionStudent.objects.filter(student=student)

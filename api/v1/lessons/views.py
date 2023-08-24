@@ -45,13 +45,15 @@ class LessonAPIView(ReadOnlyModelViewSet):
         return LessonRetrieveSerializer
 
     def list(self, request, *args, **kwargs):
-        if not request.query_params.get('lesson__chapter'):
+        if not (request.query_params.get('lesson__chapter') or request.query_params.get('language')):
             return Response([])
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
+        if not request.query_params.get('language'):
+            return Response([])
         instance = self.get_object()
         student = self.request.user
         change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.lesson_id)
@@ -68,7 +70,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
 
         lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter, student=student
                                                         ).order_by('lesson__ordering_number')
-        lessons = LessonListSerializer(lessons_queryset, many=True).data
+        lessons = LessonListSerializer(lessons_queryset, many=True, context={'request': request}).data
         data['lessons'] = lessons
 
         questions_queryset = LessonQuestion.objects.filter(lesson=instance.lesson).order_by('ordering_number')

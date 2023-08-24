@@ -24,7 +24,7 @@ class QuestionAbstractMixin(models.Model):
     text_easy_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
     video_swe = models.FileField(blank=True, null=True)
-    video_eng = models.FileField(blank=True, null=True)
+    video_en = models.FileField(blank=True, null=True)
     video_easy_swe = models.FileField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True, null=True)
@@ -98,7 +98,8 @@ class WrongQuestionStudent(models.Model):
 
 
 class SavedQuestionStudent(models.Model):
-    question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
+    exam_question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE)
+    lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

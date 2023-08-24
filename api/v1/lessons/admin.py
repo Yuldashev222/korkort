@@ -29,9 +29,9 @@ class LessonStudentAdmin(admin.ModelAdmin):
 
 @admin.register(LessonWordInfo)
 class LessonWordInfoAdmin(admin.ModelAdmin):
-    list_display = ['id', 'text']
+    list_display = ['id']
 
 
 @admin.register(LessonSource)
 class LessonSourceAdmin(admin.ModelAdmin):
-    list_display = ['id', 'text']
+    list_display = ['id']
