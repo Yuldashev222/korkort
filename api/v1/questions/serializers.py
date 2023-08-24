@@ -16,7 +16,7 @@ class VariantSerializer(serializers.ModelSerializer):
 
     def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance, 'text_' + language, None)
+        return getattr(instance, 'text_' + language, '')
 
 
 class LessonQuestionSerializer(serializers.Serializer):
@@ -35,7 +35,7 @@ class LessonQuestionSerializer(serializers.Serializer):
 
     def get_question_text(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance, 'text_' + language, None)
+        return getattr(instance, 'text_' + language, '')
 
 
 class ExamAnswerSerializer(serializers.Serializer):
@@ -160,8 +160,8 @@ class SavedQuestionStudentRetrieveSerializer(serializers.ModelSerializer):
     def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
         if instance.exam_question:
-            return getattr(instance.exam_question, 'text_' + language, None)
-        return getattr(instance.lesson_question, 'text_' + language, None)
+            return getattr(instance.exam_question, 'text_' + language, '')
+        return getattr(instance.lesson_question, 'text_' + language, '')
 
     def get_video(self, instance):
         request = self.context['request']

@@ -12,7 +12,7 @@ class LessonListSerializer(serializers.Serializer):
 
     def get_title(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance.lesson, 'title_' + language, None)
+        return getattr(instance.lesson, 'title_' + language, '')
 
 
 class LessonRetrieveSerializer(LessonListSerializer):
@@ -22,7 +22,7 @@ class LessonRetrieveSerializer(LessonListSerializer):
 
     def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance.lesson, 'text_' + language, None)
+        return getattr(instance.lesson, 'text_' + language, '')
 
     def get_video(self, instance):
         request = self.context['request']
@@ -43,11 +43,11 @@ class LessonWordInfoSerializer(serializers.ModelSerializer):
 
     def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance, 'text_' + language, None)
+        return getattr(instance, 'text_' + language, '')
 
     def get_info(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance, 'text_' + language, None)
+        return getattr(instance, 'text_' + language, '')
 
 
 class LessonSourceSerializer(serializers.ModelSerializer):
@@ -59,7 +59,7 @@ class LessonSourceSerializer(serializers.ModelSerializer):
 
     def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
-        return getattr(instance, 'text_' + language, None)
+        return getattr(instance, 'text_' + language, '')
 
 
 class LessonStudentStatisticsByDaySerializer(serializers.ModelSerializer):
