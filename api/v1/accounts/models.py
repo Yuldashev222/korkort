@@ -34,6 +34,7 @@ class CustomUser(AbstractUser):
     facebook_id = models.CharField(max_length=100, blank=True)
 
     level = models.ForeignKey('levels.Level', on_delete=models.PROTECT, null=True)
+    level_image_id = models.PositiveSmallIntegerField(default=0)
 
     ball = models.PositiveBigIntegerField(default=0)
     completed_lessons = models.PositiveSmallIntegerField(default=0)

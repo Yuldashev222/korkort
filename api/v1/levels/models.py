@@ -7,7 +7,6 @@ class Level(models.Model):
     title_en = models.CharField(max_length=200, blank=True)
     title_swe = models.CharField(max_length=200, blank=True)
     title_easy_swe = models.CharField(max_length=200, blank=True)
-    car = models.ImageField(upload_to='levels/cars/', blank=True, null=True)
     level = models.PositiveSmallIntegerField(unique=True, validators=[MinValueValidator(1)])
 
     def clean(self):
