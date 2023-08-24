@@ -23,8 +23,12 @@ def add_student_lessons(student_id):
 
 @shared_task
 def update_student_correct_answers(student_id):
-    student = CustomUser.objects.get(id=student_id)
-    wrong_answers_count = WrongQuestionStudentAnswer.objects.filter(student=student).count()
-
-    # cache.set('all_questions_count', cnt, 60 * 60 * 24 * 7)
-
+    all_questions_count = cache.get('all_questions_count')
+    if not all_questions_count:
+        ExamQuestion.set_redis()  # last
+        all_questions_count = cache.get('all_questions_count')
+    if all_questions_count:
+        student = CustomUser.objects.get(id=student_id)
+        wrong_answers_count = WrongQuestionStudentAnswer.objects.filter(student=student).count()
+        student.correct_answers = all_questions_count - wrong_answers_count
+        student.save()
