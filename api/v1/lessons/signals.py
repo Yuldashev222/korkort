@@ -18,6 +18,7 @@ def update_chapter_time(instance, *args, **kwargs):
             chapter.chapter_hour = time_in_minute // 60
             chapter.chapter_minute = time_in_minute % 60
         chapter.save()
+    Lesson.set_redis()
 
 
 @receiver([post_save, post_delete], sender=LessonStudentStatistics)
@@ -41,11 +42,18 @@ def add_to_student_on_create(instance, created, *args, **kwargs):
 @receiver([post_save, post_delete], sender=LessonStudent)
 def update_student_ball(instance, *args, **kwargs):
     if instance.student:
-        ball = LessonStudent.objects.filter(
+        query = LessonStudent.objects.filter(
             student=instance.student).aggregate(completed_lessons=Count('id', filter=Q(is_completed=True)),
-                                                ball=Sum('ball'))['ball']
+                                                ball=Sum('ball'))
+        ball = query.get('ball')
+        completed_lessons = query.get('completed_lessons')
         if ball:
             instance.student.ball = ball
         else:
             instance.student.ball = 0
+
+        if completed_lessons:
+            instance.student.completed_lessons = completed_lessons
+        else:
+            instance.student.completed_lessons = 0
         instance.student.save()

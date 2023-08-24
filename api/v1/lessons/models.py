@@ -1,5 +1,6 @@
 from django.db import models
 from ckeditor.fields import RichTextField
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
@@ -24,6 +25,11 @@ class Lesson(models.Model):
     video_easy_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def set_redis(cls):
+        cnt = cls.objects.count()
+        cache.set('all_lesson_count', cnt, 60 * 60 * 24 * 7)
 
     def clean(self):
         if not (self.title_en or self.title_swe or self.title_easy_swe):

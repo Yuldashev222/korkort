@@ -61,11 +61,11 @@ class LessonAPIView(ReadOnlyModelViewSet):
         data = {'main': serializer.data}
 
         word_info_queryset = LessonWordInfo.objects.filter(lessons__in=[instance.lesson])
-        word_infos = LessonWordInfoSerializer(word_info_queryset, many=True).data
+        word_infos = LessonWordInfoSerializer(word_info_queryset, many=True, context={'request': request}).data
         data['word_infos'] = word_infos
 
         sources_queryset = LessonSource.objects.filter(lessons__in=[instance.lesson])
-        sources = LessonSourceSerializer(sources_queryset, many=True).data
+        sources = LessonSourceSerializer(sources_queryset, many=True, context={'request': request}).data
         data['sources'] = sources
 
         lessons_queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter, student=student

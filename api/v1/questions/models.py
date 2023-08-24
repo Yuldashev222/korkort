@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -40,6 +41,11 @@ class QuestionAbstractMixin(models.Model):
         if not (self.text_en or self.text_swe or self.text_easy_swe):
             raise ValidationError('Enter the text')
 
+    @classmethod
+    def set_redis(cls):
+        cnt = cls.objects.count()
+        cache.set('all_questions_count', cnt, 60 * 60 * 24 * 7)
+
     class Meta:
         abstract = True
 
@@ -78,7 +84,7 @@ class Variant(models.Model):
             raise ValidationError('Enter the text')
 
 
-class WrongQuestionStudent(models.Model):
+class WrongQuestionStudentAnswer(models.Model):
     exam_question = models.ForeignKey(ExamQuestion, on_delete=models.CASCADE, blank=True, null=True)
     lesson_question = models.ForeignKey(LessonQuestion, on_delete=models.CASCADE, blank=True, null=True)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
