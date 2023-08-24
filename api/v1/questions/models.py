@@ -108,3 +108,9 @@ class SavedQuestionStudent(models.Model):
 
     class Meta:
         unique_together = [['exam_question', 'student'], ['lesson_question', 'student']]
+
+
+class QuestionStudentLastResult(models.Model):
+    questions = models.PositiveSmallIntegerField()
+    correct_answers = models.PositiveSmallIntegerField()
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)

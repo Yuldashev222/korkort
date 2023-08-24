@@ -34,9 +34,11 @@ class CustomUser(AbstractUser):
     facebook_id = models.CharField(max_length=100, blank=True)
 
     level = models.ForeignKey('levels.Level', on_delete=models.PROTECT, null=True)
+
     ball = models.PositiveBigIntegerField(default=0)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
+    last_exams_result = models.PositiveSmallIntegerField(default=0)
 
     tariff_expire_date = models.DateTimeField(null=True)
 

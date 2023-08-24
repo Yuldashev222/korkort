@@ -5,7 +5,8 @@ from rest_framework.exceptions import ValidationError
 from api.v1.balls.models import TestBall
 from api.v1.lessons.models import LessonStudent
 from api.v1.accounts.tasks import update_student_correct_answers
-from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion, WrongQuestionStudentAnswer, SavedQuestionStudent
+from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion, WrongQuestionStudentAnswer, \
+    SavedQuestionStudent, QuestionStudentLastResult
 
 
 class VariantSerializer(serializers.ModelSerializer):
@@ -116,12 +117,16 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
 
             self.lesson_student.ball = len(answers) * test_ball
             questions = self.lesson_student.lesson.lessonquestion_set.all()
-            correct_answers_count = questions.count() - len(answers)
+            questions_count = questions.count()
+            correct_answers_count = questions_count - len(answers)
+            QuestionStudentLastResult.objects.create(correct_answers=correct_answers_count, student=student,
+                                                     questions=questions_count)
             if correct_answers_count == 0:
                 self.lesson_student.is_completed = True
             else:
                 for question in questions.exclude(id__in=unique_question_ids):
                     WrongQuestionStudentAnswer.objects.get_or_create(lesson_question=question, student=student)
+
                 update_student_correct_answers.delay(student.id)
             self.lesson_student.save()
         return {}
