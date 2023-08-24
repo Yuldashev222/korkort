@@ -7,13 +7,13 @@ from api.v1.accounts.models import CustomUser
 
 class ProfileSerializer(serializers.ModelSerializer):
     all_lessons_count = serializers.SerializerMethodField()
-    all_question_count = serializers.SerializerMethodField()
+    all_questions_count = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
         fields = [
             'first_name', 'last_name', 'email', 'avatar_id', 'user_code', 'bonus_money', 'ball',
-            'completed_lessons', 'all_lessons_count'
+            'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers'
         ]
 
     def get_all_lessons_count(self, instance):
