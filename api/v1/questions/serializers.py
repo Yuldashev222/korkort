@@ -150,20 +150,27 @@ class SavedQuestionStudentCreateSerializer(serializers.ModelSerializer):
 
 
 class SavedQuestionStudentRetrieveSerializer(serializers.ModelSerializer):
-    question = serializers.SerializerMethodField()
-    question_id = serializers.SerializerMethodField()
+    text = serializers.SerializerMethodField()
+    video = serializers.SerializerMethodField()
 
     class Meta:
         model = SavedQuestionStudent
-        fields = ['id', 'question', 'question_id']
+        fields = ['id', 'text', 'video', 'created_at']
 
-    def get_question(self, instance):
+    def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
         if instance.exam_question:
             return getattr(instance.exam_question, 'text_' + language, None)
         return getattr(instance.lesson_question, 'text_' + language, None)
 
-    def get_question_id(self, instance):
+    def get_video(self, instance):
+        request = self.context['request']
+        language = request.query_params.get('language')
         if instance.exam_question:
-            return instance.exam_question_id
-        return instance.lesson_question_id
+            instance = instance.exam_question
+        else:
+            instance = instance.lesson_question
+
+        if getattr(instance, 'video_' + language, None):
+            return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
+        return None

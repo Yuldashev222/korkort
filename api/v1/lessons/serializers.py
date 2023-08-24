@@ -25,11 +25,12 @@ class LessonRetrieveSerializer(LessonListSerializer):
         return getattr(instance.lesson, 'text_' + language, None)
 
     def get_video(self, instance):
-        language = self.context['request'].query_params.get('language')
-        try:
-            return eval(f'instance.lesson.video_{language}.url')  # last
-        except (ValueError, AttributeError):
-            return None
+        request = self.context['request']
+        language = request.query_params.get('language')
+
+        if getattr(instance.lesson, 'video_' + language, None):
+            return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
+        return None
 
 
 class LessonWordInfoSerializer(serializers.ModelSerializer):

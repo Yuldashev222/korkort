@@ -5,8 +5,8 @@ from rest_framework.generics import GenericAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.models import SavedQuestionStudent
+from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers import (
     ExamAnswerSerializer,
     LessonQuestionAnswerSerializer,
