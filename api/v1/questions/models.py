@@ -43,8 +43,9 @@ class QuestionAbstractMixin(models.Model):
 
     @classmethod
     def set_redis(cls):
-        cnt = cls.objects.count()
-        cache.set('all_questions_count', cnt, 60 * 60 * 24 * 7)
+        exam_cnt = ExamQuestion.objects.count()
+        lesson_cnt = LessonQuestion.objects.count()
+        cache.set('all_questions_count', exam_cnt + lesson_cnt, 60 * 60 * 24 * 7)
 
     class Meta:
         abstract = True

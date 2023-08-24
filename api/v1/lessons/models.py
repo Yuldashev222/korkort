@@ -29,7 +29,7 @@ class Lesson(models.Model):
     @classmethod
     def set_redis(cls):
         cnt = cls.objects.count()
-        cache.set('all_lesson_count', cnt, 60 * 60 * 24 * 7)
+        cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 7)
 
     def clean(self):
         if not (self.title_en or self.title_swe or self.title_easy_swe):
