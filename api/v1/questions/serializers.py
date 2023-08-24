@@ -120,7 +120,7 @@ class LessonQuestionAnswerSerializer(serializers.Serializer):
             if correct_answers_count == 0:
                 self.lesson_student.is_completed = True
             else:
-                for question in questions.exclude(id__in=[unique_question_ids]):
+                for question in questions.exclude(id__in=unique_question_ids):
                     WrongQuestionStudentAnswer.objects.get_or_create(lesson_question=question, student=student)
                 update_student_correct_answers.delay(student.id)
             self.lesson_student.save()
