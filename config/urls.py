@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/v1/lessons/', include('api.v1.lessons.urls')),
     path('api/v1/chapters/', include('api.v1.chapters.urls')),
     path('api/v1/questions/', include('api.v1.questions.urls')),
+    path('api/v1/exams/', include('api.v1.exams.urls')),
 
     path("__debug__/", include("debug_toolbar.urls")),
 

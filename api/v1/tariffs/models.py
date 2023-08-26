@@ -16,8 +16,7 @@ class TariffInfo(models.Model):
         return f'{self.title}'
 
     def save(self, *args, **kwargs):
-        self.desc = normalize_text(self.desc)
-        self.title = normalize_text(self.title)
+        self.desc, self.title = normalize_text(self.desc, self.title)
         super().save(*args, **kwargs)
 
 

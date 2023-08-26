@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'api.v1.levels.apps.LevelsConfig',
     'api.v1.balls.apps.BallsConfig',
     'api.v1.questions.apps.QuestionsConfig',
+    'api.v1.exams.apps.ExamsConfig',
 ]
 
 MIDDLEWARE = [

@@ -19,23 +19,23 @@ class Question(models.Model):
         [2, 'normal'],
         [3, 'hard']
     ]
-    for_lesson = models.BooleanField(default=False)
-    category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
-    difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.PROTECT)
+    category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
+    for_lesson = models.BooleanField(default=False)
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
+    difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
-    text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
-    text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
     answer = models.CharField(max_length=500, blank=True)
+    text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
+    text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
+    text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
-    video_swe = models.FileField(blank=True, null=True)
     video_en = models.FileField(blank=True, null=True)
+    video_swe = models.FileField(blank=True, null=True)
     video_e_swe = models.FileField(blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def save(self, *args, **kwargs):
         self.text_swe, self.text_en, self.text_e_swe, self.answer = normalize_text(self.text_swe, self.text_en,
@@ -57,8 +57,8 @@ class Variant(models.Model):
 
     is_correct = models.BooleanField(default=False)
 
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
+    text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -73,8 +73,8 @@ class Variant(models.Model):
 
 
 class WrongQuestionStudentAnswer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -83,8 +83,8 @@ class WrongQuestionStudentAnswer(models.Model):
 
 
 class SavedQuestionStudent(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -96,6 +96,6 @@ class SavedQuestionStudent(models.Model):
 
 
 class QuestionStudentLastResult(models.Model):
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     questions = models.PositiveSmallIntegerField()
     correct_answers = models.PositiveSmallIntegerField()
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)

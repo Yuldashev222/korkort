@@ -24,10 +24,10 @@ class StripeWebhookView(View):
             event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
         except ValueError:
             # Invalid payload
-            return HttpResponse(status=400)
+            return HttpResponse(status=401)
         except stripe.error.SignatureVerificationError:
             # Invalid signature
-            return HttpResponse(status=400)
+            return HttpResponse(status=403)
 
         if event.type == "checkout.session.completed":
             session = event.data.object
@@ -35,7 +35,7 @@ class StripeWebhookView(View):
                 try:
                     order = Order.objects.select_related('student').get(id=session.client_reference_id)
                 except Order.DoesNotExist:
-                    return HttpResponse(status=400)
+                    return HttpResponse(status=404)
                 order.is_paid = True
                 order.stripe_id = session.payment_intent
                 order.save()
