@@ -8,10 +8,10 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.questions.models import Question
+from api.v1.questions.models import LessonQuestion
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.accounts.permissions import IsStudent
-from api.v1.questions.serializers import QuestionSerializer
+from api.v1.questions.serializers import LessonQuestionSerializer
 
 from api.v1.lessons.serializers import (
     LessonListSerializer,
@@ -73,8 +73,8 @@ class LessonAPIView(ReadOnlyModelViewSet):
         lessons = LessonListSerializer(lessons_queryset, many=True, context={'request': request}).data
         data['lessons'] = lessons
 
-        questions_queryset = Question.objects.filter(lesson=instance.lesson).order_by('ordering_number')
-        questions = QuestionSerializer(questions_queryset, many=True, context={'request': request}).data
+        questions_queryset = LessonQuestion.objects.filter(lesson=instance.lesson).order_by('ordering_number')
+        questions = LessonQuestionSerializer(questions_queryset, many=True, context={'request': request}).data
         data['questions'] = questions
 
         return Response(data)
@@ -86,7 +86,9 @@ class LessonStudentStatisticsByDayAPIView(ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         student = self.request.user
-        return LessonStudentStatisticsByDay.objects.filter(student=student).order_by('-date')[:7]
+        today_date = now().date()
+        return LessonStudentStatisticsByDay.objects.filter(student=student, date__gt=today_date - timedelta(days=7)
+                                                           ).order_by('date')
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

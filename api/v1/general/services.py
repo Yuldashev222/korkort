@@ -1,2 +1,2 @@
-def normalize_text(*fields):
-    return [' '.join(field.split()) for field in fields]
+def normalize_text(text):
+    return ' '.join(str(text).split()).lower()

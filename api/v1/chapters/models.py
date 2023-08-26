@@ -9,11 +9,11 @@ from api.v1.accounts.models import CustomUser
 class Chapter(models.Model):
     title_swe = models.CharField(max_length=300, blank=True)
     title_en = models.CharField(max_length=300, blank=True)
-    title_e_swe = models.CharField(max_length=300, blank=True)
+    title_easy_swe = models.CharField(max_length=300, blank=True)
 
-    desc_swe = RichTextField(verbose_name='Swedish', blank=True, max_length=700)
-    desc_en = RichTextField(verbose_name='English', blank=True, max_length=700)
-    desc_e_swe = RichTextField(verbose_name='Easy Swedish', blank=True, max_length=700)
+    desc_swe = RichTextField(verbose_name='Swedish', blank=True)
+    desc_en = RichTextField(verbose_name='English', blank=True)
+    desc_easy_swe = RichTextField(verbose_name='Easy Swedish', blank=True)
 
     image = models.ImageField(blank=True, null=True)
 
@@ -34,7 +34,7 @@ class Chapter(models.Model):
         return f'Chapter No {self.ordering_number}'
 
     def clean(self):
-        if not (self.title_en or self.title_swe or self.title_e_swe):
+        if not (self.title_en or self.title_swe or self.title_easy_swe):
             raise ValidationError('Enter the title')
 
 

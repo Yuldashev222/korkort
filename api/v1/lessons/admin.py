@@ -11,13 +11,13 @@ class LessonAdmin(admin.ModelAdmin):
             'fields': ('chapter', 'is_open', 'lesson_time', 'ordering_number'),
         }),
         ('Titles', {
-            'fields': ('title_swe', 'title_e_swe', 'title_en'),
+            'fields': ('title_swe', 'title_easy_swe', 'title_en'),
         }),
         ('Videos', {
-            'fields': ('image', 'video_swe', 'video_e_swe', 'video_en'),
+            'fields': ('image', 'video_swe', 'video_easy_swe', 'video_en'),
         }),
         ('Texts', {
-            'fields': ('text_swe', 'text_e_swe', 'text_en'),
+            'fields': ('text_swe', 'text_easy_swe', 'text_en'),
         }),
     )
 

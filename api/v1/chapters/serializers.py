@@ -17,12 +17,12 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     def get_title(self, instance):
         language = self.context['request'].query_params.get('language')
-        if language not in ['en', 'swe', 'e_swe']:
+        if language not in ['en', 'swe', 'easy_swe']:
             return ''
         return getattr(instance.chapter, 'title_' + language, '')
 
     def get_desc(self, instance):
         language = self.context['request'].query_params.get('language')
-        if language not in ['en', 'swe', 'e_swe']:
+        if language not in ['en', 'swe', 'easy_swe']:
             return ''
         return getattr(instance.chapter, 'desc_' + language, '')

@@ -214,7 +214,7 @@ WEB_FORGOT_PASSWORD_URL = 'https://korkort.page.link/?uid={}&token={}'
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
-MAX_QUESTION_ANSWERS = 100
+MAX_EXAM_QUESTION_ANSWERS = 100
 
 # smtp configs
 EMAIL_USE_TLS = True

@@ -2,12 +2,12 @@ from django.db.models import Count
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 
-from api.v1.questions.models import Question, QuestionStudentLastResult
+from api.v1.questions.models import ExamQuestion, QuestionStudentLastResult
 
 
-@receiver([post_save, post_delete], sender=Question)
-def update_question_count(*args, **kwargs):
-    Question.set_redis()
+@receiver([post_save, post_delete], sender=ExamQuestion)
+def update_exam_question_count(*args, **kwargs):
+    ExamQuestion.set_redis()
 
 
 @receiver(post_save, sender=QuestionStudentLastResult)

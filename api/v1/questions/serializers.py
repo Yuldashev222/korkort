@@ -4,13 +4,9 @@ from rest_framework.exceptions import ValidationError
 
 from api.v1.balls.models import TestBall
 from api.v1.lessons.models import LessonStudent
-from api.v1.questions.tasks import update_student_wrong_answers
-from api.v1.questions.models import (
-    Variant,
-    Question,
-    SavedQuestionStudent,
-    QuestionStudentLastResult
-)
+from api.v1.accounts.tasks import update_student_correct_answers
+from api.v1.questions.models import Variant, ExamQuestion, LessonQuestion, WrongQuestionStudentAnswer, \
+    SavedQuestionStudent, QuestionStudentLastResult
 
 
 class VariantSerializer(serializers.ModelSerializer):
@@ -21,11 +17,11 @@ class VariantSerializer(serializers.ModelSerializer):
         fields = ['id', 'is_correct', 'text']
 
     def get_text(self, instance):
-        language = str(self.context['request'].query_params.get('language'))
-        return getattr(instance, 'text_' + language, None)
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, '')
 
 
-class QuestionSerializer(serializers.Serializer):
+class LessonQuestionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     question_text = serializers.SerializerMethodField()
     question_video = serializers.SerializerMethodField()
@@ -34,17 +30,17 @@ class QuestionSerializer(serializers.Serializer):
 
     def get_question_video(self, instance):
         request = self.context.get('request')
-        language = str(request.query_params.get('language'))
+        language = self.context['request'].query_params.get('language')
         if getattr(instance, 'video_' + language, None):
             return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
         return None
 
     def get_question_text(self, instance):
-        language = str(self.context['request'].query_params.get('language'))
-        return getattr(instance, 'text_' + language, None)
+        language = self.context['request'].query_params.get('language')
+        return getattr(instance, 'text_' + language, '')
 
 
-class AnswerSerializer(serializers.Serializer):
+class ExamAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     variant_id = serializers.IntegerField()
     is_correct = serializers.BooleanField(default=False, read_only=True)
@@ -53,22 +49,36 @@ class AnswerSerializer(serializers.Serializer):
         question_id = attrs.get('question_id')
         variant_id = attrs.get('variant_id')
         try:
-            question = Question.objects.get(id=question_id)
-            variant = Variant.objects.get(id=variant_id, question=question)
-        except (Question.DoesNotExist, Variant.DoesNotExist):
+            question_model, variant_query = self.get_question_model_and_variant_query(variant_id, question_id)
+            question = question_model.objects.get(id=question_id)
+            variant = Variant.objects.get(**variant_query)
+        except (ExamQuestion.DoesNotExist, Variant.DoesNotExist, LessonQuestion.DoesNotExist):
             raise ValidationError('question_id or variant_id not valid')
 
         if variant.is_correct:
             attrs['is_correct'] = True
-            attrs['for_lesson'] = question.for_lesson
-            attrs['lesson_id'] = question.lesson_id
+            try:
+                attrs['lesson_id'] = question.lesson_id  # last | test
+            except AttributeError:
+                pass
         return attrs
 
+    @staticmethod
+    def get_question_model_and_variant_query(variant_id, question_id):
+        return ExamQuestion, {'id': variant_id, 'exam_question': question_id}
 
-class StudentAnswerSerializer(serializers.Serializer):
+
+class QuestionAnswerSerializer(ExamAnswerSerializer):
+
+    @staticmethod
+    def get_question_model_and_variant_query(variant_id, question_id):
+        return LessonQuestion, {'id': variant_id, 'lesson_question': question_id}
+
+
+class LessonQuestionAnswerSerializer(serializers.Serializer):
     lesson_student = None
     lesson_id = serializers.IntegerField()
-    answers = AnswerSerializer(many=True, allow_null=True, required=False)
+    answers = QuestionAnswerSerializer(many=True, allow_null=True, required=False)
 
     def validate_lesson_id(self, lesson_id):
         try:
@@ -84,9 +94,9 @@ class StudentAnswerSerializer(serializers.Serializer):
         answers = validated_data['answers']
         for answer in answers:
             if (
-                    answer.get('is_correct') and answer['for_lesson']
+                    answer.get('is_correct')
                     and
-                    answer['lesson_id'] == lesson_id
+                    answer.get('lesson_id') == lesson_id
                     and
                     answer['question_id'] not in unique_question_ids
             ):
@@ -103,19 +113,21 @@ class StudentAnswerSerializer(serializers.Serializer):
                 TestBall.set_redis()
                 test_ball = cache.get('test_ball')
             if not test_ball:
-                return {}
+                return
 
-            lesson = self.lesson_student.lesson
-            questions = lesson.question_set.filter(for_lesson=True)
-            questions_count = questions.count()
-            wrong_answers_count = questions_count - len(answers)
-            QuestionStudentLastResult.objects.create(correct_answers=len(answers), questions=questions_count,
-                                                     student=student)
-            if wrong_answers_count == 0:
-                self.lesson_student.is_completed = True
-
-            update_student_wrong_answers.delay(student.id, lesson.id, unique_question_ids, True)
             self.lesson_student.ball = len(answers) * test_ball
+            questions = self.lesson_student.lesson.lessonquestion_set.all()
+            questions_count = questions.count()
+            correct_answers_count = questions_count - len(answers)
+            QuestionStudentLastResult.objects.create(correct_answers=correct_answers_count, student=student,
+                                                     questions=questions_count)
+            if correct_answers_count == 0:
+                self.lesson_student.is_completed = True
+            else:
+                for question in questions.exclude(id__in=unique_question_ids):
+                    WrongQuestionStudentAnswer.objects.get_or_create(lesson_question=question, student=student)
+
+                update_student_correct_answers.delay(student.id)
             self.lesson_student.save()
         return {}
 
@@ -123,22 +135,22 @@ class StudentAnswerSerializer(serializers.Serializer):
 class SavedQuestionStudentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavedQuestionStudent
-        fields = ['question', 'question']
+        fields = ['exam_question', 'lesson_question']
 
     def validate(self, attrs):
         student = self.context['request'].user
-        question = attrs.get('question')
-        question = attrs.get('question')
+        exam_question = attrs.get('exam_question')
+        lesson_question = attrs.get('lesson_question')
 
-        if question and question or not (question, question):
+        if exam_question and lesson_question or not (exam_question, lesson_question):
             raise ValidationError('choice exam or lesson')
 
-        if question and SavedQuestionStudent.objects.filter(question=question, student=student).exists():
-            raise ValidationError({'question': ['This field is already added.']})
+        if exam_question and SavedQuestionStudent.objects.filter(exam_question=exam_question, student=student).exists():
+            raise ValidationError({'exam_question': ['This field is already added.']})
 
-        if question and SavedQuestionStudent.objects.filter(question=question,
-                                                            student=student).exists():
-            raise ValidationError({'question': ['This field is already added.']})
+        if lesson_question and SavedQuestionStudent.objects.filter(lesson_question=lesson_question,
+                                                                   student=student).exists():
+            raise ValidationError({'lesson_question': ['This field is already added.']})
 
         return attrs
 
@@ -153,17 +165,17 @@ class SavedQuestionStudentRetrieveSerializer(serializers.ModelSerializer):
 
     def get_text(self, instance):
         language = self.context['request'].query_params.get('language')
-        if instance.question:
-            return getattr(instance.question, 'text_' + language, '')
-        return getattr(instance.question, 'text_' + language, '')
+        if instance.exam_question:
+            return getattr(instance.exam_question, 'text_' + language, '')
+        return getattr(instance.lesson_question, 'text_' + language, '')
 
     def get_video(self, instance):
         request = self.context['request']
         language = request.query_params.get('language')
-        if instance.question:
-            instance = instance.question
+        if instance.exam_question:
+            instance = instance.exam_question
         else:
-            instance = instance.question
+            instance = instance.lesson_question
 
         if getattr(instance, 'video_' + language, None):
             return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
