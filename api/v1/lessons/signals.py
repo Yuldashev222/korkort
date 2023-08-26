@@ -36,6 +36,12 @@ def change_student_lesson_view_statistics(instance, *args, **kwargs):
         obj.save()
 
 
+@receiver(post_save, sender=LessonStudentStatisticsByDay)
+def change_student_lesson_view_statistics(instance, *args, **kwargs):
+    if instance.student:
+        LessonStudentStatisticsByDay.objects.filter(student=instance.student).order_by('-date')[7:].delete()
+
+
 @receiver(post_save, sender=Lesson)
 def add_to_student_on_create(instance, created, *args, **kwargs):
     if created:

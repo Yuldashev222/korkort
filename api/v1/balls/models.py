@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 
-class TestBall(models.Model):  # last | on change
+class TestBall(models.Model):
     ball = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     def clean(self):
@@ -19,5 +19,5 @@ class TestBall(models.Model):  # last | on change
         obj = cls.objects.first()
         if obj:
             cache.set('test_ball', obj.ball, 60 * 60 * 24 * 7)
-        elif cache.get('student_discount'):
-            cache.delete('student_discount')
+        elif cache.get('test_ball'):
+            cache.delete('test_ball')

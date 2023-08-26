@@ -3,7 +3,7 @@ from django.core.cache import cache
 
 from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
-from api.v1.questions.models import ExamQuestion
+from api.v1.questions.models import Question
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_level(self, instance):
         language = self.context['request'].query_params.get('language')
-        if language not in ['swe', 'en', 'easy_swe']:
+        if language not in ['swe', 'en', 'e_swe']:
             return ''
         return getattr(instance.level, 'title_' + language)
 
@@ -36,7 +36,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_all_questions_count(self, instance):
         cnt = cache.get('all_questions_count')
         if not cnt:
-            ExamQuestion.set_redis()
+            Question.set_redis()
             cnt = cache.get('all_questions_count')
 
         return cnt if cnt else 0
