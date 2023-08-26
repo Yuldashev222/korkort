@@ -14,8 +14,8 @@ from .managers import CustomUserManager
 
 class CustomUser(AbstractUser):
     username = None
-    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
     email = models.EmailField(_("email address"), unique=True)
@@ -72,6 +72,6 @@ class CustomUser(AbstractUser):
                 self.is_verified = True
             else:
                 self.user_code = self.generate_unique_user_code
-                self.level, _ = Level.objects.get_or_create(level=1, title='beginner')
+                self.level, _ = Level.objects.get_or_create(level=1, title_en='beginner')
 
         super().save(*args, **kwargs)
