@@ -45,4 +45,4 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'avatar_id']
+        fields = ['first_name', 'last_name', 'avatar_id', 'password']

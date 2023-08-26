@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from api.v1.chapters.models import ChapterStudent
+from api.v1.lessons.models import LessonStudent
 
 
 class ChapterSerializer(serializers.ModelSerializer):
