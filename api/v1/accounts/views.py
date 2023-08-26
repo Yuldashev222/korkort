@@ -17,9 +17,6 @@ class ProfileAPIView(mixins.ListModelMixin,
     def get_object(self):
         return self.request.user
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
