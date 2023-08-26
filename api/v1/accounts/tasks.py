@@ -6,7 +6,7 @@ from django.utils.timezone import now
 
 from api.v1.accounts.models import CustomUser
 from api.v1.lessons.models import Lesson, LessonStudent
-from api.v1.questions.models import ExamQuestion, LessonQuestion, WrongQuestionStudentAnswer
+from api.v1.questions.models import Question, WrongQuestionStudentAnswer
 
 
 @shared_task
@@ -25,10 +25,14 @@ def add_student_lessons(student_id):
 def update_student_correct_answers(student_id):
     all_questions_count = cache.get('all_questions_count')
     if not all_questions_count:
-        ExamQuestion.set_redis()  # last
+        Question.set_redis()
         all_questions_count = cache.get('all_questions_count')
+
+    student = CustomUser.objects.get(id=student_id)
+
     if all_questions_count:
-        student = CustomUser.objects.get(id=student_id)
         wrong_answers_count = WrongQuestionStudentAnswer.objects.filter(student=student).count()
         student.correct_answers = all_questions_count - wrong_answers_count
-        student.save()
+    else:
+        student.correct_answers = 0
+    student.save()
