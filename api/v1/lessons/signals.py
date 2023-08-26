@@ -39,7 +39,9 @@ def change_student_lesson_view_statistics(instance, *args, **kwargs):
 @receiver(post_save, sender=LessonStudentStatisticsByDay)
 def change_student_lesson_view_statistics(instance, *args, **kwargs):
     if instance.student:
-        LessonStudentStatisticsByDay.objects.filter(student=instance.student).order_by('-date')[7:].delete()
+        expire_objs = LessonStudentStatisticsByDay.objects.filter(student=instance.student
+                                                                  ).order_by('-date').values_list('id', flat=True)[7:]
+        LessonStudentStatisticsByDay.objects.filter(student=instance.student, id__in=expire_objs).delete()
 
 
 @receiver(post_save, sender=Lesson)

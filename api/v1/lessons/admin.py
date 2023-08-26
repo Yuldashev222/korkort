@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Lesson, LessonStudent, LessonWordInfo, LessonSource
+from .models import Lesson, LessonStudent, LessonWordInfo, LessonSource, LessonStudentStatisticsByDay
 
 
 @admin.register(Lesson)
@@ -34,4 +34,9 @@ class LessonWordInfoAdmin(admin.ModelAdmin):
 
 @admin.register(LessonSource)
 class LessonSourceAdmin(admin.ModelAdmin):
+    list_display = ['id']
+
+
+@admin.register(LessonStudentStatisticsByDay)
+class LessonStudentStatisticsByDayAdmin(admin.ModelAdmin):
     list_display = ['id']
