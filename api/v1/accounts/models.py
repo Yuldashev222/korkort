@@ -63,8 +63,7 @@ class CustomUser(AbstractUser):
                                          is_verified=True, is_deleted=False).exists()
 
     def save(self, *args, **kwargs):
-        self.first_name = normalize_text(self.first_name)
-        self.last_name = normalize_text(self.last_name)
+        self.first_name, self.last_name = normalize_text(self.first_name, self.last_name)
         self.bonus_money = round(self.bonus_money, 1)
 
         if not self.pk:
