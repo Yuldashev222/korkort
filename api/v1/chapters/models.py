@@ -3,8 +3,8 @@ from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
-from api.v1.accounts.models import CustomUser
 from api.v1.lessons.models import LessonStudent
+from api.v1.accounts.models import CustomUser
 
 
 class Chapter(models.Model):
@@ -50,7 +50,7 @@ class ChapterStudent(models.Model):
 
     def save(self, *args, **kwargs):
         obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter, is_completed=True
-                                           ).order_by('-lesson__ordering_number').first()
+                                           ).order_by('lesson__ordering_number').last()
         if not obj:
             obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter
                                                ).order_by('lesson__ordering_number').first()
