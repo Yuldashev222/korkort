@@ -51,5 +51,8 @@ class ChapterStudent(models.Model):
     def save(self, *args, **kwargs):
         obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter, is_completed=True
                                            ).order_by('-lesson__ordering_number').first()
+        if not obj:
+            obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter
+                                               ).order_by('lesson__ordering_number').first()
         self.last_lesson = obj if obj else None
         super().save(*args, **kwargs)
