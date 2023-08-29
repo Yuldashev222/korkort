@@ -6,13 +6,14 @@ from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 
 @receiver([post_save, post_delete], sender=StudentDiscount)
-def update_tariff_discount(instance, *args, **kwargs):
+def update_tariff_discount(*args, **kwargs):
     StudentDiscount.set_redis()
-    for tariff in Tariff.objects.all():
+    for tariff in Tariff.objects.filter(student_discount=True):
         tariff.save()
 
 
 @receiver([post_delete, post_save], sender=TariffDiscount)
-def update_tariff_discount(instance, *args, **kwargs):
-    for tariff in instance.tariff_set.all():
+def update_tariff_discount(*args, **kwargs):
+    TariffDiscount.set_redis()
+    for tariff in Tariff.objects.filter(tariff_discount=True):
         tariff.save()

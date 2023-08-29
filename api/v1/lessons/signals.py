@@ -73,3 +73,10 @@ def update_student_ball(instance, *args, **kwargs):
         obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
         obj.completed_lessons = instance.student.completed_lessons
         obj.save()
+
+
+@receiver(post_delete, sender=LessonStudent)
+def update_student_chapter_lesson_link(instance, *args, **kwargs):
+    objs = ChapterStudent.objects.filter(student=instance.student, chapter=instance.lesson.chapter)
+    for obj in objs:
+        obj.save()

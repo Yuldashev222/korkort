@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 from api.v1.accounts.models import CustomUser
+from api.v1.lessons.models import LessonStudent
 
 
 class Chapter(models.Model):
@@ -42,6 +43,13 @@ class ChapterStudent(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
+    last_lesson = models.ForeignKey('lessons.LessonStudent', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         unique_together = ['chapter', 'student']
+
+    def save(self, *args, **kwargs):
+        obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter, is_completed=True
+                                           ).order_by('-lesson__ordering_number').first()
+        self.last_lesson = obj if obj else None
+        super().save(*args, **kwargs)

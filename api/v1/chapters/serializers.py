@@ -14,7 +14,9 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChapterStudent
-        fields = ['title', 'desc', 'image', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons']
+        fields = [
+            'title', 'desc', 'image', 'lessons', 'last_lesson', 'chapter_hour', 'chapter_minute', 'completed_lessons'
+        ]
 
     def get_title(self, instance):
         language = self.context['request'].query_params.get('language')

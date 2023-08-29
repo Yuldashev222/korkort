@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.utils.timezone import now
 
-from api.v1.discounts.models import StudentDiscount
+from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 
 class Order(models.Model):
@@ -34,7 +34,6 @@ class Order(models.Model):
     tariff_price = models.PositiveIntegerField()
     tariff_day = models.PositiveSmallIntegerField()
 
-    tariff_discount = models.ForeignKey('discounts.TariffDiscount', on_delete=models.SET_NULL, blank=True, null=True)
     tariff_discount_title = models.CharField(max_length=200, blank=True)
     tariff_discount_amount = models.FloatField(default=0)
     tariff_discount_value = models.PositiveIntegerField(default=0)
@@ -59,9 +58,9 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         tariff = self.tariff
-        discount = self.tariff.discount
         student = self.student
         called_student = self.called_student
+
         if not self.pk:
             self.order_id = self.generate_unique_order_id
             self.student_email = student.email
@@ -70,12 +69,17 @@ class Order(models.Model):
             self.tariff_price = tariff.price
             self.tariff_day = tariff.day
 
-            if discount:
-                self.tariff_discount = discount
-                self.tariff_discount_value = discount.discount_value
-                self.tariff_discount_title = discount.title
-                self.tariff_discount_is_percent = discount.is_percent
-                self.tariff_discount_amount = tariff.tariff_discount_amount
+            if tariff.student_discount:
+                tariff_discount = cache.get('tariff_discount')
+                if not tariff_discount:
+                    TariffDiscount.set_redis()
+                    tariff_discount = cache.get('tariff_discount')
+
+                if tariff_discount and tariff_discount['valid_to'] <= now().date():
+                    self.tariff_discount_value = tariff_discount['discount_value']
+                    self.tariff_discount_title = tariff_discount['title']
+                    self.tariff_discount_is_percent = tariff_discount['is_percent']
+                    self.tariff_discount_amount = tariff.tariff_discount_amount
 
             if self.use_bonus_money:
                 if student.bonus_money > 0:
@@ -100,8 +104,8 @@ class Order(models.Model):
                         student_discount = cache.get('student_discount')
 
                     if student_discount:
-                        self.student_discount_value = student_discount.get('discount_value')
-                        self.student_discount_is_percent = student_discount.get('is_percent')
+                        self.student_discount_value = student_discount['discount_value']
+                        self.student_discount_is_percent = student_discount['is_percent']
                         self.student_discount_amount = tariff.student_discount_amount
 
         all_discounts = self.student_discount_amount + self.tariff_discount_amount + self.student_bonus_amount

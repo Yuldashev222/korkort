@@ -24,17 +24,34 @@ class DiscountMixin(models.Model):
 
 
 class TariffDiscount(DiscountMixin):
-    valid_from = models.DateTimeField(blank=True, null=True)
-    valid_to = models.DateTimeField(blank=True, null=True)
+    valid_from = models.DateField(null=True)  # last
+    valid_to = models.DateField(null=True)  # last
+    image = models.ImageField(upload_to='discounts/images/', null=True)  # last
+
+    @classmethod
+    def set_redis(cls):
+        obj = cls.objects.first()
+        if obj:
+            cache.set('tariff_discount',
+                      {
+                          'is_percent': obj.is_percent,
+                          'discount_value': obj.discount_value,
+                          'title': obj.title,
+                          'valid_from': obj.valid_from,
+                          'valid_to': obj.valid_to,
+                          'image_url': obj.image.url,
+                      },
+                      60 * 60 * 24 * 30
+                      )
+
+        elif cache.get('tariff_discount'):
+            cache.delete('tariff_discount')
 
     def clean(self):
-        if self.valid_from and not self.valid_to:
-            raise ValidationError({'valid_to': 'This field is required.'})
+        if not self.pk and TariffDiscount.objects.exists():
+            raise ValidationError('old discount object exists')
 
-        if not self.valid_from and self.valid_to:
-            raise ValidationError({'valid_from': 'This field is required.'})
-
-        if self.valid_from and self.valid_to and self.valid_from > self.valid_to:
+        if self.valid_from >= self.valid_to:
             raise ValidationError({'valid_from': 'the start time must be less than the end time.'})
 
     class Meta:
@@ -54,7 +71,7 @@ class StudentDiscount(DiscountMixin):
         obj = cls.objects.first()
         if obj:
             cache.set('student_discount',
-                      {'is_percent': obj.is_percent, 'discount_value': obj.discount_value}, 60 * 60 * 24 * 7)
+                      {'is_percent': obj.is_percent, 'discount_value': obj.discount_value}, 60 * 60 * 24 * 30)
 
         elif cache.get('student_discount'):
             cache.delete('student_discount')
