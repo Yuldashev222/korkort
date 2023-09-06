@@ -13,7 +13,7 @@ class ExamStudentCategorySerializer(serializers.ModelSerializer):
         exclude = ['student']
 
     def get_category_name(self, instance):
-        return getattr(instance, 'name_' + get_language())
+        return getattr(instance.category, 'name_' + get_language())
 
     def get_image(self, instance):
         return self.context['request'].build_absolute_uri(instance.category.image.url)
