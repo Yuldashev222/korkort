@@ -11,12 +11,13 @@ def create_categories():
         QuestionCategory.objects.create(name=str(uuid4()), image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png')
 
 
-def create_lesson_questions():
+def create_lesson_questions(self):
     categories = QuestionCategory.objects.all()
     lessons = Lesson.objects.order_by('-id')
     objs1 = []
     objs2 = []
     for lesson in lessons:
+        self.stdout.write(str(lesson.id))
         for index, category in enumerate(categories, 1):
             if index > 7:
                 difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
@@ -62,10 +63,11 @@ def create_lesson_questions():
     Question.set_redis()
 
 
-def create_variants():
+def create_variants(self):
     objs = []
     questions = Question.objects.order_by('-id')
     for question in questions:
+        self.stdout.write(str(question.id))
         for i in range(5):
             objs.append(Variant(question=question,
                                 is_correct=i == 3,
@@ -79,5 +81,5 @@ def create_variants():
 class Command(BaseCommand):
     def handle(self, *args, **options):
         create_categories()
-        create_lesson_questions()
-        create_variants()
+        create_lesson_questions(self)
+        create_variants(self)
