@@ -22,7 +22,9 @@ class Command(BaseCommand):
                 image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png'
             )
         for i in range(7):
-            Tariff.objects.create(days=i * 10,
+            Tariff.objects.create(title=f'{str(uuid4())} {str(uuid4())}',
+                                  desc=f'{str(uuid4())} {str(uuid4())} {str(uuid4())} {str(uuid4())} {str(uuid4())}',
+                                  days=i * 10,
                                   price=i * 100,
                                   tariff_discount=i % 2 == 0,
                                   student_discount=i % 2 == 1)
