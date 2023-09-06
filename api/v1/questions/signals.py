@@ -18,8 +18,8 @@ def delete_the_excess(instance, *args, **kwargs):
                                                            ).values_list('id', flat=True)[10:]
     QuestionStudentLastResult.objects.filter(student=instance.student, id__in=expire_objs).delete()
 
-    data = QuestionStudentLastResult.objects.aggregate(questions=Count('questions'), answers=Count('correct_answers'))
-    instance.student.last_exams_result = int(data.get('answers') / data.get('questions') * 100)
+    data = QuestionStudentLastResult.objects.aggregate(questions=Count('questions'), answers=Count('wrong_answers'))
+    instance.student.last_exams_result = int(data.get('questions') - data.get('answers') / data.get('questions') * 100)
     instance.student.save()
 
 

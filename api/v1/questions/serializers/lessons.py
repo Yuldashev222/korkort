@@ -15,7 +15,6 @@ class LessonAnswerSerializer(serializers.Serializer):
 
     def to_internal_value(self, data):
         super().to_internal_value(data)
-        question_ids = set(question['pk'] for question in data['questions'])
         lesson_id = data['lesson_id']
         student = self.context['request'].user
 
@@ -24,6 +23,8 @@ class LessonAnswerSerializer(serializers.Serializer):
             lesson = lesson_student.lesson
         except LessonStudent.DoesNotExist:
             raise ValidationError({'lesson_id': 'not found.'})
+
+        question_ids = set(question['pk'] for question in data['questions'])
 
         for pk in question_ids:  # last
             try:
