@@ -6,6 +6,7 @@ from api.v1.general.utils import get_language
 
 class CategoryExamStudentSerializer(serializers.ModelSerializer):
     class Meta:
+        model = CategoryExamStudent
         exclude = ['student', 'category']
 
 
