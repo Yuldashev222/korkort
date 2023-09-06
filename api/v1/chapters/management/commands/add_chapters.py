@@ -6,7 +6,7 @@ from api.v1.chapters.models import Chapter
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        for i in range(100):
+        for i in range(20):
             Chapter.objects.create(
                 title_swe=f'{uuid4()} + {uuid4()} + {uuid4()}',
                 title_en=f'{uuid4()} + {uuid4()} + {uuid4()}',
