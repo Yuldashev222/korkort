@@ -15,7 +15,7 @@ class CategoryExamStudent(models.Model):
     questions = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(settings.MAX_QUESTIONS)])
     percent = models.PositiveSmallIntegerField(default=0)
 
-    created_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     time = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
