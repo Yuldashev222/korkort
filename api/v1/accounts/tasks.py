@@ -5,8 +5,10 @@ from django.core.cache import cache
 from django.utils.timezone import now
 
 from api.v1.accounts.models import CustomUser
-from api.v1.lessons.models import Lesson, LessonStudent
-from api.v1.questions.models import Question, WrongQuestionStudentAnswer
+from api.v1.chapters.models import Chapter, ChapterStudent
+from api.v1.exams.models import CategoryExamStudent
+from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatisticsByDay
+from api.v1.questions.models import Question, StudentWrongAnswer, QuestionCategory
 
 
 @shared_task
@@ -15,10 +17,30 @@ def delete_not_confirmed_accounts():
 
 
 @shared_task
-def add_student_lessons(student_id):
-    first_chapter_lesson_ids = Lesson.objects.values_list('id', flat=True)
-    objs = (LessonStudent(lesson_id=lesson_id, student_id=student_id) for lesson_id in first_chapter_lesson_ids)
-    LessonStudent.objects.bulk_create(objs)  # last
+def create_objects_for_student(student_id):
+    lesson_ids = Lesson.objects.values_list('id', flat=True)
+    objs = (LessonStudent(lesson_id=lesson_id, student_id=student_id) for lesson_id in lesson_ids)
+    LessonStudent.objects.bulk_create(objs)
+
+    objs = [
+        ChapterStudent(last_lesson=LessonStudent.objects.filter(lesson__chapter=chapter).first(),
+                       chapter=chapter, student_id=student_id)
+        for chapter in Chapter.objects.all()
+    ]
+    ChapterStudent.objects.bulk_create(objs)
+
+    today_date = now().date()
+    objs = [
+        LessonStudentStatisticsByDay(student=student_id, date=today_date - timedelta(days=i))
+        for i in [0, 1, 2, 3, 4, 5, 6]
+    ]
+    LessonStudentStatisticsByDay.objects.bulk_create(objs)
+
+    objs = [
+        CategoryExamStudent(category=category, student_id=student_id)
+        for category in QuestionCategory.objects.all()
+    ]
+    CategoryExamStudent.objects.bulk_create(objs)
 
 
 @shared_task
@@ -31,7 +53,7 @@ def update_student_correct_answers(student_id):
     student = CustomUser.objects.get(id=student_id)
 
     if all_questions_count:
-        wrong_answers_count = WrongQuestionStudentAnswer.objects.filter(student=student).count()
+        wrong_answers_count = StudentWrongAnswer.objects.filter(student=student).count()
         student.correct_answers = all_questions_count - wrong_answers_count
     else:
         student.correct_answers = 0

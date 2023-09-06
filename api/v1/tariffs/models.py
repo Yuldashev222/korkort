@@ -1,8 +1,6 @@
 from django.db import models
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.utils.timezone import now
 
 from api.v1.discounts.models import StudentDiscount, TariffDiscount
 from api.v1.general.services import normalize_text
@@ -41,30 +39,3 @@ class Tariff(models.Model):
 
     def __str__(self):
         return f'Tariff: {self.day} days'
-
-    def save(self, *args, **kwargs):
-        for field in ['tariff_discount', 'student_discount']:
-            if getattr(self, field):
-                discount = cache.get(field)
-                if not discount:
-                    if field == 'tariff_discount':
-                        TariffDiscount.set_redis()
-                    else:
-                        StudentDiscount.set_redis()
-                    discount = cache.get(field)
-
-                if not discount or discount.get('valid_to') and discount['valid_to'] <= now().date():
-                    setattr(self, field + '_amount', 0)
-                    setattr(self, field, False)
-                else:
-                    if discount['is_percent']:
-                        value = self.price * discount['discount_value'] / 100
-                        setattr(self, field + '_amount', value)
-                        setattr(self, field + '_amount', round(value, 1))
-                    else:
-                        setattr(self, field + '_amount', discount['discount_value'])
-
-            else:
-                setattr(self, field + '_amount', 0)
-
-        super().save(*args, **kwargs)

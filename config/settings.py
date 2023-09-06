@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,8 +27,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'debug_toolbar',
-    'ckeditor',
-    'ckeditor_uploader',
     'django_filters',
 
     'api.v1.general.apps.GeneralConfig',
@@ -40,7 +37,6 @@ INSTALLED_APPS = [
     'api.v1.tariffs.apps.TariffsConfig',
     'api.v1.chapters.apps.ChaptersConfig',
     'api.v1.lessons.apps.LessonsConfig',
-    'api.v1.levels.apps.LevelsConfig',
     'api.v1.balls.apps.BallsConfig',
     'api.v1.questions.apps.QuestionsConfig',
     'api.v1.exams.apps.ExamsConfig',
@@ -215,7 +211,23 @@ WEB_FORGOT_PASSWORD_URL = 'https://korkort.page.link/?uid={}&token={}'
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
-MAX_QUESTION_ANSWERS = 100
+MAX_QUESTIONS = 100
+LEVEL_NAMES = {
+    'swe': [
+        'Nyckelknippe',
+        'Startmotorn',
+        'Asfaltsrookie',
+        'Kopplingskung',
+        'Vägkapten',
+        'Kurvmästare',
+        'Gasguru',
+        'Fartfantast',
+        'Bilboss',
+        'Körkortskung',
+    ],
+    'en': [],
+    'e_swe': [],
+}
 
 # smtp configs
 EMAIL_USE_TLS = True

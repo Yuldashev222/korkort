@@ -1,16 +1,27 @@
 from celery import shared_task
 
 from api.v1.accounts.tasks import update_student_correct_answers
-
-from api.v1.questions.models import Question, WrongQuestionStudentAnswer
+from api.v1.questions.models import Question, StudentWrongAnswer
 
 
 @shared_task
-def update_student_wrong_answers(student_id, lesson_id, correct_answers_ids, for_lesson):
-    WrongQuestionStudentAnswer.objects.filter(question_id__in=correct_answers_ids, student_id=student_id).delete()
+def update_student_wrong_answers_in_lesson_test(student_id, lesson_id, wrong_question_ids):
+    StudentWrongAnswer.objects.filter(question__lesson_id=lesson_id, student_id=student_id).delete()
+    if wrong_question_ids:
+        questions = Question.objects.filter(id__in=wrong_question_ids)
+        objs = [StudentWrongAnswer(question=question, student_id=student_id) for question in questions]
+        StudentWrongAnswer.objects.bulk_create(objs)
 
-    for question in Question.objects.filter(for_lesson=for_lesson, lesson_id=lesson_id).exclude(
-            id__in=correct_answers_ids):
-        WrongQuestionStudentAnswer.objects.get_or_create(question=question, student_id=student_id)
+    update_student_correct_answers(student_id)
+
+
+@shared_task
+def update_student_wrong_answers_in_exam_test(student_id, wrong_question_ids, correct_question_ids):
+    StudentWrongAnswer.objects.filter(question_id__in=correct_question_ids + wrong_question_ids,
+                                      student_id=student_id).delete()
+    if wrong_question_ids:
+        questions = Question.objects.filter(id__in=wrong_question_ids)
+        objs = [StudentWrongAnswer(question=question, student_id=student_id) for question in questions]
+        StudentWrongAnswer.objects.bulk_create(objs)
 
     update_student_correct_answers(student_id)

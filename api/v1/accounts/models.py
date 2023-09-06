@@ -1,12 +1,12 @@
 import string
 import secrets
 
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
-from api.v1.levels.models import Level
 from api.v1.general.services import normalize_text
 
 from .managers import CustomUserManager
@@ -33,7 +33,7 @@ class CustomUser(AbstractUser):
     google_id = models.CharField(max_length=100, blank=True)
     facebook_id = models.CharField(max_length=100, blank=True)
 
-    level = models.ForeignKey('levels.Level', on_delete=models.PROTECT, null=True)
+    level = models.PositiveSmallIntegerField(default=0)
     level_image_id = models.PositiveSmallIntegerField(default=0)
 
     ball = models.PositiveBigIntegerField(default=0)
@@ -65,13 +65,4 @@ class CustomUser(AbstractUser):
     def save(self, *args, **kwargs):
         self.first_name, self.last_name = normalize_text(self.first_name, self.last_name)
         self.bonus_money = round(self.bonus_money, 1)
-
-        if not self.pk:
-            if self.is_staff:
-                self.user_code = self.email
-                self.is_verified = True
-            else:
-                self.user_code = self.generate_unique_user_code
-                self.level, _ = Level.objects.get_or_create(level=1, title_en='beginner')
-
         super().save(*args, **kwargs)

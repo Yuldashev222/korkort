@@ -3,10 +3,7 @@ import secrets
 from datetime import timedelta
 from django.db import models
 from django.conf import settings
-from django.core.cache import cache
 from django.utils.timezone import now
-
-from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 
 class Order(models.Model):
@@ -55,80 +52,3 @@ class Order(models.Model):
             value = ''.join(secrets.choice(string.digits) for _ in range(7))
             if not Order.objects.filter(order_id=value).exists():
                 return value
-
-    def save(self, *args, **kwargs):
-        tariff = self.tariff
-        student = self.student
-        called_student = self.called_student
-
-        if not self.pk:
-            self.order_id = self.generate_unique_order_id
-            self.student_email = student.email
-
-            self.tariff_title = tariff.tariff_info.title
-            self.tariff_price = tariff.price
-            self.tariff_day = tariff.day
-
-            if tariff.student_discount:
-                tariff_discount = cache.get('tariff_discount')
-                if not tariff_discount:
-                    TariffDiscount.set_redis()
-                    tariff_discount = cache.get('tariff_discount')
-
-                if tariff_discount and tariff_discount['valid_to'] <= now().date():
-                    self.tariff_discount_value = tariff_discount['discount_value']
-                    self.tariff_discount_title = tariff_discount['title']
-                    self.tariff_discount_is_percent = tariff_discount['is_percent']
-                    self.tariff_discount_amount = tariff.tariff_discount_amount
-
-            if self.use_bonus_money:
-                if student.bonus_money > 0:
-                    remaining_amount = self.tariff_price - self.tariff_discount_amount
-                    if remaining_amount > 0:
-                        if student.bonus_money >= remaining_amount:
-                            student.bonus_money -= remaining_amount
-                            self.student_bonus_amount = remaining_amount
-                        else:
-                            self.student_bonus_amount = student.bonus_money
-                            student.bonus_money = 0
-                        student.save()
-
-            elif called_student:
-                self.called_student_code = called_student.user_code
-                self.called_student_email = called_student.email
-
-                if tariff.student_discount:
-                    student_discount = cache.get('student_discount')
-                    if not student_discount:
-                        StudentDiscount.set_redis()
-                        student_discount = cache.get('student_discount')
-
-                    if student_discount:
-                        self.student_discount_value = student_discount['discount_value']
-                        self.student_discount_is_percent = student_discount['is_percent']
-                        self.student_discount_amount = tariff.student_discount_amount
-
-        all_discounts = self.student_discount_amount + self.tariff_discount_amount + self.student_bonus_amount
-        if self.tariff_price <= all_discounts:
-            self.is_paid = True
-
-        if self.is_paid:
-            self.purchased_at = now()
-            max_expire_at = Order.objects.filter(is_paid=True, expire_at__gt=self.purchased_at
-                                                 ).aggregate(max_expire_at=models.Max('expire_at'))['max_expire_at']
-            max_expire_at = max_expire_at if max_expire_at else self.purchased_at
-            self.expire_at = max_expire_at + timedelta(days=self.tariff_day)
-
-            if called_student and not self.called_student_bonus_added:
-                called_student.bonus_money += round(self.student_discount_amount, 1)
-                called_student.save()
-                self.called_student_bonus_added = True
-
-            if self.stripe_id and not self.stripe_url:
-                if '_test_' in settings.STRIPE_SECRET_KEY:
-                    path = '/test/'
-                else:
-                    path = '/'
-                self.stripe_url = f'https://dashboard.stripe.com{path}payments/{self.stripe_id}'
-
-        super().save(*args, **kwargs)

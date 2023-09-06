@@ -21,8 +21,5 @@ def change_student_tariff_expire_date(student_id):
     max_expire_at = Order.objects.filter(is_paid=True, expire_at__gt=now()
                                          ).aggregate(max_expire_at=Max('expire_at'))['max_expire_at']
 
-    if max_expire_at:
-        student.tariff_expire_date = max_expire_at
-    else:
-        student.tariff_expire_date = None
+    student.tariff_expire_date = max_expire_at if max_expire_at else None
     student.save()

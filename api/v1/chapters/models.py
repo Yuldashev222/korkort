@@ -1,10 +1,6 @@
 from django.db import models
-from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-
-from api.v1.lessons.models import LessonStudent
-from api.v1.accounts.models import CustomUser
 
 
 class Chapter(models.Model):
@@ -12,9 +8,9 @@ class Chapter(models.Model):
     title_en = models.CharField(max_length=300, blank=True)
     title_e_swe = models.CharField(max_length=300, blank=True)
 
-    desc_swe = RichTextField(verbose_name='Swedish', blank=True, max_length=700)
-    desc_en = RichTextField(verbose_name='English', blank=True, max_length=700)
-    desc_e_swe = RichTextField(verbose_name='Easy Swedish', blank=True, max_length=700)
+    desc_swe = models.CharField(verbose_name='Swedish', blank=True, max_length=700)
+    desc_en = models.CharField(verbose_name='English', blank=True, max_length=700)
+    desc_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
 
     image = models.ImageField(blank=True, null=True)
 
@@ -23,13 +19,8 @@ class Chapter(models.Model):
     chapter_hour = models.PositiveSmallIntegerField(default=0, editable=False)
     chapter_minute = models.PositiveSmallIntegerField(default=0, editable=False)
 
-    def save(self, *args, **kwargs):
-        created = True if not self.pk else False
-        super().save(*args, **kwargs)
-        if created:
-            students = CustomUser.objects.filter(is_staff=False)
-            objs = [ChapterStudent(student=student, chapter=self) for student in students]
-            ChapterStudent.objects.bulk_create(objs)
+    class Meta:
+        ordering = ['ordering_number']
 
     def __str__(self):
         return f'Chapter No {self.ordering_number}'
@@ -47,12 +38,4 @@ class ChapterStudent(models.Model):
 
     class Meta:
         unique_together = ['chapter', 'student']
-
-    def save(self, *args, **kwargs):
-        obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter, is_completed=True
-                                           ).order_by('lesson__ordering_number').last()
-        if not obj:
-            obj = LessonStudent.objects.filter(student=self.student, lesson__chapter=self.chapter
-                                               ).order_by('lesson__ordering_number').first()
-        self.last_lesson = obj if obj else None
-        super().save(*args, **kwargs)
+        ordering = ['chapter__ordering_number']

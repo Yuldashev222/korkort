@@ -1,5 +1,4 @@
 from django.db import models
-from ckeditor.fields import RichTextField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -11,22 +10,29 @@ class Lesson(models.Model):
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
     lesson_time = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], help_text='in minute')
-    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
+    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
     image = models.ImageField(blank=True, null=True)
 
     title_swe = models.CharField(max_length=300, blank=True)
     title_en = models.CharField(max_length=300, blank=True)
     title_e_swe = models.CharField(max_length=300, blank=True)
 
-    text_swe = RichTextField(verbose_name='Swedish', blank=True, max_length=700)
-    text_en = RichTextField(verbose_name='English', blank=True, max_length=700)
-    text_e_swe = RichTextField(verbose_name='Easy Swedish', blank=True, max_length=700)
+    text_swe = models.CharField(verbose_name='Swedish', blank=True, max_length=700)
+    text_en = models.CharField(verbose_name='English', blank=True, max_length=700)
+    text_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
 
     video_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
     video_en = models.FileField(blank=True, null=True, upload_to='lesson/videos')
     video_e_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.text_swe
+
+    class Meta:
+        ordering = ['ordering_number']
+        unique_together = ['chapter', 'ordering_number']
 
     @classmethod
     def set_redis(cls):
@@ -84,13 +90,14 @@ class LessonStudent(models.Model):
 
     class Meta:
         unique_together = ['lesson', 'student']
+        ordering = ['lesson__ordering_number']
 
 
 class LessonStudentStatistics(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
-    viewed_date = models.DateField(auto_now_add=True)
+    viewed_date = models.DateField(auto_now=True)
 
     class Meta:
         unique_together = ['lesson', 'student']
@@ -103,3 +110,4 @@ class LessonStudentStatisticsByDay(models.Model):
 
     class Meta:
         unique_together = ['date', 'student']
+        ordering = ['date']

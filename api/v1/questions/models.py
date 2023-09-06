@@ -3,11 +3,13 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
+from api.v1.accounts.models import CustomUser
 from api.v1.general.services import normalize_text
 
 
 class QuestionCategory(models.Model):
     name = models.CharField(max_length=300)
+    image = models.ImageField(upload_to='questions/categories/images/', null=True)  # last
 
     def __str__(self):
         return self.name
@@ -22,7 +24,7 @@ class Question(models.Model):
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.PROTECT)
     category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
     for_lesson = models.BooleanField(default=False)
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
     answer = models.CharField(max_length=500, blank=True)
@@ -36,6 +38,10 @@ class Question(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
+
+    class Meta:
+        ordering = ['ordering_number']
+        unique_together = ['lesson', 'for_lesson', 'ordering_number']
 
     def save(self, *args, **kwargs):
         self.text_swe, self.text_en, self.text_e_swe, self.answer = normalize_text(self.text_swe, self.text_en,
@@ -72,7 +78,7 @@ class Variant(models.Model):
             raise ValidationError('Enter the text')
 
 
-class WrongQuestionStudentAnswer(models.Model):
+class StudentWrongAnswer(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
@@ -82,7 +88,7 @@ class WrongQuestionStudentAnswer(models.Model):
         return f'{self.question}'
 
 
-class SavedQuestionStudent(models.Model):
+class StudentSavedQuestion(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
@@ -98,4 +104,4 @@ class SavedQuestionStudent(models.Model):
 class QuestionStudentLastResult(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     questions = models.PositiveSmallIntegerField()
-    correct_answers = models.PositiveSmallIntegerField()
+    wrong_answers = models.PositiveSmallIntegerField()
