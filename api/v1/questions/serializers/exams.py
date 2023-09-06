@@ -39,8 +39,6 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
             raise ValidationError('max length')
 
-        wrong_question_ids = set(question['pk'] for question in wrong_questions)
-        correct_question_ids = set(question['pk'] for question in correct_questions)
         exam_id = data['exam_id']
         student = self.context['request'].user
 
@@ -48,6 +46,12 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
             exam = CategoryExamStudent.objects.get(id=exam_id)
         except CategoryExamStudent.DoesNotExist:
             raise ValidationError({'exam_id': 'not found'})
+
+        if exam.correct_answers > 0:
+            raise ValidationError({'exam_id': 'not found'})
+
+        wrong_question_ids = set(question['pk'] for question in wrong_questions)
+        correct_question_ids = set(question['pk'] for question in correct_questions)
 
         for question_ids in [correct_question_ids, wrong_question_ids]:
             for pk in question_ids:  # last

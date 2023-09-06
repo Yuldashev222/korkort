@@ -142,9 +142,12 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
     email = serializers.EmailField(write_only=True)
 
     def validate(self, attrs):
-        code = attrs.get('code')
+        code = attrs['code']
         new_password = attrs.get('new_password')
-        email = attrs.get('email')
+        email = attrs['email']
+
+        if not new_password:
+            raise ValidationError({'new_password': 'This field is required.'})
 
         try:
             self.user = CustomUser.objects.get(email=email)
@@ -153,9 +156,6 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
         if cache.get(f'{email}_reset_password') != code:
             raise ValidationError({'code': 'not valid or expired'})
-
-        if not new_password:
-            raise ValidationError({'new_password': 'This field is required.'})
 
         form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
         if not form.is_valid():

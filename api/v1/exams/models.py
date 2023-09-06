@@ -22,5 +22,8 @@ class CategoryExamStudent(models.Model):
         ordering = ['-id']
 
     def save(self, *args, **kwargs):
-        self.percent = int(self.correct_answers / self.questions * 100) if self.questions > 0 else 0
+        if self.correct_answers > 0:
+            self.percent = int(self.correct_answers / self.questions * 100) if self.questions > 0 else 0
+        else:
+            self.percent = 0
         super().save(*args, **kwargs)
