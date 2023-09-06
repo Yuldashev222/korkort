@@ -4,10 +4,10 @@ from celery import shared_task
 from django.core.cache import cache
 from django.utils.timezone import now
 
-from api.v1.accounts.models import CustomUser
-from api.v1.chapters.models import Chapter, ChapterStudent
 from api.v1.exams.models import CategoryExamStudent
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatisticsByDay
+from api.v1.accounts.models import CustomUser
+from api.v1.chapters.models import Chapter, ChapterStudent
 from api.v1.questions.models import Question, StudentWrongAnswer, QuestionCategory
 
 
@@ -31,7 +31,7 @@ def create_objects_for_student(student_id):
 
     today_date = now().date()
     objs = [
-        LessonStudentStatisticsByDay(student=student_id, date=today_date - timedelta(days=i))
+        LessonStudentStatisticsByDay(student_id=student_id, date=today_date - timedelta(days=i))
         for i in [0, 1, 2, 3, 4, 5, 6]
     ]
     LessonStudentStatisticsByDay.objects.bulk_create(objs)

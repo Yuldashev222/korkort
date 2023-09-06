@@ -5,11 +5,12 @@ from django.core.validators import MinValueValidator
 
 from api.v1.accounts.models import CustomUser
 from api.v1.general.services import normalize_text
+from api.v1.questions.services import category_image_location
 
 
 class QuestionCategory(models.Model):
     name = models.CharField(max_length=300)
-    image = models.ImageField(upload_to='questions/categories/images/', null=True)  # last
+    image = models.ImageField(upload_to=category_image_location)
 
     def __str__(self):
         return self.name
@@ -24,20 +25,17 @@ class Question(models.Model):
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.PROTECT)
     category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
     for_lesson = models.BooleanField(default=False)
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], null=True)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
     answer = models.CharField(max_length=500, blank=True)
+    text_swe = models.CharField(max_length=300, verbose_name='Swedish')
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
-    video_en = models.FileField(blank=True, null=True)
     video_swe = models.FileField(blank=True, null=True)
+    video_en = models.FileField(blank=True, null=True)
     video_e_swe = models.FileField(blank=True, null=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         ordering = ['ordering_number']
@@ -63,11 +61,9 @@ class Variant(models.Model):
 
     is_correct = models.BooleanField(default=False)
 
+    text_swe = models.CharField(max_length=300, verbose_name='Swedish')
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish', blank=True)
     text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         self.text_swe, self.text_en, self.text_e_swe = normalize_text(self.text_swe, self.text_en, self.text_e_swe)
@@ -98,6 +94,7 @@ class StudentSavedQuestion(models.Model):
         return str(self.question)
 
     class Meta:
+        ordering = ['-created_at']
         unique_together = ['question', 'student']
 
 
@@ -105,3 +102,6 @@ class QuestionStudentLastResult(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     questions = models.PositiveSmallIntegerField()
     wrong_answers = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ['-id']

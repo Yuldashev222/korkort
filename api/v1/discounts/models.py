@@ -8,7 +8,6 @@ class DiscountMixin(models.Model):
     title = models.CharField(max_length=200, blank=True)
     discount_value = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     is_percent = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
         if self.is_percent and self.discount_value > 100:
@@ -24,9 +23,9 @@ class DiscountMixin(models.Model):
 
 
 class TariffDiscount(DiscountMixin):
-    valid_from = models.DateField(null=True)  # last
-    valid_to = models.DateField(null=True)  # last
-    image = models.ImageField(upload_to='discounts/images/', null=True)  # last
+    # valid_from = models.DateField()
+    # valid_to = models.DateField()
+    image = models.ImageField(upload_to='discounts/images/')
 
     @classmethod
     def set_redis(cls):
@@ -37,8 +36,8 @@ class TariffDiscount(DiscountMixin):
                           'is_percent': obj.is_percent,
                           'discount_value': obj.discount_value,
                           'title': obj.title,
-                          'valid_from': obj.valid_from,
-                          'valid_to': obj.valid_to,
+                          # 'valid_from': obj.valid_from,
+                          # 'valid_to': obj.valid_to,
                           'image_url': obj.image.url,
                       },
                       60 * 60 * 24 * 30
@@ -51,8 +50,8 @@ class TariffDiscount(DiscountMixin):
         if not self.pk and TariffDiscount.objects.exists():
             raise ValidationError('old discount object exists')
 
-        if self.valid_from >= self.valid_to:
-            raise ValidationError({'valid_from': 'the start time must be less than the end time.'})
+        # if self.valid_from >= self.valid_to:
+            # raise ValidationError({'valid_from': 'the start time must be less than the end time.'})
 
     class Meta:
         constraints = [
@@ -61,7 +60,6 @@ class TariffDiscount(DiscountMixin):
 
 
 class StudentDiscount(DiscountMixin):
-
     def clean(self):
         if not self.pk and StudentDiscount.objects.exists():
             raise ValidationError('old student discount object exists')

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from api.v1.general.utils import get_language
 from api.v1.questions.models import StudentSavedQuestion
 
 
@@ -18,13 +19,11 @@ class SavedQuestionRetrieveSerializer(serializers.ModelSerializer):
         fields = ['id', 'text', 'video', 'created_at']
 
     def get_text(self, instance):
-        language = self.context['request'].query_params.get('language', '')
-        return getattr(instance.question, 'text_' + language, None)
+        return getattr(instance.question, 'text_' + get_language())
 
     def get_video(self, instance):
         request = self.context['request']
-        language = request.query_params.get('language', '')
-
+        language = get_language()
         if getattr(instance, 'video_' + language, None):
             return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
         return None

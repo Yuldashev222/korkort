@@ -18,6 +18,9 @@ class CategoryExamStudent(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     time = models.PositiveSmallIntegerField(default=0)
 
+    class Meta:
+        ordering = ['-id']
+
     def save(self, *args, **kwargs):
         self.percent = int(self.correct_answers / self.questions * 100) if self.questions > 0 else 0
         super().save(*args, **kwargs)

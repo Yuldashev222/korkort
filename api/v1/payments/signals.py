@@ -46,9 +46,9 @@ def check_order(instance, *args, **kwargs):
         instance.order_id = instance.generate_unique_order_id
         instance.student_email = student.email
 
-        instance.tariff_title = tariff.tariff_info.title
+        instance.tariff_title = tariff.title
         instance.tariff_price = tariff.price
-        instance.tariff_day = tariff.day
+        instance.tariff_days = tariff.days
 
         if tariff.student_discount:
             tariff_discount = cache.get('tariff_discount')
@@ -56,7 +56,8 @@ def check_order(instance, *args, **kwargs):
                 TariffDiscount.set_redis()
                 tariff_discount = cache.get('tariff_discount')
 
-            if tariff_discount and tariff_discount['valid_to'] <= now().date():
+            # if tariff_discount and tariff_discount['valid_to'] <= now().date():
+            if tariff_discount:
                 instance.tariff_discount_value = tariff_discount['discount_value']
                 instance.tariff_discount_title = tariff_discount['title']
                 instance.tariff_discount_is_percent = tariff_discount['is_percent']
@@ -98,7 +99,7 @@ def check_order(instance, *args, **kwargs):
         max_expire_at = Order.objects.filter(is_paid=True, expire_at__gt=instance.purchased_at
                                              ).aggregate(max_expire_at=Max('expire_at'))['max_expire_at']
         max_expire_at = max_expire_at if max_expire_at else instance.purchased_at
-        instance.expire_at = max_expire_at + timedelta(days=instance.tariff_day)
+        instance.expire_at = max_expire_at + timedelta(days=instance.tariff_days)
 
         if called_student and not instance.called_student_bonus_added:
             called_student.bonus_money += round(instance.student_discount_amount, 1)

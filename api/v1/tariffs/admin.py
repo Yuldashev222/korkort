@@ -1,21 +1,9 @@
 from django.contrib import admin
 
-from .models import TariffInfo, Tariff
+from .models import Tariff
 
 
-class TariffDayAdmin(admin.TabularInline):
-    model = Tariff
-
-
-@admin.register(TariffInfo)
+@admin.register(Tariff)
 class TariffAdmin(admin.ModelAdmin):
-    inlines = [TariffDayAdmin]
+    list_display = ['id', 'days']
 
-    def has_add_permission(self, request):
-        return not TariffInfo.objects.exists()
-
-    # def delete_model(self, request, obj):
-    #     if Order.active_orders().filter(tariff_id=obj.id).exists():
-    #         return self.message_user(request,
-    #                                  'There are students who have purchased this tariff and are currently using it!')
-    #     obj.delete()

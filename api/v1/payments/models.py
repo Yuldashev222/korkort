@@ -29,7 +29,7 @@ class Order(models.Model):
     tariff = models.ForeignKey('tariffs.Tariff', on_delete=models.SET_NULL, null=True)
     tariff_title = models.CharField(max_length=100)
     tariff_price = models.PositiveIntegerField()
-    tariff_day = models.PositiveSmallIntegerField()
+    tariff_days = models.PositiveSmallIntegerField()
 
     tariff_discount_title = models.CharField(max_length=200, blank=True)
     tariff_discount_amount = models.FloatField(default=0)
@@ -40,6 +40,9 @@ class Order(models.Model):
     called_student_code = models.CharField(max_length=6, blank=True)
     called_student_email = models.EmailField(blank=True)
     called_student_bonus_added = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-id']
 
     @classmethod
     def expire_orders(cls):

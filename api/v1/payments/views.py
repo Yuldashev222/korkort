@@ -18,7 +18,7 @@ class OrderAPIView(ReadOnlyModelViewSet):
     def get_queryset(self):
         student = self.request.user
         if student.is_authenticated:
-            return Order.objects.filter(student=self.request.user).order_by('-id')
+            return Order.objects.filter(student=self.request.user)
         return Order.objects.none()
 
 

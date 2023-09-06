@@ -20,8 +20,6 @@ class SavedQuestionStudentAPIVIew(mixins.CreateModelMixin,
         return self.create(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if not request.query_params.get('language'):
-            return Response([])
         return self.list(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -31,7 +29,7 @@ class SavedQuestionStudentAPIVIew(mixins.CreateModelMixin,
 
     def get_queryset(self):
         student = self.request.user
-        return StudentSavedQuestion.objects.filter(student=student).order_by('-created_at')
+        return StudentSavedQuestion.objects.filter(student=student)
 
 
 class SavedQuestionStudentDestroyAPIVIew(DestroyAPIView):

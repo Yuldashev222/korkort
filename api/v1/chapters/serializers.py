@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from api.v1.chapters.models import ChapterStudent
-from api.v1.lessons.models import LessonStudent
+from api.v1.general.utils import get_language
 
 
 class ChapterSerializer(serializers.ModelSerializer):
@@ -15,17 +15,11 @@ class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChapterStudent
         fields = [
-            'title', 'desc', 'image', 'lessons', 'last_lesson', 'chapter_hour', 'chapter_minute', 'completed_lessons'
+            'id', 'title', 'desc', 'image', 'lessons', 'last_lesson', 'chapter_hour', 'chapter_minute', 'completed_lessons'
         ]
 
     def get_title(self, instance):
-        language = self.context['request'].query_params.get('language')
-        if language not in ['en', 'swe', 'e_swe']:
-            return ''
-        return getattr(instance.chapter, 'title_' + language, '')
+        return getattr(instance.chapter, 'title_' + get_language())
 
     def get_desc(self, instance):
-        language = self.context['request'].query_params.get('language')
-        if language not in ['en', 'swe', 'e_swe']:
-            return ''
-        return getattr(instance.chapter, 'desc_' + language, '')
+        return getattr(instance.chapter, 'desc_' + get_language())

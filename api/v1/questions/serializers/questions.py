@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from api.v1.general.utils import get_language
 from api.v1.questions.serializers.variants import VariantSerializer
 
 
@@ -12,14 +13,13 @@ class QuestionSerializer(serializers.Serializer):
 
     def get_question_video(self, instance):
         request = self.context.get('request')
-        language = request.query_params.get('language', '')
-        if getattr(instance, 'video_' + language, None):
+        language = get_language()
+        if getattr(instance, 'video_' + language):
             return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
         return None
 
     def get_question_text(self, instance):
-        language = self.context['request'].query_params.get('language', '')
-        return getattr(instance, 'text_' + language, None)
+        return getattr(instance, 'text_' + get_language())
 
 
 class QuestionAnswerSerializer(serializers.Serializer):

@@ -23,7 +23,7 @@ class StripeCheckoutAPIView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        tariff_info = data['tariff_info']
+        tariff = data['tariff']
         order = data['order']
         user = self.request.user
 
@@ -31,13 +31,13 @@ class StripeCheckoutAPIView(CreateAPIView):
             return Response({'checkout_url': None, 'is_paid': order.is_paid}, status=status.HTTP_200_OK)
 
         product_data = {
-            'name': tariff_info.title,
-            'description': tariff_info.desc,
+            'name': tariff.title,
+            'description': tariff.desc,
             'images': [
                 default_image  # last
             ]
         }
-        if not tariff_info.desc:
+        if not tariff.desc:
             del product_data['description']
 
         try:

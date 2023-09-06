@@ -21,7 +21,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
     serializer_class = LessonRetrieveSerializer
 
     def get_queryset(self):
-        return LessonStudent.objects.filter(student=self.request.user).select_related('lesson')
+        return LessonStudent.objects.filter(student=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -37,7 +37,7 @@ class LessonStudentStatisticsByDayAPIView(ListModelMixin, GenericViewSet):
 
     def get_queryset(self):
         student = self.request.user
-        return LessonStudentStatisticsByDay.objects.filter(student=student).order_by('-date')[:7]
+        return LessonStudentStatisticsByDay.objects.filter(student=student)[:7]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

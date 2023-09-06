@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Tariff, TariffInfo
-from .serializers import TariffSerializer, TariffInfoSerializer
+from .models import Tariff
+from .serializers import TariffSerializer
 from api.v1.accounts.permissions import IsStudent
 from api.v1.discounts.models import StudentDiscount
 
@@ -13,13 +13,11 @@ from api.v1.discounts.models import StudentDiscount
 class TariffAPIView(GenericViewSet):
     permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = TariffSerializer
-    queryset = Tariff.objects.filter(is_active=True).order_by('-created_at')
+    queryset = Tariff.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        obj = TariffInfo.objects.first()
-        tariff_info = TariffInfoSerializer(obj).data
         student = self.request.user
 
         student_discount = cache.get('student_discount')
@@ -38,7 +36,8 @@ class TariffAPIView(GenericViewSet):
         tariff_discount_is_percent = False
         tariff_discount_title = ''
         tariff_discount_image = None
-        if tariff_discount and tariff_discount['valid_to'] > now().date():
+        # if tariff_discount and tariff_discount['valid_to'] > now().date():
+        if tariff_discount:
             tariff_discount_value = tariff_discount.get('discount_value')
             tariff_discount_is_percent = tariff_discount.get('is_percent')
             tariff_discount_title = tariff_discount.get('title')
@@ -52,6 +51,5 @@ class TariffAPIView(GenericViewSet):
             'tariff_discount_title': tariff_discount_title,
             'tariff_discount_image': request.build_absolute_uri(tariff_discount_image),
             'student_bonus_money': student.bonus_money,
-            'tariff_info': tariff_info,
             'objects': serializer.data
         })

@@ -1,19 +1,20 @@
 from django.db import models
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 
+from api.v1.general.utils import get_video_duration
 from api.v1.general.services import normalize_text
+from api.v1.lessons.services import lesson_image_location, lesson_video_location
 
 
 class Lesson(models.Model):
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
-    lesson_time = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], help_text='in minute')
+    lesson_time = models.FloatField(help_text='in minute')
     ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
-    image = models.ImageField(blank=True, null=True)
+    image = models.ImageField(upload_to=lesson_image_location)
 
-    title_swe = models.CharField(max_length=300, blank=True)
+    title_swe = models.CharField(max_length=300)
     title_en = models.CharField(max_length=300, blank=True)
     title_e_swe = models.CharField(max_length=300, blank=True)
 
@@ -21,14 +22,15 @@ class Lesson(models.Model):
     text_en = models.CharField(verbose_name='English', blank=True, max_length=700)
     text_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
 
-    video_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
-    video_en = models.FileField(blank=True, null=True, upload_to='lesson/videos')
-    video_e_swe = models.FileField(blank=True, null=True, upload_to='lesson/videos')
-
-    created_at = models.DateTimeField(auto_now_add=True)
+    video_swe = models.FileField(upload_to=lesson_video_location,
+                                 validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
+    video_en = models.FileField(blank=True, null=True, upload_to=lesson_video_location,
+                                validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
+    video_e_swe = models.FileField(blank=True, null=True, upload_to=lesson_video_location,
+                                   validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
 
     def __str__(self):
-        return self.text_swe
+        return f'{self.ordering_number}: {self.title_swe}'
 
     class Meta:
         ordering = ['ordering_number']
@@ -39,26 +41,20 @@ class Lesson(models.Model):
         cnt = cls.objects.count()
         cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 7)
 
-    def clean(self):
-        if not (self.title_en or self.title_swe or self.title_e_swe):
-            raise ValidationError('Enter the title')
-
-        if not (self.text_en or self.text_swe or self.text_e_swe or self.video_en or self.video_swe or
-                self.video_e_swe):
-            raise ValidationError('Enter the text or video')
-
     def save(self, *args, **kwargs):
-        self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.text_swe, self.text_en, self.text_e_swe)
+        self.lesson_time = get_video_duration(self.video_swe.path)
+        self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.text_swe,
+                                                                         self.text_en, self.text_e_swe)
         super().save(*args, **kwargs)
 
 
 class LessonWordInfo(models.Model):
     text_swe = models.CharField(max_length=300)
-    text_en = models.CharField(max_length=300)
-    text_e_swe = models.CharField(max_length=300)
+    text_en = models.CharField(max_length=300, blank=True)
+    text_e_swe = models.CharField(max_length=300, blank=True)
     info_swe = models.TextField(max_length=500)
-    info_en = models.TextField(max_length=500)
-    info_e_swe = models.TextField(max_length=500)
+    info_en = models.TextField(max_length=500, blank=True)
+    info_e_swe = models.TextField(max_length=500, blank=True)
 
     lessons = models.ManyToManyField(Lesson)
 
@@ -70,8 +66,8 @@ class LessonWordInfo(models.Model):
 
 class LessonSource(models.Model):
     text_swe = models.TextField(max_length=500)
-    text_en = models.TextField(max_length=500)
-    text_e_swe = models.TextField(max_length=500)
+    text_en = models.TextField(max_length=500, blank=True)
+    text_e_swe = models.TextField(max_length=500, blank=True)
     link = models.URLField()
 
     lessons = models.ManyToManyField(Lesson)
@@ -110,4 +106,4 @@ class LessonStudentStatisticsByDay(models.Model):
 
     class Meta:
         unique_together = ['date', 'student']
-        ordering = ['date']
+        ordering = ['-date']

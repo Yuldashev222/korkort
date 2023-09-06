@@ -12,5 +12,4 @@ class ChapterAPIView(ListAPIView):
 
     def get_queryset(self):
         student = self.request.user
-        return ChapterStudent.objects.filter(student=student).select_related('chapter'
-                                                                             ).order_by('chapter__ordering_number')
+        return ChapterStudent.objects.filter(student=student).select_related('chapter')

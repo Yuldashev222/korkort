@@ -19,7 +19,7 @@ class StripeCheckoutSerializer(serializers.Serializer):
         student = self.context['request'].user
 
         try:
-            tariff = Tariff.objects.select_related('tariff_info').get(pk=tariff_id)
+            tariff = Tariff.objects.get(pk=tariff_id)
         except Tariff.DoesNotExist:
             raise ValidationError({'tariff_id': ['not found']})
 
@@ -38,7 +38,7 @@ class StripeCheckoutSerializer(serializers.Serializer):
                                      use_bonus_money=use_bonus_money)
 
         attrs['order'] = order
-        attrs['tariff_info'] = tariff.tariff_info
+        attrs['tariff'] = tariff
         return attrs
 
 

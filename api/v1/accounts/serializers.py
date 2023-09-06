@@ -1,6 +1,8 @@
+from django.conf import settings
 from rest_framework import serializers
 from django.core.cache import cache
 
+from api.v1.general.utils import get_language
 from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question
@@ -20,10 +22,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         ]
 
     def get_level(self, instance):
-        language = self.context['request'].query_params.get('language')
-        if language not in ['swe', 'en', 'e_swe']:
-            return ''
-        return getattr(instance.level, 'title_' + language)
+        return settings.LEVEL_NAMES[get_language()][instance.level]
 
     def get_all_lessons_count(self, instance):
         cnt = cache.get('all_lessons_count')

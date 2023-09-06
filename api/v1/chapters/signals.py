@@ -17,8 +17,8 @@ def add_chapter_to_all_students(instance, created, *args, **kwargs):
 @receiver(pre_save, sender=ChapterStudent)
 def add_chapter_to_all_students(instance, *args, **kwargs):
     obj = LessonStudent.objects.filter(student=instance.student, lesson__chapter=instance.chapter, is_completed=True
-                                       ).order_by('lesson__ordering_number').last()
+                                       ).last()
     if not obj:
         obj = LessonStudent.objects.filter(student=instance.student, lesson__chapter=instance.chapter
-                                           ).order_by('lesson__ordering_number').first()
+                                           ).first()
     instance.last_lesson = obj if obj else None

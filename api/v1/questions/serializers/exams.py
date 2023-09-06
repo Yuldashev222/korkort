@@ -4,14 +4,19 @@ from rest_framework.exceptions import ValidationError
 
 from api.v1.balls.models import TestBall
 from api.v1.exams.models import CategoryExamStudent
-from api.v1.questions.models import Question, QuestionStudentLastResult
+from api.v1.lessons.models import LessonStudent
 from api.v1.questions.tasks import update_student_wrong_answers_in_exam_test
+from api.v1.questions.models import Question, QuestionStudentLastResult
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
 
 class QuestionExamSerializer(QuestionSerializer):
-    lesson = serializers.IntegerField()
+    lesson = serializers.SerializerMethodField()
     answer = serializers.CharField()
+
+    def get_lesson(self, instance):
+        student = self.context['request'].user
+        return LessonStudent.objects.get(student=student, lesson=instance.lesson).id  # last
 
 
 class QuestionExamCreateSerializer(serializers.ModelSerializer):
@@ -19,7 +24,7 @@ class QuestionExamCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CategoryExamStudent
-        fields = ['student', 'category', 'time', 'questions', 'difficulty_level']
+        fields = ['id', 'student', 'category', 'time', 'questions', 'difficulty_level']
 
 
 class CategoryExamAnswerSerializer(serializers.Serializer):
