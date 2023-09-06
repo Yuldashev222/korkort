@@ -27,3 +27,10 @@ class CategoryExamStudent(models.Model):
         else:
             self.percent = 0
         super().save(*args, **kwargs)
+
+
+class CategoryExamStudentResult(models.Model):
+    category = models.ForeignKey('questions.QuestionCategory', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    percent = models.PositiveSmallIntegerField(default=0)
+    exams = models.ManyToManyField(CategoryExamStudent)

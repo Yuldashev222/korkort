@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.exams.models import CategoryExamStudent
+from api.v1.exams.models import CategoryExamStudentResult
+from api.v1.exams.serializers import CategoryExamStudentResultSerializer
 from api.v1.questions.models import Question
-from api.v1.exams.serializers import ExamStudentCategorySerializer
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.exams import (
     QuestionExamSerializer,
@@ -54,10 +54,12 @@ class ExamStudentResult(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         student = self.request.user
-        category_exam_query = CategoryExamStudent.objects.filter(student=student).select_related('category')
-        category_exams = ExamStudentCategorySerializer(category_exam_query, many=True,
-                                                       context={'request': request}).data
+        category_exam_query = CategoryExamStudentResult.objects.filter(
+            student=student).select_related('category').prefetch_related('exams')
+        category_exams = CategoryExamStudentResultSerializer(category_exam_query, many=True,
+                                                             context={'request': request}).data
         data = {
-            'category_exams': category_exams
+            'category_exams': category_exams,
+
         }
         return Response(data)
