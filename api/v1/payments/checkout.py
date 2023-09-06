@@ -63,7 +63,7 @@ class StripeCheckoutAPIView(CreateAPIView):
             discount_title = ''
             discount_amount = 0
 
-            if order.tariff_discount:
+            if order.tariff_discount_amount:
                 discount_title += 'tariff'
                 discount_amount += order.tariff_discount_amount
 
