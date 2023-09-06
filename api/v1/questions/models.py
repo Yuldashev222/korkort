@@ -9,11 +9,13 @@ from api.v1.questions.services import category_image_location
 
 
 class QuestionCategory(models.Model):
-    name = models.CharField(max_length=300)
+    name_swe = models.CharField(max_length=300)
+    name_en = models.CharField(max_length=300, blank=True)
+    name_e_swe = models.CharField(max_length=300, blank=True)
     image = models.ImageField(upload_to=category_image_location)
 
     def __str__(self):
-        return self.name
+        return self.name_swe
 
 
 class Question(models.Model):
