@@ -40,9 +40,7 @@ class Question(models.Model):
     video_en = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
     video_e_swe = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
     
-    image_swe = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
-    image_en = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
-    image_e_swe = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
+    image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     def __str__(self):
         return f'{self.id}: {self.text_swe}'[:30]
