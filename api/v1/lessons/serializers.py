@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils.timezone import now
 
 from api.v1.general.utils import get_language
 from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudentStatisticsByDay, LessonStudent
@@ -9,9 +10,25 @@ from api.v1.questions.serializers.questions import QuestionSerializer
 class LessonListSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.SerializerMethodField()
-    is_open = serializers.BooleanField(source='lesson.is_open')
-    is_completed = serializers.BooleanField()
     lesson_time = serializers.FloatField(source='lesson.lesson_time')
+    lesson_permission = serializers.SerializerMethodField()
+    pause = 1
+    play = 2
+    clock = 3
+    buy_clock = 4
+
+    def get_lesson_permission(self, instance):
+        if instance == self.instance:
+            return self.pause
+
+        tariff_expire_date = instance.student.tariff_expire_date
+        if not instance.lesson.is_open and (not tariff_expire_date or tariff_expire_date <= now()):
+            return self.buy_clock
+
+        if not instance.lesson.is_completed:
+            return self.clock
+
+        return self.play
 
     def get_title(self, instance):
         return getattr(instance.lesson, 'title_' + get_language())
