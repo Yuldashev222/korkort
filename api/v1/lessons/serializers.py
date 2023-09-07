@@ -25,7 +25,7 @@ class LessonListSerializer(serializers.Serializer):
         if not instance.lesson.is_open and (not tariff_expire_date or tariff_expire_date <= now()):
             return self.buy_clock
 
-        if not instance.lesson.is_completed:
+        if not instance.is_completed:
             return self.clock
 
         return self.play
