@@ -17,7 +17,7 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CategoryExamStudentResult
-        exclude = ['student']
+        exclude = ['student', 'exams']
 
     def get_category_name(self, instance):
         return getattr(instance.category, 'name_' + get_language())
