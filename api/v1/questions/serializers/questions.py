@@ -8,6 +8,7 @@ class QuestionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     question_text = serializers.SerializerMethodField()
     question_video = serializers.SerializerMethodField()
+    question_image = serializers.ImageField(source='image')
 
     variant_set = VariantSerializer(many=True)
 
