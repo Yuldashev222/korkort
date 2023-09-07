@@ -5,17 +5,17 @@ from django.core.validators import MinValueValidator
 
 from api.v1.accounts.models import CustomUser
 from api.v1.general.services import normalize_text
-from api.v1.questions.services import category_image_location
+from api.v1.questions.services import category_image_location, question_image_location, question_video_location
 
 
 class QuestionCategory(models.Model):
     name_swe = models.CharField(max_length=300)
     name_en = models.CharField(max_length=300, blank=True)
     name_e_swe = models.CharField(max_length=300, blank=True)
-    image = models.ImageField(upload_to=category_image_location)
+    image = models.ImageField(upload_to=category_image_location, max_length=300)
 
     def __str__(self):
-        return self.name_swe
+        return self.name_swe[:30]
 
 
 class Question(models.Model):
@@ -31,13 +31,21 @@ class Question(models.Model):
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
     answer = models.CharField(max_length=500, blank=True)
+
     text_swe = models.CharField(max_length=300, verbose_name='Swedish')
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
     text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
-    video_swe = models.FileField(blank=True, null=True)
-    video_en = models.FileField(blank=True, null=True)
-    video_e_swe = models.FileField(blank=True, null=True)
+    video_swe = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
+    video_en = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
+    video_e_swe = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
+    
+    image_swe = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
+    image_en = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
+    image_e_swe = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
+
+    def __str__(self):
+        return f'{self.id}: {self.text_swe}'[:30]
 
     class Meta:
         ordering = ['ordering_number']
@@ -83,7 +91,7 @@ class StudentWrongAnswer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.question}'
+        return str(self.question)
 
 
 class StudentSavedQuestion(models.Model):

@@ -43,7 +43,7 @@ class CustomUser(AbstractUser):
     tariff_expire_date = models.DateTimeField(null=True)
 
     def __str__(self):
-        return self.get_full_name()
+        return self.get_full_name()[:30]
 
     @property
     def generate_unique_user_code(self):

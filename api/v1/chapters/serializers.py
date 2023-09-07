@@ -7,7 +7,7 @@ from api.v1.general.utils import get_language
 class ChapterSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     desc = serializers.SerializerMethodField()
-    image = serializers.ImageField(source='chapter.image')
+    image = serializers.ImageField(source='chapter.image', max_length=300)
     lessons = serializers.IntegerField(source='chapter.lessons')
     chapter_hour = serializers.IntegerField(source='chapter.chapter_hour')
     chapter_minute = serializers.IntegerField(source='chapter.chapter_minute')

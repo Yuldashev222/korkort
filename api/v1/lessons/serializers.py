@@ -10,8 +10,6 @@ from api.v1.questions.serializers.questions import QuestionSerializer
 class LessonListSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.SerializerMethodField()
-    is_open = serializers.BooleanField(source='lesson.is_open')
-    is_completed = serializers.BooleanField()
     lesson_time = serializers.FloatField(source='lesson.lesson_time')
     lesson_permission = serializers.SerializerMethodField()
     pause = 1

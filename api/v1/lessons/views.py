@@ -21,7 +21,7 @@ class LessonAPIView(ReadOnlyModelViewSet):
     serializer_class = LessonRetrieveSerializer
 
     def get_queryset(self):
-        return LessonStudent.objects.filter(student=self.request.user)
+        return LessonStudent.objects.filter(student=self.request.user).select_related('student')
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

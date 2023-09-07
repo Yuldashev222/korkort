@@ -15,8 +15,8 @@ class DiscountMixin(models.Model):
 
     def __str__(self):
         if self.is_percent:
-            return f'{self.title}: {self.discount_value} %'
-        return f'{self.title}: {self.discount_value} SEK'
+            return f'{self.title}: {self.discount_value} %'[:30]
+        return f'{self.title}: {self.discount_value} SEK'[:30]
 
     class Meta:
         abstract = True
@@ -25,7 +25,7 @@ class DiscountMixin(models.Model):
 class TariffDiscount(DiscountMixin):
     # valid_from = models.DateField()
     # valid_to = models.DateField()
-    image = models.ImageField(upload_to='discounts/images/')
+    image = models.ImageField(upload_to='discounts/images/', max_length=300)
 
     @classmethod
     def set_redis(cls):

@@ -14,7 +14,7 @@ class Chapter(models.Model):
     desc_en = models.CharField(verbose_name='English', blank=True, max_length=700)
     desc_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
 
-    image = models.ImageField(upload_to=chapter_image_location)
+    image = models.ImageField(upload_to=chapter_image_location, max_length=300)
 
     lessons = models.PositiveSmallIntegerField(default=0)
     ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
@@ -25,7 +25,7 @@ class Chapter(models.Model):
         ordering = ['ordering_number']
 
     def __str__(self):
-        return f'{self.ordering_number}: {self.title_swe}'
+        return f'{self.ordering_number}: {self.title_swe}'[:30]
 
 
 class ChapterStudent(models.Model):

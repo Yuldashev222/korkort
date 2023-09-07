@@ -30,7 +30,7 @@ class Lesson(models.Model):
                                    validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
 
     def __str__(self):
-        return f'{self.ordering_number}: {self.title_swe}'
+        return f'{self.ordering_number}: {self.title_swe}'[:30]
 
     class Meta:
         ordering = ['ordering_number']
