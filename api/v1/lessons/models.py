@@ -8,25 +8,25 @@ from api.v1.lessons.services import lesson_image_location, lesson_video_location
 
 
 class Lesson(models.Model):
+    image = models.ImageField(upload_to=lesson_image_location)
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
     lesson_time = models.FloatField(help_text='in minute')
     ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
-    image = models.ImageField(upload_to=lesson_image_location)
 
-    title_swe = models.CharField(max_length=300)
     title_en = models.CharField(max_length=300, blank=True)
+    title_swe = models.CharField(max_length=300)
     title_e_swe = models.CharField(max_length=300, blank=True)
 
-    text_swe = models.CharField(verbose_name='Swedish', blank=True, max_length=700)
     text_en = models.CharField(verbose_name='English', blank=True, max_length=700)
+    text_swe = models.CharField(verbose_name='Swedish', blank=True, max_length=700)
     text_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
 
-    video_swe = models.FileField(upload_to=lesson_video_location,
-                                 validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    video_en = models.FileField(blank=True, null=True, upload_to=lesson_video_location,
+    video_en = models.FileField(blank=True, null=True, upload_to=lesson_video_location, max_length=300,
                                 validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    video_e_swe = models.FileField(blank=True, null=True, upload_to=lesson_video_location,
+    video_swe = models.FileField(upload_to=lesson_video_location, max_length=300,
+                                 validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
+    video_e_swe = models.FileField(blank=True, null=True, upload_to=lesson_video_location, max_length=300,
                                    validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
 
     def __str__(self):
