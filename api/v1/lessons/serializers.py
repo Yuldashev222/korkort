@@ -81,7 +81,12 @@ class LessonRetrieveSerializer(LessonListSerializer):
 
     def get_lessons(self, instance):
         queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter, student=instance.student)
-        return LessonListSerializer(queryset, many=True, context={'request': self.context['request']}).data
+        lessons = LessonListSerializer(queryset, many=True, context={'request': self.context['request']}).data
+        for idx, lesson in enumerate(lessons):
+            if lesson['lesson_permission'] == LessonListSerializer.clock:
+                lessons[idx]['lesson_permission'] = LessonListSerializer.play
+                break
+        return lessons
 
     def get_questions(self, instance):
         queryset = Question.objects.filter(lesson=instance.lesson, for_lesson=True)
