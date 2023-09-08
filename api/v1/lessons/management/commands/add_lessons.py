@@ -5,4 +5,4 @@ from api.v1.lessons.tasks import create_lessons
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        create_lessons.delay()
+        create_lessons(self)

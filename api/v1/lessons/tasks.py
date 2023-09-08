@@ -36,10 +36,10 @@ def change_student_lesson_view_statistics(lesson_id, student_id):
 
 
 @shared_task
-def create_lessons():
+def create_lessons(self):
     chapters = Chapter.objects.order_by('-id')
     for chapter in chapters:
-        print(chapter.id)
+        self.stdout.write(lesson.id)
         for i in range(15):
             is_open = True if i <= 10 else False
             lesson = Lesson.objects.create(
