@@ -21,8 +21,6 @@ def reply_student_bonus_money(instance, *args, **kwargs):
                                                  ).aggregate(max_expire_at=Max('expire_at'))['max_expire_at']
             if max_expire_at:
                 instance.student.tariff_expire_date = max_expire_at
-            else:
-                instance.student.tariff_expire_date = None
             instance.student.save()
 
         elif instance.student_bonus_amount:

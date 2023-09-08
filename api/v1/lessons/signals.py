@@ -54,29 +54,8 @@ def add_to_student_on_create(instance, created, *args, **kwargs):
 
 @receiver([post_save, post_delete], sender=LessonStudent)
 def update_student_ball(instance, *args, **kwargs):
-    if instance.student:
-        query = LessonStudent.objects.filter(
-            student=instance.student).aggregate(completed_lessons=Count('id', filter=Q(is_completed=True)),
-                                                ball=Sum('ball'))
-        ball = query.get('ball')
-        completed_lessons = query.get('completed_lessons')
-        if ball:
-            instance.student.ball = ball
-        else:
-            instance.student.ball = 0
-
-        if completed_lessons:
-            instance.student.completed_lessons = completed_lessons
-        else:
-            instance.student.completed_lessons = 0
-        instance.student.save()
-        obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
-        obj.completed_lessons = instance.student.completed_lessons
-        obj.save()
-
-
-@receiver(post_delete, sender=LessonStudent)
-def update_student_chapter_lesson_link(instance, *args, **kwargs):
-    objs = ChapterStudent.objects.filter(student=instance.student, chapter=instance.lesson.chapter)
-    for obj in objs:
-        obj.save()
+    completed_lessons = LessonStudent.objects.filter(student=instance.student, is_completed=True,
+                                                     lesson__chapter=instance.lesson.chapter).count()
+    obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
+    obj.completed_lessons = completed_lessons
+    obj.save()

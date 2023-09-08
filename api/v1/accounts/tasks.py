@@ -27,13 +27,14 @@ def create_objects_for_student(student_id):
                        chapter=chapter, student_id=student_id)
         for chapter in Chapter.objects.all()
     ]
+    objs[0].is_open = True
     ChapterStudent.objects.bulk_create(objs)
 
     today_date = now().date()
-    objs = [
+    objs = (
         LessonStudentStatisticsByDay(student_id=student_id, date=today_date - timedelta(days=i))
         for i in [0, 1, 2, 3, 4, 5, 6]
-    ]
+    )
     LessonStudentStatisticsByDay.objects.bulk_create(objs)
 
     objs = [

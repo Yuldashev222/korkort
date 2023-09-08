@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from api.v1.chapters.models import ChapterStudent
 from api.v1.general.utils import get_language
+from api.v1.chapters.models import ChapterStudent
 
 
 class ChapterSerializer(serializers.ModelSerializer):
@@ -15,7 +15,8 @@ class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChapterStudent
         fields = [
-            'id', 'title', 'desc', 'image', 'lessons', 'last_lesson', 'chapter_hour', 'chapter_minute', 'completed_lessons'
+            'id', 'title', 'desc', 'image', 'lessons', 'last_lesson',
+            'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open'
         ]
 
     def get_title(self, instance):

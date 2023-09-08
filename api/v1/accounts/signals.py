@@ -6,7 +6,7 @@ from api.v1.accounts.models import CustomUser
 
 
 @receiver(pre_save, sender=CustomUser)
-def add_lessons(instance, *args, **kwargs):
+def change_fields_pre_save(instance, *args, **kwargs):
     if not instance.pk:
         if instance.is_staff:
             instance.user_code = instance.email
@@ -17,6 +17,6 @@ def add_lessons(instance, *args, **kwargs):
 
 
 @receiver(post_save, sender=CustomUser)
-def add_lessons(instance, created, *args, **kwargs):
-    if created:
+def generation_objects_for_student(instance, created, *args, **kwargs):
+    if created and not instance.is_staff:
         create_objects_for_student.delay(instance.id)

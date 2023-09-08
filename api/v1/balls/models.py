@@ -13,7 +13,7 @@ class TestBall(models.Model):
         if not test_ball:
             cls.set_redis()
             test_ball = cache.get('test_ball')
-        return test_ball
+        return test_ball if test_ball else 1
 
     def clean(self):
         if not self.pk and TestBall.objects.exists():

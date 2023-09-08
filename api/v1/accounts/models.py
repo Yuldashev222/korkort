@@ -2,6 +2,7 @@ import string
 import secrets
 
 from django.db import models
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
@@ -9,6 +10,7 @@ from django.contrib.auth.password_validation import validate_password
 from api.v1.general.services import normalize_text
 
 from .managers import CustomUserManager
+from ..balls.models import TestBall
 
 
 class CustomUser(AbstractUser):
@@ -40,7 +42,7 @@ class CustomUser(AbstractUser):
     correct_answers = models.PositiveIntegerField(default=0)
     last_exams_result = models.PositiveSmallIntegerField(default=0)
 
-    tariff_expire_date = models.DateTimeField(null=True)
+    tariff_expire_date = models.DateTimeField(default=now)
 
     def __str__(self):
         return self.get_full_name()[:30]
@@ -62,6 +64,7 @@ class CustomUser(AbstractUser):
                                          is_verified=True, is_deleted=False).exists()
 
     def save(self, *args, **kwargs):
+        self.ball = self.correct_answers * TestBall.get_ball()
         self.first_name, self.last_name = normalize_text(self.first_name, self.last_name)
         self.bonus_money = round(self.bonus_money, 1)
         super().save(*args, **kwargs)

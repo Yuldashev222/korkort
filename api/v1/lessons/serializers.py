@@ -19,7 +19,7 @@ class LessonListSerializer(serializers.Serializer):
 
     def get_lesson_permission(self, instance):
         tariff_expire_date = instance.student.tariff_expire_date
-        if not instance.lesson.is_open and (not tariff_expire_date or tariff_expire_date <= now()):
+        if not instance.lesson.is_open and tariff_expire_date <= now():
             return self.buy_clock
 
         if not instance.is_completed:
