@@ -47,28 +47,28 @@ def create_lessons():
                 is_open=is_open,
                 ordering_number=i,
                 image='Screenshot_from_2023-08-17_20-41-00_7fU76Z8.png',
-                title_swe=f'{uuid4()} {uuid4()} {uuid4()}',
-                title_en=f'{uuid4()} {uuid4()} {uuid4()}',
-                title_e_swe=f'{uuid4()} {uuid4()} {uuid4()}',
-                text_swe=f'{uuid4()} {uuid4()} {uuid4()}' * i,
-                text_en=f'{uuid4()} {uuid4()} {uuid4()}' * i,
-                text_e_swe=f'{uuid4()} {uuid4()} {uuid4()}' * i,
-                video_swe='99.mp4',
-                video_en='99.mp4',
-                video_e_swe='99.mp4'
+                title_swe=f'{uuid4()}',
+                title_en=f'{uuid4()}',
+                title_e_swe=f'{uuid4()}',
+                text_swe=f'{uuid4()}' * i,
+                text_en=f'{uuid4()}' * i,
+                text_e_swe=f'{uuid4()}' * i,
+                video_swe='9.mp4',
+                video_en='9.mp4',
+                video_e_swe='9.mp4'
             )
 
             for j in range(10):
-                obj = LessonWordInfo.objects.create(text_swe=f'{uuid4()} {uuid4()}',
-                                                    text_en=f'{uuid4()} {uuid4()}',
-                                                    text_e_swe=f'{uuid4()} {uuid4()}',
+                obj = LessonWordInfo.objects.create(text_swe=f'{str(uuid4())[:8]}',
+                                                    text_en=f'{str(uuid4())[:8]}',
+                                                    text_e_swe=f'{str(uuid4())[:8]}',
                                                     info_swe=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
                                                     info_en=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
                                                     info_e_swe=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}')
                 obj.lessons.set([lesson])
 
-                obj = LessonSource.objects.create(text_swe=f'{uuid4()} {uuid4()}',
-                                                  text_en=f'{uuid4()} {uuid4()}',
-                                                  text_e_swe=f'{uuid4()} {uuid4()}',
+                obj = LessonSource.objects.create(text_swe=f'{uuid4()}' * j,
+                                                  text_en=f'{uuid4()}' * j,
+                                                  text_e_swe=f'{uuid4()}' * j,
                                                   link='https://google.com')
                 obj.lessons.set([lesson])

@@ -8,12 +8,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for i in range(20):
             Chapter.objects.create(
-                title_swe=f'{uuid4()} + {uuid4()} + {uuid4()}',
-                title_en=f'{uuid4()} + {uuid4()} + {uuid4()}',
-                title_e_swe=f'{uuid4()} + {uuid4()} + {uuid4()}',
-                desc_swe=f'{uuid4()} + {uuid4()} + {uuid4()}' * 5,
-                desc_en=f'{uuid4()} + {uuid4()} + {uuid4()}' * 5,
-                desc_e_swe=f'{uuid4()} + {uuid4()} + {uuid4()}' * 5,
-                image=f'Screenshot_from_2023-08-17_20-41-00.png',
+                title_swe=f'{uuid4()}',
+                title_en=f'{uuid4()}',
+                title_e_swe=f'{uuid4()}',
+                desc_swe=f'{uuid4()} {uuid4()}',
+                desc_en=f'{uuid4()} {uuid4()}',
+                desc_e_swe=f'{uuid4()} {uuid4()}',
+                image=f'Screenshot_from_2023_20-41-00.png',
                 ordering_number=i + 1,
             )

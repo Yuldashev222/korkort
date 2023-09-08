@@ -29,13 +29,13 @@ def create_lesson_questions(self):
                                   for_lesson=True,
                                   ordering_number=index,
                                   difficulty_level=difficulty_level,
-                                  answer=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 3,
-                                  text_swe=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 2,
-                                  text_en=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 3,
-                                  text_e_swe=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 4,
-                                  video_swe='99.mp4',
-                                  video_en='99.mp4',
-                                  video_e_swe='99.mp4')
+                                  answer=f'{str(uuid4())}' * 3,
+                                  text_swe=f'{str(uuid4())}' * 2,
+                                  text_en=f'{str(uuid4())}' * 3,
+                                  text_e_swe=f'{str(uuid4())}' * 4,
+                                  video_swe='9.mp4',
+                                  video_en='9.mp4',
+                                  video_e_swe='9.mp4')
 
                          )
 
@@ -50,13 +50,13 @@ def create_lesson_questions(self):
                                   for_lesson=False,
                                   ordering_number=None,
                                   difficulty_level=difficulty_level,
-                                  answer=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 3,
-                                  text_swe=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 2,
-                                  text_en=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 3,
-                                  text_e_swe=f'{str(uuid4())} {str(uuid4())} {str(uuid4())}' * 4,
-                                  video_swe='99.mp4',
-                                  video_en='99.mp4',
-                                  video_e_swe='99.mp4')
+                                  answer=f'{str(uuid4())}' * 3,
+                                  text_swe=f'{str(uuid4())}' * 2,
+                                  text_en=f'{str(uuid4())}' * 3,
+                                  text_e_swe=f'{str(uuid4())}' * 4,
+                                  video_swe='9.mp4',
+                                  video_en='9.mp4',
+                                  video_e_swe='9.mp4')
                          )
     Question.objects.bulk_create(objs1)
     Question.objects.bulk_create(objs2)
@@ -71,9 +71,9 @@ def create_variants(self):
         for i in range(5):
             objs.append(Variant(question=question,
                                 is_correct=i == 3,
-                                text_en=f'{uuid4()} {uuid4()} {uuid4()}',
-                                text_swe=f'{uuid4()} {uuid4()} {uuid4()}',
-                                text_e_swe=f'{uuid4()} {uuid4()} {uuid4()}'))
+                                text_en=f'{uuid4()}',
+                                text_swe=f'{uuid4()}',
+                                text_e_swe=f'{uuid4()}'))
 
     Variant.objects.bulk_create(objs)
 
