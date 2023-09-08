@@ -40,7 +40,7 @@ def add_chapter_to_all_students(instance, *args, **kwargs):
 @receiver([post_save, post_delete], sender=ChapterStudent)
 def update_student_completed_lessons(instance, *args, **kwargs):
     completed_lessons = ChapterStudent.objects.filter(student=instance.student
-                                                      ).aggregate(cnt=Sum('completed_lessons'))
+                                                      ).aggregate(cnt=Sum('completed_lessons'))['cnt']
     if completed_lessons:
         instance.student.completed_lessons = completed_lessons
     else:
