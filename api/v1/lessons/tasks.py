@@ -39,7 +39,7 @@ def change_student_lesson_view_statistics(lesson_id, student_id):
 def create_lessons(self):
     chapters = Chapter.objects.order_by('-id')
     for chapter in chapters:
-        self.stdout.write(lesson.id)
+        self.stdout.write(chapter.id)
         for i in range(15):
             is_open = True if i <= 10 else False
             lesson = Lesson.objects.create(
