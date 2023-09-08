@@ -8,7 +8,10 @@ from api.v1.questions.models import QuestionCategory, Question, Variant
 
 def create_categories():
     for i in range(10):
-        QuestionCategory.objects.create(name=str(uuid4()), image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png')
+        QuestionCategory.objects.create(name_swe=str(uuid4()),
+                                        name_en=str(uuid4()),
+                                        name_e_swe=str(uuid4()),
+                                        image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png')
 
 
 def create_lesson_questions(self):
