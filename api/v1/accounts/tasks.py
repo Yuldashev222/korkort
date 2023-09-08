@@ -23,7 +23,7 @@ def create_objects_for_student(student_id):
     LessonStudent.objects.bulk_create(objs)
 
     objs = [
-        ChapterStudent(last_lesson=LessonStudent.objects.filter(lesson__chapter=chapter).first(),
+        ChapterStudent(last_lesson=LessonStudent.objects.filter(lesson__chapter=chapter, student_id=student_id).first(),
                        chapter=chapter, student_id=student_id)
         for chapter in Chapter.objects.all()
     ]
