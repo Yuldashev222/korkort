@@ -43,8 +43,8 @@ class Lesson(models.Model):
 
     def save(self, *args, **kwargs):
         # self.lesson_time = get_video_duration(self.video_swe.path)
-        self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.text_swe,
-                                                                         self.text_en, self.text_e_swe)
+        self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.title_swe,
+                                                                         self.title_en, self.title_e_swe)
         super().save(*args, **kwargs)
 
 

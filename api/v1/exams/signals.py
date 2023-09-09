@@ -1,26 +1,20 @@
 from django.dispatch import receiver
-from django.db.models import Count, Sum
+from django.db.models import Avg
 from django.db.models.signals import post_save
 
-from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
+from api.v1.exams.models import CategoryExamStudent
 
 
 @receiver(post_save, sender=CategoryExamStudent)
 def delete_redundant_exams(instance, *args, **kwargs):
-    if instance.student:
-        expire_objs = CategoryExamStudent.objects.filter(student=instance.student, category=instance.category
+    if instance.student and instance.result:
+        expire_objs = CategoryExamStudent.objects.filter(student=instance.student, result=instance.result
                                                          ).values_list('id', flat=True)[10:]
-        CategoryExamStudent.objects.filter(student=instance.student, category=instance.category,
+        CategoryExamStudent.objects.filter(student=instance.student, result=instance.result,
                                            id__in=expire_objs).delete()
 
-        objs = CategoryExamStudent.objects.filter(category=instance.category, student=instance.student)
+        objs = CategoryExamStudent.objects.filter(result=instance.result, student=instance.student)
 
-        percent_query = objs.aggregate(all_percent=Sum('percent'), cnt=Count('id'))
-        if percent_query['cnt'] > 0:
-            obj, _ = CategoryExamStudentResult.objects.get_or_create(category=instance.category, student=instance.student)
-            obj.percent = int(percent_query['all_percent'] / percent_query['cnt'])
-        else:
-            obj, _ = CategoryExamStudentResult.objects.get_or_create(category=instance.category, student=instance.student)
-            obj.percent = 0
-        obj.exams.set(objs)
-        obj.save()
+        avg_percent = objs.aggregate(avg_percent=Avg('percent'))['avg_percent']
+        instance.result.percent = avg_percent
+        instance.result.save()

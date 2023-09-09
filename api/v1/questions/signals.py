@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.db.models import Count
 from django.db.models.signals import post_save, post_delete, pre_save
 
-from api.v1.exams.models import CategoryExamStudent
+from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
 from api.v1.general.utils import delete_object_file_pre_save, delete_object_file_post_delete
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question, QuestionStudentLastResult, Category
@@ -55,7 +55,7 @@ def delete_the_excess(instance, *args, **kwargs):
 def create_student_exams(instance, created, *args, **kwargs):
     if created:
         objs = [
-            CategoryExamStudent(category=instance, student=student)
+            CategoryExamStudentResult(category=instance, student=student)
             for student in CustomUser.objects.filter(is_staff=False)
         ]
-        CategoryExamStudent.objects.bulk_create(objs)
+        CategoryExamStudentResult.objects.bulk_create(objs)

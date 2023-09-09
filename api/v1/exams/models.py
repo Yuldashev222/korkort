@@ -5,13 +5,22 @@ from django.core.validators import MaxValueValidator
 from api.v1.questions.models import Question
 
 
+class CategoryExamStudentResult(models.Model):
+    category = models.ForeignKey('questions.Category', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    percent = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Category Exam'
+        verbose_name_plural = 'Category Exams'
+
+
 class CategoryExamStudent(models.Model):
+    result = models.ForeignKey(CategoryExamStudentResult, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
-    category = models.ForeignKey('questions.Category', on_delete=models.PROTECT)
     correct_answers = models.PositiveSmallIntegerField(default=0)
     difficulty_level = models.PositiveSmallIntegerField(choices=Question.DIFFICULTY_LEVEL, null=True)
 
-    # last
     questions = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(settings.MAX_QUESTIONS)])
     percent = models.PositiveSmallIntegerField(default=0)
 
@@ -27,14 +36,3 @@ class CategoryExamStudent(models.Model):
         else:
             self.percent = 0
         super().save(*args, **kwargs)
-
-
-class CategoryExamStudentResult(models.Model):
-    category = models.ForeignKey('questions.Category', on_delete=models.CASCADE)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
-    percent = models.PositiveSmallIntegerField(default=0)
-    exams = models.ManyToManyField(CategoryExamStudent)
-
-    class Meta:
-        verbose_name = 'Category Exam'
-        verbose_name_plural = 'Category Exams'

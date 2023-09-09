@@ -4,7 +4,7 @@ from celery import shared_task
 from django.core.cache import cache
 from django.utils.timezone import now
 
-from api.v1.exams.models import CategoryExamStudent
+from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatisticsByDay
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import Chapter, ChapterStudent
@@ -38,10 +38,10 @@ def create_objects_for_student(student_id):
     LessonStudentStatisticsByDay.objects.bulk_create(objs)
 
     objs = [
-        CategoryExamStudent(category=category, student_id=student_id)
+        CategoryExamStudentResult(category=category, student_id=student_id)
         for category in Category.objects.all()
     ]
-    CategoryExamStudent.objects.bulk_create(objs)
+    CategoryExamStudentResult.objects.bulk_create(objs)
 
 
 @shared_task
