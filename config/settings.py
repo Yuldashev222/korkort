@@ -1,6 +1,6 @@
 import os
-from pathlib import Path
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 
@@ -268,6 +268,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 INTERNAL_IPS = [
     'localhost',
     '127.0.0.1',
+    '16.171.170.49'
 ]
 
 if DEBUG:
