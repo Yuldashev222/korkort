@@ -1,8 +1,10 @@
-from django.db import transaction
+import os
+
 from django.dispatch import receiver
 from django.db.models import Sum
-from django.db.models.signals import post_save, pre_save, post_delete, pre_delete
+from django.db.models.signals import post_save, pre_save, post_delete
 
+from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
 from api.v1.lessons.models import LessonStudent
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import Chapter, ChapterStudent
@@ -12,6 +14,16 @@ from api.v1.chapters.models import Chapter, ChapterStudent
 # @transaction.atomic
 # def delete_relation_objects(instance, *args, **kwargs):
 #     ChapterStudent.objects.filter(chapter=instance).delete()
+
+
+@receiver(post_delete, sender=Chapter)
+def delete_image(instance, *args, **kwargs):
+    delete_object_file_post_delete(instance, 'image')
+
+
+@receiver(pre_save, sender=Chapter)
+def delete_image(instance, *args, **kwargs):
+    delete_object_file_pre_save(Chapter, instance, 'image')
 
 
 @receiver(post_save, sender=Chapter)

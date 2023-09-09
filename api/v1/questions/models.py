@@ -36,10 +36,7 @@ class Question(models.Model):
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
     text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
-    video_swe = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
-    video_en = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
-    video_e_swe = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
-    
+    video = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     def __str__(self):

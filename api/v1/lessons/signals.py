@@ -1,14 +1,32 @@
+import os
 from django.dispatch import receiver
-from django.db.models import Sum, Count, Q
-from django.db.models.signals import post_save, post_delete
+from django.db.models import Sum, Count
+from django.db.models.signals import post_save, post_delete, pre_save
 
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import ChapterStudent
+from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatistics, LessonStudentStatisticsByDay
 
 
-@receiver([post_save, post_delete], sender=Lesson)
-def update_chapter_time(instance, *args, **kwargs):
+@receiver(post_delete, sender=Lesson)
+def delete_image(instance, *args, **kwargs):
+    delete_object_file_post_delete(instance, 'image')
+    delete_object_file_post_delete(instance, 'video_en')
+    delete_object_file_post_delete(instance, 'video_swe')
+    delete_object_file_post_delete(instance, 'video_e_swe')
+    update_chapter_time(instance, *args, **kwargs)
+
+
+@receiver(pre_save, sender=Lesson)
+def delete_image(instance, *args, **kwargs):
+    delete_object_file_pre_save(Lesson, instance, 'image')
+    delete_object_file_pre_save(Lesson, instance, 'video_en')
+    delete_object_file_pre_save(Lesson, instance, 'video_swe')
+    delete_object_file_pre_save(Lesson, instance, 'video_e_swe')
+
+
+def update_chapter_time(instance, *args, **kwargs):  # last
     if instance.chapter:
         chapter = instance.chapter
         data = Lesson.objects.filter(chapter=chapter).aggregate(time=Sum('lesson_time'),
@@ -50,6 +68,8 @@ def add_to_student_on_create(instance, created, *args, **kwargs):
         student_ids = CustomUser.objects.filter(is_staff=False).values_list('id', flat=True)
         objs = (LessonStudent(student_id=student_id, lesson_id=instance.id) for student_id in student_ids)
         LessonStudent.objects.bulk_create(objs)
+
+    update_chapter_time(instance, *args, **kwargs)
 
 
 @receiver(post_save, sender=LessonStudent)
