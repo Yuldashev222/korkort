@@ -89,6 +89,7 @@ def check_order(instance, *args, **kwargs):
                     instance.student_discount_amount = tariff.student_discount_amount
 
     all_discounts = instance.student_discount_amount + instance.tariff_discount_amount + instance.student_bonus_amount
+    instance.purchased_price = instance.tariff_price - all_discounts
     if instance.tariff_price <= all_discounts:
         instance.is_paid = True
 

@@ -8,11 +8,14 @@ from api.v1.general.services import normalize_text
 from api.v1.questions.services import category_image_location, question_image_location, question_video_location
 
 
-class QuestionCategory(models.Model):
+class Category(models.Model):
     name_swe = models.CharField(max_length=300)
     name_en = models.CharField(max_length=300, blank=True)
     name_e_swe = models.CharField(max_length=300, blank=True)
     image = models.ImageField(upload_to=category_image_location, max_length=300)
+
+    class Meta:
+        verbose_name_plural = 'Categories'
 
     def __str__(self):
         return self.name_swe[:30]
@@ -25,9 +28,9 @@ class Question(models.Model):
         [3, 'hard']
     ]
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.PROTECT)
-    category = models.ForeignKey(QuestionCategory, on_delete=models.PROTECT)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
     for_lesson = models.BooleanField(default=False)
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], null=True)
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], blank=True, null=True)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
     answer = models.CharField(max_length=500, blank=True)
@@ -57,8 +60,7 @@ class Question(models.Model):
 
     @classmethod
     def set_redis(cls):
-        cnt = Question.objects.count()
-        cache.set('all_questions_count', cnt, 60 * 60 * 24 * 7)
+        cache.set('all_questions_count', Question.objects.count(), 60 * 60 * 24 * 7)
 
 
 class Variant(models.Model):
@@ -84,6 +86,10 @@ class StudentWrongAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Wrong Answer'
+        verbose_name_plural = 'Wrong Answers'
 
     def __str__(self):
         return str(self.question)

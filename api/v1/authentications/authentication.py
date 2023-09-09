@@ -20,7 +20,7 @@ class CustomTokenAuthentication(TokenAuthentication):
         if not token.user.is_verified:
             raise AuthenticationFailed({'msg': 'User has not confirmed email address.'})
 
-        if not token.user.is_active or token.user.is_deleted:
+        if not token.user.is_active:
             raise AuthenticationFailed({'msg': 'User inactive or deleted.'})
 
         if token.expires_at is not None and now() >= token.expires_at:

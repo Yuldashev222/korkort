@@ -3,19 +3,19 @@ from uuid import uuid4
 from django.core.management.base import BaseCommand
 
 from api.v1.lessons.models import Lesson
-from api.v1.questions.models import QuestionCategory, Question, Variant
+from api.v1.questions.models import Category, Question, Variant
 
 
 def create_categories():
     for i in range(10):
-        QuestionCategory.objects.create(name_swe=str(uuid4()),
-                                        name_en=str(uuid4()),
-                                        name_e_swe=str(uuid4()),
-                                        image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png')
+        Category.objects.create(name_swe=str(uuid4()),
+                                name_en=str(uuid4()),
+                                name_e_swe=str(uuid4()),
+                                image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png')
 
 
 def create_lesson_questions(self):
-    categories = QuestionCategory.objects.all()
+    categories = Category.objects.all()
     lessons = Lesson.objects.order_by('-id')
     objs1 = []
     objs2 = []

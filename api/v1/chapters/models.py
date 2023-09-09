@@ -5,18 +5,19 @@ from api.v1.chapters.services import chapter_image_location
 
 
 class Chapter(models.Model):
-    title_en = models.CharField(max_length=300, blank=True)
-    title_swe = models.CharField(max_length=300)
-    title_e_swe = models.CharField(max_length=300, blank=True)
+    title_en = models.CharField(verbose_name='title English', max_length=300, blank=True)
+    title_swe = models.CharField(verbose_name='title Swedish', max_length=300)
+    title_e_swe = models.CharField(verbose_name='title Easy Swedish', max_length=300, blank=True)
 
-    desc_en = models.CharField(verbose_name='English', blank=True, max_length=700)
-    desc_swe = models.CharField(verbose_name='Swedish', blank=True, max_length=700)
-    desc_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
+    desc_en = models.CharField(verbose_name='desc English', blank=True, max_length=700)
+    desc_swe = models.CharField(verbose_name='desc Swedish', blank=True, max_length=700)
+    desc_e_swe = models.CharField(verbose_name='desc Easy Swedish', blank=True, max_length=700)
 
     image = models.ImageField(upload_to=chapter_image_location, max_length=300)
 
     lessons = models.PositiveSmallIntegerField(default=0)
-    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)], unique=True)
+    ordering_number = models.PositiveSmallIntegerField(verbose_name='ordering',
+                                                       default=1, validators=[MinValueValidator(1)], unique=True)
     chapter_hour = models.PositiveSmallIntegerField(default=0, editable=False)
     chapter_minute = models.PositiveSmallIntegerField(default=0, editable=False)
 

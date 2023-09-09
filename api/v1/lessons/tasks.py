@@ -57,16 +57,16 @@ def create_lessons(self):
                                            video_e_swe='9.mp4')
 
             for j in range(10):
-                obj = LessonWordInfo.objects.create(text_swe=f'{str(uuid4())[:8]}',
-                                                    text_en=f'{str(uuid4())[:8]}',
-                                                    text_e_swe=f'{str(uuid4())[:8]}',
-                                                    info_swe=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
-                                                    info_en=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
-                                                    info_e_swe=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}')
-                obj.lessons.set([lesson])
+                LessonWordInfo.objects.create(text_swe=f'{str(uuid4())[:8]}',
+                                              text_en=f'{str(uuid4())[:8]}',
+                                              text_e_swe=f'{str(uuid4())[:8]}',
+                                              info_swe=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
+                                              info_en=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
+                                              info_e_swe=f'{uuid4()} {uuid4()} {uuid4()} {uuid4()}',
+                                              lesson=lesson)
 
-                obj = LessonSource.objects.create(text_swe=f'{uuid4()}' * j,
-                                                  text_en=f'{uuid4()}' * j,
-                                                  text_e_swe=f'{uuid4()}' * j,
-                                                  link='https://google.com')
-                obj.lessons.set([lesson])
+                LessonSource.objects.create(text_swe=f'{uuid4()}' * j,
+                                            text_en=f'{uuid4()}' * j,
+                                            text_e_swe=f'{uuid4()}' * j,
+                                            link='https://google.com',
+                                            lesson=lesson)

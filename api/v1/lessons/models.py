@@ -14,13 +14,13 @@ class Lesson(models.Model):
     lesson_time = models.FloatField(help_text='in minute')
     ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
 
-    title_en = models.CharField(max_length=300, blank=True)
-    title_swe = models.CharField(max_length=300)
-    title_e_swe = models.CharField(max_length=300, blank=True)
+    title_en = models.CharField(verbose_name='Title English', max_length=300, blank=True)
+    title_swe = models.CharField(verbose_name='Title Swedish', max_length=300)
+    title_e_swe = models.CharField(verbose_name='Title Easy Swedish', max_length=300, blank=True)
 
-    text_en = models.CharField(verbose_name='English', blank=True, max_length=700)
-    text_swe = models.CharField(verbose_name='Swedish', blank=True, max_length=700)
-    text_e_swe = models.CharField(verbose_name='Easy Swedish', blank=True, max_length=700)
+    text_en = models.CharField(verbose_name='Text English', blank=True, max_length=700)
+    text_swe = models.CharField(verbose_name='Text Swedish', blank=True, max_length=700)
+    text_e_swe = models.CharField(verbose_name='Text Easy Swedish', blank=True, max_length=700)
 
     video_en = models.FileField(blank=True, null=True, upload_to=lesson_video_location, max_length=300,
                                 validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
@@ -42,7 +42,7 @@ class Lesson(models.Model):
         cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 7)
 
     def save(self, *args, **kwargs):
-        self.lesson_time = get_video_duration(self.video_swe.path)
+        # self.lesson_time = get_video_duration(self.video_swe.path)
         self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.text_swe,
                                                                          self.text_en, self.text_e_swe)
         super().save(*args, **kwargs)
@@ -53,11 +53,15 @@ class LessonWordInfo(models.Model):
     text_en = models.CharField(max_length=300, blank=True)
     text_e_swe = models.CharField(max_length=300, blank=True)
 
-    info_swe = models.TextField(max_length=500)
-    info_en = models.TextField(max_length=500, blank=True)
-    info_e_swe = models.TextField(max_length=500, blank=True)
+    info_swe = models.CharField(max_length=500)
+    info_en = models.CharField(max_length=500, blank=True)
+    info_e_swe = models.CharField(max_length=500, blank=True)
 
-    lessons = models.ManyToManyField(Lesson)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)  # last
+
+    class Meta:
+        verbose_name = 'Word Info'
+        verbose_name_plural = 'Word Infos'
 
     def save(self, *args, **kwargs):
         self.text_swe, self.text_en, self.text_e_swe, self.info_swe, self.info_en, self.info_e_swe = normalize_text(
@@ -66,17 +70,21 @@ class LessonWordInfo(models.Model):
 
 
 class LessonSource(models.Model):
-    text_swe = models.TextField(max_length=500)
-    text_en = models.TextField(max_length=500, blank=True)
-    text_e_swe = models.TextField(max_length=500, blank=True)
+    text_swe = models.CharField(max_length=500)
+    text_en = models.CharField(max_length=500, blank=True)
+    text_e_swe = models.CharField(max_length=500, blank=True)
 
     link = models.URLField()
 
-    lessons = models.ManyToManyField(Lesson)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         self.text_swe, self.text_en, self.text_e_swe = normalize_text(self.text_swe, self.text_en, self.text_e_swe)
         super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Source'
+        verbose_name_plural = 'Sources'
 
 
 class LessonStudent(models.Model):
@@ -87,6 +95,8 @@ class LessonStudent(models.Model):
     ball = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
+        verbose_name = 'Student Lesson'
+        verbose_name_plural = 'Student Lessons'
         unique_together = ['lesson', 'student']
         ordering = ['lesson__ordering_number']
 
@@ -107,5 +117,7 @@ class LessonStudentStatisticsByDay(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     class Meta:
+        verbose_name = 'Student Lesson View'
+        verbose_name_plural = 'Student Lesson View'
         unique_together = ['date', 'student']
         ordering = ['-date']

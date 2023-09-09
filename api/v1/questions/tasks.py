@@ -4,7 +4,7 @@ from celery import shared_task
 
 from api.v1.accounts.tasks import update_student_correct_answers
 from api.v1.lessons.models import Lesson
-from api.v1.questions.models import Question, StudentWrongAnswer, QuestionCategory
+from api.v1.questions.models import Question, StudentWrongAnswer, Category
 
 
 @shared_task

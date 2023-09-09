@@ -66,7 +66,7 @@ class AuthTokenSerializer(serializers.Serializer):
         if not user.is_verified:
             raise AuthenticationFailed({'msg': 'User has not confirmed email address.'})
 
-        if not user.is_active or user.is_deleted:
+        if not user.is_active:
             raise AuthenticationFailed({'msg': 'User inactive or deleted.'})
 
         attrs['user'] = user
@@ -189,9 +189,6 @@ class GoogleSignInSerializer(serializers.Serializer):
                 user.is_verified = True
                 user.set_password(None)
                 user.save()
-            elif user.is_deleted:
-                user.is_deleted = False
-                user.save()
             elif not user.is_active:
                 raise AuthenticationFailed(_('User inactive'))
             elif not user.is_verified:
@@ -238,9 +235,6 @@ class FacebookSignInSerializer(serializers.Serializer):
             #     user.last_name = id_info['family_name']
             #     user.is_verified = True
             #     user.set_password(None)
-            #     user.save()
-            # elif user.is_deleted:
-            #     user.is_deleted = False
             #     user.save()
             # elif not user.is_active:
             #     raise AuthenticationFailed(_('User inactive'))

@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from api.v1.exams.models import CategoryExamStudent
 from api.v1.general.utils import delete_object_file_pre_save, delete_object_file_post_delete
 from api.v1.accounts.models import CustomUser
-from api.v1.questions.models import Question, QuestionStudentLastResult, QuestionCategory
+from api.v1.questions.models import Question, QuestionStudentLastResult, Category
 
 
 @receiver(post_delete, sender=Question)
@@ -21,14 +21,14 @@ def delete_image(instance, *args, **kwargs):
     delete_object_file_pre_save(Question, instance, 'video')
 
 
-@receiver(post_delete, sender=QuestionCategory)
+@receiver(post_delete, sender=Category)
 def delete_image(instance, *args, **kwargs):
     delete_object_file_post_delete(instance, 'image')
 
 
-@receiver(pre_save, sender=QuestionCategory)
+@receiver(pre_save, sender=Category)
 def delete_image(instance, *args, **kwargs):
-    delete_object_file_pre_save(QuestionCategory, instance, 'image')
+    delete_object_file_pre_save(Category, instance, 'image')
 
 
 @receiver(post_save, sender=Question)
@@ -51,7 +51,7 @@ def delete_the_excess(instance, *args, **kwargs):
         instance.student.save()
 
 
-@receiver(post_save, sender=QuestionCategory)
+@receiver(post_save, sender=Category)
 def create_student_exams(instance, created, *args, **kwargs):
     if created:
         objs = [

@@ -1,3 +1,7 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
-# Register your models here.
+from rest_framework.authtoken.models import TokenProxy
+
+admin.site.unregister(TokenProxy)
+admin.site.unregister(Group)

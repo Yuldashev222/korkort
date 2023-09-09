@@ -20,18 +20,17 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(_("email address"), unique=True)
     password = models.CharField(_("password"), max_length=128, validators=[validate_password])
-    first_name = models.CharField(_("first name"), max_length=50)
-    last_name = models.CharField(_("last name"), max_length=100)
+    first_name = models.CharField(_("name"), max_length=50)
+    last_name = models.CharField(_("surname"), max_length=100)
 
     avatar_id = models.PositiveSmallIntegerField(blank=True, null=True)
     user_code = models.CharField(max_length=400, unique=True)
     bonus_money = models.FloatField(default=0)
-
-    is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
 
-    google_id = models.CharField(max_length=100, blank=True)
-    facebook_id = models.CharField(max_length=100, blank=True)
+    google_id = models.CharField(max_length=100, default='-')
+    facebook_id = models.CharField(max_length=100, default='-')
 
     level = models.PositiveSmallIntegerField(default=0)
     level_image_id = models.PositiveSmallIntegerField(default=0)
@@ -42,6 +41,11 @@ class CustomUser(AbstractUser):
     last_exams_result = models.PositiveSmallIntegerField(default=0)
 
     tariff_expire_date = models.DateTimeField(default=now)
+
+    class Meta:
+        verbose_name = 'Student'
+        verbose_name_plural = 'Students'
+        ordering = ['-date_joined']
 
     def __str__(self):
         return self.get_full_name()[:30]
@@ -55,12 +59,11 @@ class CustomUser(AbstractUser):
 
     @property
     def is_active_user(self):
-        return self.is_active and self.is_verified and not self.is_deleted
+        return self.is_active and self.is_verified
 
     @classmethod
     def user_id_exists(cls, user_code):
-        return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True,
-                                         is_verified=True, is_deleted=False).exists()
+        return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True, is_verified=True).exists()
 
     def save(self, *args, **kwargs):
         self.ball = self.correct_answers * TestBall.get_ball()

@@ -8,7 +8,7 @@ from api.v1.exams.models import CategoryExamStudent
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatisticsByDay
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import Chapter, ChapterStudent
-from api.v1.questions.models import Question, StudentWrongAnswer, QuestionCategory
+from api.v1.questions.models import Question, StudentWrongAnswer, Category
 
 
 @shared_task
@@ -39,7 +39,7 @@ def create_objects_for_student(student_id):
 
     objs = [
         CategoryExamStudent(category=category, student_id=student_id)
-        for category in QuestionCategory.objects.all()
+        for category in Category.objects.all()
     ]
     CategoryExamStudent.objects.bulk_create(objs)
 

@@ -9,11 +9,12 @@ class TestBall(models.Model):
 
     @classmethod
     def get_ball(cls):
-        test_ball = cache.get('test_ball')
-        if not test_ball:
-            cls.set_redis()
-            test_ball = cache.get('test_ball')
-        return test_ball if test_ball else 1
+        # test_ball = cache.get('test_ball')
+        # if not test_ball:
+        #     cls.set_redis()
+        #     test_ball = cache.get('test_ball')
+        # return test_ball if test_ball else 1
+        return 1
 
     def clean(self):
         if not self.pk and TestBall.objects.exists():

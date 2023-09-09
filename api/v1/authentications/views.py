@@ -101,11 +101,10 @@ def verify_email(request, uidb64, token):
         user = None
 
     if user is not None and default_token_generator.check_token(user, token):
-        if not user.is_deleted:
-            user.is_verified = True
-            user.is_active = True
-            user.save()
-            return HttpResponse('<h1>Verification Success</h1>')
+        user.is_verified = True
+        user.is_active = True
+        user.save()
+        return HttpResponse('<h1>Verification Success</h1>')
 
     return HttpResponse('<h1>Verification Failure</h1>')
 
