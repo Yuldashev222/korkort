@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from api.v1.questions.models import Question
 
@@ -21,7 +21,8 @@ class CategoryExamStudent(models.Model):
     correct_answers = models.PositiveSmallIntegerField(default=0)
     difficulty_level = models.PositiveSmallIntegerField(choices=Question.DIFFICULTY_LEVEL, null=True)
 
-    questions = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(settings.MAX_QUESTIONS)])
+    questions = models.PositiveSmallIntegerField(validators=[MaxValueValidator(settings.MAX_QUESTIONS),
+                                                             MinValueValidator(settings.MIN_QUESTIONS)])
     percent = models.PositiveSmallIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)

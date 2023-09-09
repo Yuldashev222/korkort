@@ -36,9 +36,7 @@ def create_lesson_questions(self):
                                   text_swe=f'{str(uuid4())}' * 2,
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
-                                  video_swe='9.mp4',
-                                  video_en='9.mp4',
-                                  video_e_swe='9.mp4')
+                                  video='9.mp4')
 
                          )
 
@@ -57,9 +55,7 @@ def create_lesson_questions(self):
                                   text_swe=f'{str(uuid4())}' * 2,
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
-                                  video_swe='9.mp4',
-                                  video_en='9.mp4',
-                                  video_e_swe='9.mp4')
+                                  video='9.mp4')
                          )
     Question.objects.bulk_create(objs1)
     Question.objects.bulk_create(objs2)

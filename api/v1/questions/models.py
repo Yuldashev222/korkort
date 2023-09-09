@@ -54,10 +54,6 @@ class Question(models.Model):
                                                                                    self.text_e_swe, self.answer)
         super().save(*args, **kwargs)
 
-    def clean(self):
-        if not (self.text_en or self.text_swe or self.text_e_swe):
-            raise ValidationError('Enter the text')
-
     @classmethod
     def set_redis(cls):
         cache.set('all_questions_count', Question.objects.count(), 60 * 60 * 24 * 7)
@@ -76,9 +72,11 @@ class Variant(models.Model):
         self.text_swe, self.text_en, self.text_e_swe = normalize_text(self.text_swe, self.text_en, self.text_e_swe)
         super().save(*args, **kwargs)
 
-    def clean(self):
-        if not (self.text_en or self.text_swe or self.text_e_swe):
-            raise ValidationError('Enter the text')
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['question'], condition=models.Q(is_correct=True),
+                                    name="Each question must have exactly one correct option.")
+        ]
 
 
 class StudentWrongAnswer(models.Model):

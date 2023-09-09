@@ -7,19 +7,19 @@ from api.v1.general.utils import get_language
 class CategoryExamStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryExamStudent
-        exclude = ['student', 'category']
+        exclude = ['student']
 
 
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
-    category_name = serializers.SerializerMethodField()
-    detail = CategoryExamStudentSerializer(source='exams', many=True)
+    name = serializers.SerializerMethodField()
+    detail = CategoryExamStudentSerializer(source='categoryexamstudent_set', many=True)
 
     class Meta:
         model = CategoryExamStudentResult
-        exclude = ['student', 'exams']
+        exclude = ['student']
 
-    def get_category_name(self, instance):
+    def get_name(self, instance):
         return getattr(instance.category, 'name_' + get_language())
 
     def get_image(self, instance):

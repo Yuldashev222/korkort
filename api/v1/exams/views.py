@@ -35,18 +35,18 @@ class CategoryExamAPIView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        data = serializer.data
+        obj = serializer.obj
+        filter_data = {'category_id': request.data['category_id']}
+        if obj.difficulty_level:
+            filter_data['difficulty_level'] = obj.difficulty_level
 
-        filter_data = {'category_id': data['category']}
-        if data.get('difficulty_level'):
-            filter_data['difficulty_level'] = data.get('difficulty_level')
+        questions_queryset = Question.objects.filter(**filter_data
+                                                     ).prefetch_related('variant_set', 'lesson__lessonstudent_set'
+                                                                        ).order_by('?')[:obj.questions]
 
-        questions_queryset = Question.objects.filter(**filter_data).prefetch_related('variant_set',
-                                                                                     'lesson__lessonstudent_set'
-                                                                                     ).order_by('?')[:data['questions']]
         questions = QuestionExamSerializer(questions_queryset, many=True, context={'request': request}).data
 
-        return Response({'exam_id': data['id'], 'questions': questions}, status=HTTP_201_CREATED)
+        return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
 
 
 class ExamStudentResult(GenericAPIView):
@@ -55,11 +55,8 @@ class ExamStudentResult(GenericAPIView):
     def get(self, request, *args, **kwargs):
         student = self.request.user
         category_exam_query = CategoryExamStudentResult.objects.filter(
-            student=student).select_related('category').prefetch_related('exams')
+            student=student).prefetch_related('categoryexamstudent_set')
         category_exams = CategoryExamStudentResultSerializer(category_exam_query, many=True,
                                                              context={'request': request}).data
-        data = {
-            'category_exams': category_exams,
-
-        }
+        data = {'category_exams': category_exams}
         return Response(data)

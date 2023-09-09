@@ -3,10 +3,10 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.balls.models import TestBall
-from api.v1.exams.models import CategoryExamStudent
+from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
 from api.v1.lessons.models import LessonStudent
 from api.v1.questions.tasks import update_student_wrong_answers_in_exam_test
-from api.v1.questions.models import Question, QuestionStudentLastResult
+from api.v1.questions.models import Question, QuestionStudentLastResult, Category
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
 
@@ -20,11 +20,27 @@ class QuestionExamSerializer(QuestionSerializer):
 
 
 class QuestionExamCreateSerializer(serializers.ModelSerializer):
+    obj = None
     student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    category_id = serializers.IntegerField()
+
+    def validate_category_id(self, cat_id):
+        try:
+            Category.objects.get(id=cat_id)
+        except Category.DoesNotExist:
+            raise ValidationError({'category_id': 'not found'})
+        return cat_id
+
+    def create(self, validated_data):
+        cat_id = validated_data.pop('category_id')
+        student = self.context['request'].user
+        result, _ = CategoryExamStudentResult.objects.get_or_create(category_id=cat_id, student=student)
+        self.obj = CategoryExamStudent.objects.create(result=result, **validated_data)
+        return self.obj
 
     class Meta:
         model = CategoryExamStudent
-        fields = ['id', 'student', 'category', 'time', 'questions', 'difficulty_level']
+        fields = ['id', 'student', 'category_id', 'time', 'questions', 'difficulty_level']
 
 
 class CategoryExamAnswerSerializer(serializers.Serializer):

@@ -1,11 +1,21 @@
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
 from api.v1.questions.models import Category, Variant, Question, StudentWrongAnswer, StudentSavedQuestion
 
 
+class VariantInlineFormset(forms.models.BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+        corrects = [form.cleaned_data['is_correct'] for form in self.forms if form.cleaned_data.get('is_correct')]
+        if len(corrects) != 1:
+            raise forms.ValidationError("Each question must have exactly one correct option.")
+
+
 class VariantInline(admin.TabularInline):
     model = Variant
+    formset = VariantInlineFormset
     min_num = 2
     extra = 2
     max_num = 6

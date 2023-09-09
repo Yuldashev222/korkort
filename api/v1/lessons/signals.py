@@ -19,10 +19,13 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Lesson)
 def delete_image(instance, *args, **kwargs):
-    delete_object_file_pre_save(Lesson, instance, 'image')
-    delete_object_file_pre_save(Lesson, instance, 'video_en')
-    delete_object_file_pre_save(Lesson, instance, 'video_swe')
-    delete_object_file_pre_save(Lesson, instance, 'video_e_swe')
+    try:
+        delete_object_file_pre_save(Lesson, instance, 'image')
+        delete_object_file_pre_save(Lesson, instance, 'video_en')
+        delete_object_file_pre_save(Lesson, instance, 'video_swe')
+        delete_object_file_pre_save(Lesson, instance, 'video_e_swe')
+    except Lesson.DoesNotExist:
+        pass
 
 
 def update_chapter_time(instance, *args, **kwargs):  # last

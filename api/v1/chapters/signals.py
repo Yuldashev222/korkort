@@ -23,7 +23,10 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Chapter)
 def delete_image(instance, *args, **kwargs):
-    delete_object_file_pre_save(Chapter, instance, 'image')
+    try:
+        delete_object_file_pre_save(Chapter, instance, 'image')
+    except Chapter.DoesNotExist:
+        pass
 
 
 @receiver(post_save, sender=Chapter)

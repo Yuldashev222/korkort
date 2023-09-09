@@ -213,6 +213,7 @@ SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
 MAX_QUESTIONS = 100
+MIN_QUESTIONS = 5
 CUSTOM_LANGUAGES = ['swe', 'en', 'e_swe']
 LEVEL_NAMES = {
     'en': [
