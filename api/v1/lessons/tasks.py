@@ -42,21 +42,19 @@ def create_lessons(self):
         self.stdout.write(str(chapter.id))
         for i in range(15):
             is_open = True if i <= 10 else False
-            lesson = Lesson.objects.create(
-                chapter=chapter,
-                is_open=is_open,
-                ordering_number=i,
-                image='Screenshot_from_2023-08-17_20-41-00_7fU76Z8.png',
-                title_swe=str(uuid4()),
-                title_en=str(uuid4()),
-                title_e_swe=str(uuid4()),
-                text_swe=str(uuid4()) * i,
-                text_en=str(uuid4()) * i,
-                text_e_swe=str(uuid4()) * i,
-                video_swe='9.mp4',
-                video_en='9.mp4',
-                video_e_swe='9.mp4'
-            )
+            lesson = Lesson.objects.create(chapter=chapter,
+                                           is_open=is_open,
+                                           ordering_number=i,
+                                           image='Screenshot_from_2023-08-17_20-41-00_7fU76Z8.png',
+                                           title_swe=str(uuid4()),
+                                           title_en=str(uuid4()),
+                                           title_e_swe=str(uuid4()),
+                                           text_swe=str(uuid4()) * i,
+                                           text_en=str(uuid4()) * i,
+                                           text_e_swe=str(uuid4()) * i,
+                                           video_swe='9.mp4',
+                                           video_en='9.mp4',
+                                           video_e_swe='9.mp4')
 
             for j in range(10):
                 obj = LessonWordInfo.objects.create(text_swe=f'{str(uuid4())[:8]}',

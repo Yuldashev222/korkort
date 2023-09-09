@@ -43,7 +43,7 @@ class LessonWordInfoSerializer(serializers.ModelSerializer):
         return getattr(instance, 'text_' + get_language())
 
     def get_info(self, instance):
-        return getattr(instance, 'text_' + get_language())
+        return getattr(instance, 'info_' + get_language())
 
 
 class LessonSourceSerializer(serializers.ModelSerializer):

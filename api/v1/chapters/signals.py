@@ -1,6 +1,5 @@
 from django.dispatch import receiver
 from django.db.models import Sum
-from django.utils.timezone import now
 from django.db.models.signals import post_save, pre_save, post_delete
 
 from api.v1.lessons.models import LessonStudent
@@ -25,16 +24,12 @@ def add_chapter_to_all_students(instance, *args, **kwargs):
     instance.last_lesson = obj if obj else None
 
     old_obj = ChapterStudent.objects.filter(student=instance.student, chapter=instance.chapter,
-                                            chapter__ordering_number__lt=instance.chapter.ordering_number).first()
+                                            chapter__ordering_number__lt=instance.chapter.ordering_number).last()
 
     if not old_obj:
         instance.is_open = True
     else:
-        instance.is_open = (
-                old_obj.completed_lessons == old_obj.chapter.lessons
-                and
-                instance.student.tariff_expire_date > now()
-        )
+        instance.is_open = old_obj.completed_lessons == old_obj.chapter.lessons
 
 
 @receiver([post_save, post_delete], sender=ChapterStudent)

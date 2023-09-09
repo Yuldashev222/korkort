@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from rest_framework import serializers
 
 from api.v1.general.utils import get_language
@@ -11,6 +12,7 @@ class ChapterSerializer(serializers.ModelSerializer):
     lessons = serializers.IntegerField(source='chapter.lessons')
     chapter_hour = serializers.IntegerField(source='chapter.chapter_hour')
     chapter_minute = serializers.IntegerField(source='chapter.chapter_minute')
+    is_open = serializers.SerializerMethodField()
 
     class Meta:
         model = ChapterStudent
@@ -24,3 +26,10 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     def get_desc(self, instance):
         return getattr(instance.chapter, 'desc_' + get_language())
+
+    def get_is_open(self, instance):
+        if not instance.is_open:
+            return False
+        if instance.student.tariff_expire_date > now():
+            return True
+        return False
