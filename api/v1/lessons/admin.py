@@ -17,6 +17,7 @@ class LessonAdmin(admin.ModelAdmin):
     list_display = [
         'ordering_number', 'img', 'title_swe', 'title_en', 'title_e_swe', 'is_open', 'lesson_time'
     ]
+    list_display_links = ['title_swe', 'title_en', 'title_e_swe']
     inlines = [LessonWordInfoInline, LessonSourceInline]
     list_filter = ['chapter', 'ordering_number']
     search_fields = ['title_swe', 'title_en', 'title_e_swe']
