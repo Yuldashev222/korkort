@@ -7,10 +7,9 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
+from api.v1.balls.models import TestBall
 from api.v1.general.services import normalize_text
-
-from .managers import CustomUserManager
-from ..balls.models import TestBall
+from api.v1.accounts.managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):

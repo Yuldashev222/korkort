@@ -52,10 +52,11 @@ def add_to_student_on_create(instance, created, *args, **kwargs):
         LessonStudent.objects.bulk_create(objs)
 
 
-@receiver([post_save, post_delete], sender=LessonStudent)
+@receiver(post_save, sender=LessonStudent)
 def update_student_ball(instance, *args, **kwargs):
-    completed_lessons = LessonStudent.objects.filter(student=instance.student, is_completed=True,
-                                                     lesson__chapter=instance.lesson.chapter).count()
-    obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
-    obj.completed_lessons = completed_lessons
-    obj.save()
+    if instance.student:
+        completed_lessons = LessonStudent.objects.filter(student=instance.student, is_completed=True,
+                                                         lesson__chapter=instance.lesson.chapter).count()
+        obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
+        obj.completed_lessons = completed_lessons
+        obj.save()

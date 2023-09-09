@@ -52,6 +52,7 @@ class LessonWordInfo(models.Model):
     text_swe = models.CharField(max_length=300)
     text_en = models.CharField(max_length=300, blank=True)
     text_e_swe = models.CharField(max_length=300, blank=True)
+
     info_swe = models.TextField(max_length=500)
     info_en = models.TextField(max_length=500, blank=True)
     info_e_swe = models.TextField(max_length=500, blank=True)
@@ -68,6 +69,7 @@ class LessonSource(models.Model):
     text_swe = models.TextField(max_length=500)
     text_en = models.TextField(max_length=500, blank=True)
     text_e_swe = models.TextField(max_length=500, blank=True)
+
     link = models.URLField()
 
     lessons = models.ManyToManyField(Lesson)
@@ -79,7 +81,7 @@ class LessonSource(models.Model):
 
 class LessonStudent(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     is_completed = models.BooleanField(default=False)
     ball = models.PositiveSmallIntegerField(default=0)
@@ -91,7 +93,7 @@ class LessonStudent(models.Model):
 
 class LessonStudentStatistics(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     viewed_date = models.DateField(auto_now=True)
 
@@ -102,7 +104,7 @@ class LessonStudentStatistics(models.Model):
 class LessonStudentStatisticsByDay(models.Model):
     count = models.PositiveIntegerField(default=0)
     date = models.DateField()
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     class Meta:
         unique_together = ['date', 'student']

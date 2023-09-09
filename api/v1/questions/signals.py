@@ -1,9 +1,9 @@
-from django.db.models import Count
 from django.dispatch import receiver
+from django.db.models import Count
 from django.db.models.signals import post_save, post_delete
 
-from api.v1.accounts.models import CustomUser
 from api.v1.exams.models import CategoryExamStudent
+from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question, QuestionStudentLastResult, QuestionCategory
 
 
@@ -14,16 +14,17 @@ def update_question_count(*args, **kwargs):
 
 @receiver(post_save, sender=QuestionStudentLastResult)
 def delete_the_excess(instance, *args, **kwargs):
-    expire_objs = QuestionStudentLastResult.objects.filter(student=instance.student
-                                                           ).values_list('id', flat=True)[10:]
-    QuestionStudentLastResult.objects.filter(student=instance.student, id__in=expire_objs).delete()
+    if instance.student:
+        expire_objs = QuestionStudentLastResult.objects.filter(student=instance.student
+                                                               ).values_list('id', flat=True)[10:]
+        QuestionStudentLastResult.objects.filter(student=instance.student, id__in=expire_objs).delete()
 
-    data = QuestionStudentLastResult.objects.filter(student=instance.student).aggregate(
-        questions=Count('questions'), answers=Count('wrong_answers'))
-    all_questions = data['questions']
-    all_correct_answers = all_questions - data['answers']
-    instance.student.last_exams_result = int(all_correct_answers / all_questions * 100)
-    instance.student.save()
+        data = QuestionStudentLastResult.objects.filter(student=instance.student).aggregate(
+            questions=Count('questions'), answers=Count('wrong_answers'))
+        all_questions = data['questions']
+        all_correct_answers = all_questions - data['answers']
+        instance.student.last_exams_result = int(all_correct_answers / all_questions * 100)
+        instance.student.save()
 
 
 @receiver(post_save, sender=QuestionCategory)

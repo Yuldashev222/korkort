@@ -83,7 +83,7 @@ class Variant(models.Model):
 
 
 class StudentWrongAnswer(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -93,7 +93,7 @@ class StudentWrongAnswer(models.Model):
 
 
 class StudentSavedQuestion(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -107,7 +107,7 @@ class StudentSavedQuestion(models.Model):
 
 
 class QuestionStudentLastResult(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     questions = models.PositiveSmallIntegerField()
     wrong_answers = models.PositiveSmallIntegerField()
 

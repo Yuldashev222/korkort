@@ -1,5 +1,5 @@
-from django.utils.timezone import now
 from rest_framework import serializers
+from django.utils.timezone import now
 
 from api.v1.general.utils import get_language
 from api.v1.chapters.models import ChapterStudent
