@@ -43,12 +43,7 @@ class CategoryExamAPIView(GenericAPIView):
         if obj.difficulty_level:
             filter_data['difficulty_level'] = obj.difficulty_level
 
-        question_ids = cache.get('question_ids')
-        if not question_ids:
-            Question.set_redis()
-            question_ids = cache.get('question_ids')
-        question_ids = sample(question_ids, obj.questions)
-
+        question_ids = Question.get_random_questions(obj.questions)
         questions_queryset = Question.objects.filter(
             id__in=question_ids, **filter_data).prefetch_related('lesson__lessonstudent_set', 'variant_set')
 

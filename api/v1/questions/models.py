@@ -1,3 +1,5 @@
+from random import sample
+
 from django.db import models
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
@@ -41,6 +43,14 @@ class Question(models.Model):
 
     video = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
+
+    @classmethod
+    def get_random_questions(cls, count):
+        question_ids = cache.get('question_ids')
+        if not question_ids:
+            cls.set_redis()
+            question_ids = cache.get('question_ids')
+        return sample(question_ids, count)
 
     def __str__(self):
         return f'{self.id}: {self.text_swe}'[:30]
