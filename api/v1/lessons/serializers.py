@@ -21,7 +21,11 @@ class LessonListSerializer(serializers.Serializer):
         tariff_expire_date = instance.student.tariff_expire_date
         if not instance.lesson.is_open and tariff_expire_date <= now():
             return self.buy_clock
-        return self.play
+
+        if instance.is_completed:
+            return self.play
+
+        return self.clock
 
     def get_title(self, instance):
         return getattr(instance.lesson, 'title_' + get_language())
