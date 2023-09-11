@@ -2,7 +2,6 @@ from random import sample
 
 from django.db import models
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 from api.v1.accounts.models import CustomUser
@@ -94,8 +93,6 @@ class Variant(models.Model):
 class StudentWrongAnswer(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Wrong Answer'

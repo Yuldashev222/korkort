@@ -1,20 +1,17 @@
-from random import sample
-
-from django.core.cache import cache
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
 
 from api.v1.exams.models import CategoryExamStudentResult
-from api.v1.exams.serializers import CategoryExamStudentResultSerializer
-from api.v1.questions.models import Question
+from api.v1.exams.filters import WrongQuestionsExamFilter
+from api.v1.questions.models import Question, StudentWrongAnswer
+from api.v1.exams.serializers import CategoryExamStudentResultSerializer, WrongQuestionsExamSerializer
 from api.v1.accounts.permissions import IsStudent
-from api.v1.questions.serializers.exams import (
-    QuestionExamSerializer,
-    CategoryExamAnswerSerializer,
-    QuestionExamCreateSerializer
-)
+from api.v1.questions.serializers.exams import (QuestionExamSerializer,
+                                                CategoryExamAnswerSerializer,
+                                                QuestionExamCreateSerializer)
 
 
 class ExamAnswerAPIView(GenericAPIView):
@@ -62,3 +59,18 @@ class ExamStudentResult(GenericAPIView):
                                                              context={'request': request}).data
         data = {'category_exams': category_exams}
         return Response(data)
+
+
+class WrongQuestionsExamAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = WrongQuestionsExamSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = WrongQuestionsExamFilter
+
+    queryset = StudentWrongAnswer.objects.select_related('question').prefetch_related(
+        'question__variant_set')
+
+    def filter_queryset(self, queryset):
+        if self.request.query_params.get('my_questions') == 'true':
+            return queryset.filter(student=self.request.user)
+        return queryset

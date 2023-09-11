@@ -60,7 +60,7 @@ class QuestionCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(StudentWrongAnswer)
 class StudentWrongAnswerAdmin(admin.ModelAdmin):
-    list_display = ['student', 'question', 'created_at']
+    list_display = ['student', 'question']
     list_display_links = list_display
     list_filter = list_display
 

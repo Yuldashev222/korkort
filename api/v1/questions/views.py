@@ -1,5 +1,4 @@
 from rest_framework import mixins
-from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 

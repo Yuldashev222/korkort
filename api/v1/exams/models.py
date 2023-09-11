@@ -26,7 +26,7 @@ class CategoryExamStudent(models.Model):
     percent = models.PositiveSmallIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    time = models.PositiveSmallIntegerField(default=0)
+    time = models.FloatField(default=0, validators=[MinValueValidator(0)])
 
     class Meta:
         ordering = ['-id']

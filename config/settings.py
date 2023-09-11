@@ -210,7 +210,7 @@ WEB_FORGOT_PASSWORD_URL = 'https://korkort.page.link/?uid={}&token={}'
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
-MAX_QUESTIONS = 100
+MAX_QUESTIONS = 65
 MIN_QUESTIONS = 5
 CUSTOM_LANGUAGES = ['swe', 'en', 'e_swe']
 LEVEL_NAMES = {

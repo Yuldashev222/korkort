@@ -45,7 +45,7 @@ class QuestionExamCreateSerializer(serializers.ModelSerializer):
 
 class CategoryExamAnswerSerializer(serializers.Serializer):
     exam_id = serializers.IntegerField()
-    time = serializers.IntegerField(default=0)
+    time = serializers.FloatField(default=0)
     wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
     correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
 
@@ -67,8 +67,8 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         if exam.correct_answers > 0:
             raise ValidationError({'exam_id': 'not found'})
 
-        wrong_question_ids = set(question['pk'] for question in wrong_questions)
-        correct_question_ids = set(question['pk'] for question in correct_questions)
+        wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
+        correct_question_ids = list(set(question['pk'] for question in correct_questions))
 
         for question_ids in [correct_question_ids, wrong_question_ids]:
             for pk in question_ids:  # last
@@ -89,8 +89,7 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         exam.correct_answers = exam.questions - wrong_answers_cnt
         exam.time = data['time']
         exam.save()
-
-        update_student_wrong_answers_in_exam_test.delay(student=student.id, wrong_question_ids=wrong_question_ids,
+        update_student_wrong_answers_in_exam_test.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                                         correct_question_ids=correct_question_ids)
 
         return data

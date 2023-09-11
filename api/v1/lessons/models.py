@@ -2,7 +2,6 @@ from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
-from api.v1.general.utils import get_video_duration
 from api.v1.general.services import normalize_text
 from api.v1.lessons.services import lesson_image_location, lesson_video_location
 
