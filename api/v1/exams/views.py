@@ -1,3 +1,6 @@
+from random import sample
+
+from django.core.cache import cache
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
@@ -40,12 +43,16 @@ class CategoryExamAPIView(GenericAPIView):
         if obj.difficulty_level:
             filter_data['difficulty_level'] = obj.difficulty_level
 
-        questions_queryset = Question.objects.filter(**filter_data
-                                                     ).prefetch_related('variant_set', 'lesson__lessonstudent_set'
-                                                                        ).order_by('?')[:obj.questions]
+        question_ids = cache.get('question_ids')
+        if not question_ids:
+            Question.set_redis()
+            question_ids = cache.get('question_ids')
+        question_ids = sample(question_ids, obj.questions)
+
+        questions_queryset = Question.objects.filter(
+            id__in=question_ids, **filter_data).prefetch_related('lesson__lessonstudent_set', 'variant_set')
 
         questions = QuestionExamSerializer(questions_queryset, many=True, context={'request': request}).data
-
         return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
 
 

@@ -56,7 +56,9 @@ class Question(models.Model):
 
     @classmethod
     def set_redis(cls):
-        cache.set('all_questions_count', Question.objects.count(), 60 * 60 * 24 * 7)
+        question_ids = list(Question.objects.values_list('id', flat=True))
+        cache.set('all_questions_count', len(question_ids), 60 * 60 * 24 * 30)
+        cache.set('question_ids', question_ids, 60 * 60 * 24 * 30)
 
 
 class Variant(models.Model):

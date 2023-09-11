@@ -40,11 +40,12 @@ class QuestionExamCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CategoryExamStudent
-        fields = ['id', 'student', 'category_id', 'time', 'questions', 'difficulty_level']
+        fields = ['id', 'student', 'category_id', 'questions', 'difficulty_level']
 
 
 class CategoryExamAnswerSerializer(serializers.Serializer):
     exam_id = serializers.IntegerField()
+    time = serializers.IntegerField(default=0)
     wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
     correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
 
@@ -86,6 +87,7 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
                                                  student=student)
 
         exam.correct_answers = exam.questions - wrong_answers_cnt
+        exam.time = data['time']
         exam.save()
 
         update_student_wrong_answers_in_exam_test.delay(student=student.id, wrong_question_ids=wrong_question_ids,
