@@ -60,8 +60,5 @@ def update_student_completed_lessons(instance, *args, **kwargs):
     if instance.student and instance.chapter:
         completed_lessons = ChapterStudent.objects.filter(student=instance.student
                                                           ).aggregate(cnt=Sum('completed_lessons'))['cnt']
-        if completed_lessons:
-            instance.student.completed_lessons = completed_lessons
-        else:
-            instance.student.completed_lessons = 0
+        instance.student.completed_lessons = completed_lessons if completed_lessons else 0
         instance.student.save()

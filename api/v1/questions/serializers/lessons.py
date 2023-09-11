@@ -24,7 +24,7 @@ class LessonAnswerSerializer(serializers.Serializer):
         except LessonStudent.DoesNotExist:
             raise ValidationError({'lesson_id': 'not found.'})
 
-        question_ids = set(question['pk'] for question in data['questions'])
+        question_ids = list(set(question['pk'] for question in data['questions']))
 
         for pk in question_ids:  # last
             try:
@@ -47,7 +47,7 @@ class LessonAnswerSerializer(serializers.Serializer):
         lesson_student.ball = (lesson_all_questions_cnt - wrong_answers_cnt) * test_ball
         lesson_student.save()
 
-        update_student_wrong_answers_in_lesson_test.delay(wrong_question_ids=list(question_ids), student_id=student.id,
+        update_student_wrong_answers_in_lesson_test.delay(wrong_question_ids=question_ids, student_id=student.id,
                                                           lesson_id=lesson.id)
 
         return data

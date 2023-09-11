@@ -8,23 +8,19 @@ from api.v1.questions.serializers.questions import QuestionSerializer
 
 
 class LessonListSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.SerializerMethodField()
-    lesson_time = serializers.FloatField(source='lesson.lesson_time')
-    lesson_permission = serializers.SerializerMethodField()
     pause = 1
     play = 2
     clock = 3
     buy_clock = 4
+    id = serializers.IntegerField()
+    title = serializers.SerializerMethodField()
+    lesson_time = serializers.FloatField(source='lesson.lesson_time')
+    lesson_permission = serializers.SerializerMethodField()
 
     def get_lesson_permission(self, instance):
         tariff_expire_date = instance.student.tariff_expire_date
         if not instance.lesson.is_open and tariff_expire_date <= now():
             return self.buy_clock
-
-        if not instance.is_completed:
-            return self.clock
-
         return self.play
 
     def get_title(self, instance):

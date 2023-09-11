@@ -1,3 +1,15 @@
-from django.test import TestCase
-
-# Create your tests here.
+{
+    "lesson_id": 30401,
+    "questions": [
+        {"pk": 91},
+        {"pk": 92},
+        {"pk": 93},
+        {"pk": 94},
+        {"pk": 95},
+        {"pk": 96},
+        {"pk": 97},
+        {"pk": 98},
+        {"pk": 99},
+        {"pk": 100}
+    ]
+}

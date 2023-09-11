@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, ListAPIView
@@ -67,10 +68,19 @@ class WrongQuestionsExamAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = WrongQuestionsExamFilter
 
-    queryset = StudentWrongAnswer.objects.select_related('question').prefetch_related(
-        'question__variant_set')
+    queryset = StudentWrongAnswer.objects.select_related('question', 'question__lesson'
+                                                         ).prefetch_related('question__variant_set')
 
     def filter_queryset(self, queryset):
-        if self.request.query_params.get('my_questions') == 'true':
-            return queryset.filter(student=self.request.user)
+        my_questions = self.request.query_params.get('my_questions')
+        counts = self.request.query_params.get('counts')
+        if my_questions == 'true':
+            queryset = queryset.filter(student=self.request.user)
+
+        try:
+            counts = int(counts)
+            if counts <= settings.MAX_QUESTIONS:
+                queryset = queryset[:counts]
+        except (ValueError, TypeError):
+            pass
         return queryset
