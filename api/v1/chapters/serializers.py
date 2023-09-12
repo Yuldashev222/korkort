@@ -3,6 +3,7 @@ from django.utils.timezone import now
 
 from api.v1.general.utils import get_language
 from api.v1.chapters.models import ChapterStudent
+from api.v1.lessons.serializers import LessonListSerializer
 
 
 class ChapterStudentSerializer(serializers.ModelSerializer):
@@ -28,7 +29,7 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
 
     def get_is_open(self, instance):
         if self.context['request'].user.tariff_expire_date <= now():
-            return 4
+            return LessonListSerializer.buy_clock
         if instance.completed_lessons < instance.chapter.lessons:
-            return 3
-        return 2
+            return LessonListSerializer.clock
+        return LessonListSerializer.play
