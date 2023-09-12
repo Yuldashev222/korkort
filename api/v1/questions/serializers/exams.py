@@ -11,12 +11,13 @@ from api.v1.questions.serializers.questions import QuestionSerializer, QuestionA
 
 
 class QuestionExamSerializer(QuestionSerializer):
-    lesson = serializers.SerializerMethodField()
+    # lesson = serializers.SerializerMethodField()
     answer = serializers.CharField()
 
-    def get_lesson(self, instance):
-        student = self.context['request'].user
-        return LessonStudent.objects.get(student=student, lesson=instance.lesson).id  # last
+    # def get_lesson(self, instance):
+    #     student = self.context['request'].user
+    #     return instance.lesson.lessonstudent_set.get(student=student, lesson=instance.lesson).id
+        # return LessonStudent.objects.get(student=student, lesson=instance.lesson).id  # last
 
 
 class QuestionExamCreateSerializer(serializers.ModelSerializer):

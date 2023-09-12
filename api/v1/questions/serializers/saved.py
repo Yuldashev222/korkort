@@ -1,29 +1,44 @@
+from django.conf import settings
+from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from api.v1.general.utils import get_language
-from api.v1.questions.models import StudentSavedQuestion
-
-
-class SavedQuestionCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentSavedQuestion
-        fields = ['question']
+from api.v1.questions.models import Question, StudentSavedQuestion
+from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 
 
-class SavedQuestionRetrieveSerializer(serializers.ModelSerializer):
-    text = serializers.SerializerMethodField()
-    video = serializers.SerializerMethodField()
+class SavedQuestionListCreateSerializer(serializers.Serializer):
+    questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
 
-    class Meta:
-        model = StudentSavedQuestion
-        fields = ['id', 'text', 'video', 'created_at']
+    def to_internal_value(self, data):
+        super().to_internal_value(data)
+        student = self.context['request'].user
+        question_ids = list(set(question['pk'] for question in data['questions']))
 
-    def get_text(self, instance):
-        return getattr(instance.question, 'text_' + get_language())
+        for pk in question_ids:
+            if not Question.is_correct_question_id(question_id=pk):
+                raise ValidationError({'pk': 'not found'})
 
-    def get_video(self, instance):
-        request = self.context['request']
-        language = get_language()
-        if getattr(instance, 'video_' + language, None):
-            return request.build_absolute_uri(eval(f'instance.video_{language}.url'))
-        return None
+        for pk in question_ids:
+            StudentSavedQuestion.objects.get_or_create(student=student, question_id=pk)
+        return {}
+
+
+@transaction.atomic
+def delete_saved_questions(student_id, question_ids):
+    for pk in question_ids:
+        try:
+            StudentSavedQuestion.objects.get_or_create(student_id=student_id, question_id=pk)
+        except StudentSavedQuestion.DoesNotExist:
+            raise ValidationError({'pk': 'not found'})
+
+
+class SavedQuestionListDeleteSerializer(SavedQuestionListCreateSerializer):
+    questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
+
+    def to_internal_value(self, data):
+        super().to_internal_value(data)
+        student = self.context['request'].user
+        question_ids = list(set(question['pk'] for question in data['questions']))
+        delete_saved_questions(student_id=student.id, question_ids=question_ids)
+        return {}

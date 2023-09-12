@@ -4,5 +4,5 @@ from .views import SavedQuestionStudentAPIVIew, SavedQuestionStudentDestroyAPIVI
 
 urlpatterns = [
     path('saved/', SavedQuestionStudentAPIVIew.as_view()),
-    path('saved/<int:pk>/', SavedQuestionStudentDestroyAPIVIew.as_view()),
+    path('saved/delete/', SavedQuestionStudentDestroyAPIVIew.as_view()),
 ]
