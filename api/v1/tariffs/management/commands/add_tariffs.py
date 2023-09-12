@@ -9,18 +9,14 @@ from api.v1.tariffs.models import Tariff
 class Command(BaseCommand):
     def handle(self, *args, **options):
         if not StudentDiscount.objects.exists():
-            StudentDiscount.objects.create(
-                title=f'{str(uuid4())}',
-                discount_value=2,
-                is_percent=True,
-            )
+            StudentDiscount.objects.create(title=f'{str(uuid4())}',
+                                           discount_value=2,
+                                           is_percent=True,)
         if not TariffDiscount.objects.exists():
-            TariffDiscount.objects.create(
-                title=f'{str(uuid4())}',
-                discount_value=20,
-                is_percent=True,
-                image='-08-17_20-41-00_G2TBmpL.png'
-            )
+            TariffDiscount.objects.create(title=f'{str(uuid4())}',
+                                          discount_value=20,
+                                          is_percent=True,
+                                          image='discounts/images/IMG.png')
         for i in range(7):
             Tariff.objects.create(title=f'{str(uuid4())}',
                                   desc=f'{str(uuid4())} {str(uuid4())}',

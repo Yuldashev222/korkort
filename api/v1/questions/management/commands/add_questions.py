@@ -11,7 +11,7 @@ def create_categories():
         Category.objects.create(name_swe=str(uuid4()),
                                 name_en=str(uuid4()),
                                 name_e_swe=str(uuid4()),
-                                image='Screenshot_from_2023-08-17_20-41-00_G2TBmpL.png')
+                                image='discounts/images/IMG.png')
 
 
 def create_lesson_questions(self):
@@ -36,8 +36,9 @@ def create_lesson_questions(self):
                                   text_swe=f'{str(uuid4())}' * 2,
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
-                                  video='9.mp4')
-
+                                  video='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
+                                  image='discounts/images/IMG.png'
+                                  )
                          )
 
         for index, category in enumerate(categories, 1):
@@ -55,7 +56,9 @@ def create_lesson_questions(self):
                                   text_swe=f'{str(uuid4())}' * 2,
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
-                                  video='9.mp4')
+                                  video='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
+                                  image='discounts/images/IMG.png'
+                                  )
                          )
     Question.objects.bulk_create(objs1)
     Question.objects.bulk_create(objs2)

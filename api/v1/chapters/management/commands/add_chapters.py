@@ -13,5 +13,5 @@ class Command(BaseCommand):
                                    desc_swe=f'{uuid4()} {uuid4()}',
                                    desc_en=f'{uuid4()} {uuid4()}',
                                    desc_e_swe=f'{uuid4()} {uuid4()}',
-                                   image=f'Screenshot_from_2023_20-41-00.png',
+                                   image=f'discounts/images/IMG.png',
                                    ordering_number=i + 1)

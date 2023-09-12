@@ -27,8 +27,13 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
                                            is_completed=True).last()
 
         if not obj:
-            obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student
-                                               ).select_related('lesson').first()
+            if chapter_student.chapter_id == 1:
+                obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, lesson__is_open=True,
+                                                   student=student).last()
+            else:
+                obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student,
+                                                   lesson__ordering_number__lte=chapter_student.completed_lessons
+                                                   ).select_related('lesson').first()
         return obj
 
     def retrieve(self, request, *args, **kwargs):

@@ -24,7 +24,8 @@ def change_fields_pre_save(instance, *args, **kwargs):
 @receiver(post_save, sender=CustomUser)
 def generation_objects_for_student(instance, created, *args, **kwargs):
     if created and not instance.is_staff:
-        create_objects_for_student.delay(instance.id)
+        # create_objects_for_student.delay(instance.id)  # last
+        create_objects_for_student(instance.id)  # last
 
 
 @receiver(pre_delete, sender=CustomUser)

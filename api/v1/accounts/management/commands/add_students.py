@@ -13,6 +13,4 @@ class Command(BaseCommand):
                                            password='123123asdasd',
                                            email=str(uuid4()) + '@gmail.com',
                                            is_verified=True,
-                                           is_staff=False,
-                                           bonus_money=i,
-                                           ball=i)
+                                           is_staff=False)

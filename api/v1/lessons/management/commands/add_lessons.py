@@ -12,20 +12,20 @@ class Command(BaseCommand):
         for chapter in chapters:
             self.stdout.write(str(chapter.id))
             for i in range(15):
-                is_open = True if i <= 10 else False
+                is_open = True if i <= 4 and chapter.ordering_number == 1 else False
                 lesson = Lesson.objects.create(chapter=chapter,
                                                is_open=is_open,
                                                ordering_number=i + 1,
-                                               image='Screenshot_from_2023-08-17_20-41-00_7fU76Z8.png',
+                                               image='discounts/images/IMG.png',
                                                title_swe=str(uuid4()),
                                                title_en=str(uuid4()),
                                                title_e_swe=str(uuid4()),
                                                text_swe=str(uuid4()) * i,
                                                text_en=str(uuid4()) * i,
                                                text_e_swe=str(uuid4()) * i,
-                                               video_swe='9.mp4',
-                                               video_en='9.mp4',
-                                               video_e_swe='9.mp4',
+                                               video_swe='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
+                                               video_en='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
+                                               video_e_swe='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
                                                lesson_time=i * 2)
 
                 for j in range(10):
