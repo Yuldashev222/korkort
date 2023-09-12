@@ -35,7 +35,7 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
         temp = LessonListSerializer.play
 
         if not (self.old_obj and self.old_obj_chapter_lessons):
-            temp = LessonListSerializer.pause
+            temp = LessonListSerializer.play
 
         elif self.context['request'].user.tariff_expire_date <= now():
             temp = LessonListSerializer.buy_clock
