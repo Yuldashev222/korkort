@@ -4,7 +4,7 @@ from celery import shared_task
 from django.core.cache import cache
 from django.utils.timezone import now
 
-from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
+from api.v1.exams.models import CategoryExamStudentResult
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatisticsByDay
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import Chapter, ChapterStudent
