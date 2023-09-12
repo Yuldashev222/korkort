@@ -20,17 +20,17 @@ class LessonListSerializer(serializers.Serializer):
 
     def get_lesson_permission(self, instance):
         temp = self.clock
-        tariff_expire_date = self.context['request'].user.tariff_expire_date
-        if not instance.lesson.is_open and tariff_expire_date <= now():
-            temp = self.buy_clock
-
-        elif not self.old_obj:
-            temp = self
-
-        if instance.is_completed:
-            temp = self.play
-
-        self.old_obj = instance
+        # tariff_expire_date = self.context['request'].user.tariff_expire_date
+        # if not instance.lesson.is_open and tariff_expire_date <= now():
+        #     temp = self.buy_clock
+        #
+        # elif not self.old_obj:
+        #     temp = self.pause
+        #
+        # if instance.is_completed:
+        #     temp = self.play
+        #
+        # self.old_obj = instance
         return temp
 
     def get_title(self, instance):
