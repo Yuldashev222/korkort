@@ -65,7 +65,7 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         except CategoryExamStudent.DoesNotExist:
             raise ValidationError({'exam_id': 'not found'})
 
-        if exam.wrong_answers > 0:
+        if exam.correct_answers > 0:
             raise ValidationError({'exam_id': 'not found'})
 
         wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
@@ -85,7 +85,7 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,
                                                  student=student)
 
-        exam.wrong_answers = exam.questions - wrong_answers_cnt
+        exam.correct_answers = exam.questions - wrong_answers_cnt
         exam.time = data['time']
         exam.save()
         update_student_wrong_answers_in_exam_exam.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,

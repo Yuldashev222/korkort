@@ -42,10 +42,8 @@ class CategoryExamAPIView(GenericAPIView):
         if obj.difficulty_level:
             filter_data['difficulty_level'] = obj.difficulty_level
 
-        # question_ids = sample(Question.get_question_ids(), obj.questions)
-        questions_queryset = Question.objects.filter(
-            **filter_data).prefetch_related('variant_set', 'studentsavedquestion_set').order_by('?')[:obj.questions]
-        # id__in=question_ids, **filter_data).prefetch_related('lesson__lessonstudent_set', 'variant_set')
+        questions_queryset = Question.objects.filter(**filter_data).prefetch_related('variant_set'
+                                                                                     ).order_by('?')[:obj.questions]
 
         questions = QuestionExamSerializer(questions_queryset, many=True, context={'request': request}).data
         return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
@@ -56,8 +54,8 @@ class ExamStudentResult(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         student = self.request.user
-        category_exam_query = CategoryExamStudentResult.objects.filter(
-            student=student).prefetch_related('categoryexamstudent_set')
+        category_exam_query = CategoryExamStudentResult.objects.filter(student=student
+                                                                       ).prefetch_related('categoryexamstudent_set')
         category_exams = CategoryExamStudentResultSerializer(category_exam_query, many=True,
                                                              context={'request': request}).data
         data = {'category_exams': category_exams}

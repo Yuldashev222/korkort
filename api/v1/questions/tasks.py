@@ -6,7 +6,7 @@ from api.v1.questions.models import StudentWrongAnswer, StudentCorrectAnswer
 
 def bulk_create_answers(model_class, question_ids, student_id):
     if question_ids:
-        objs = [model_class(question=question_id, student_id=student_id) for question_id in question_ids]
+        objs = [model_class(question_id=question_id, student_id=student_id) for question_id in question_ids]
         model_class.objects.bulk_create(objs)
 
 
