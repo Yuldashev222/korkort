@@ -35,8 +35,9 @@ class LessonAnswerSerializer(serializers.Serializer):
         if not test_ball:
             return {}
 
-        lesson_all_questions_cnt = Question.objects.filter(for_lesson=True, lesson=lesson).count()
         wrong_answers_cnt = len(question_ids)
+        correct_question_ids = list(lesson.question_set.exclude(id__in=question_ids).values_list('pk', flat=True))
+        lesson_all_questions_cnt = wrong_answers_cnt + len(correct_question_ids)
         QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=lesson_all_questions_cnt,
                                                  student=student)
         if wrong_answers_cnt == 0:
@@ -45,7 +46,6 @@ class LessonAnswerSerializer(serializers.Serializer):
         lesson_student.ball = (lesson_all_questions_cnt - wrong_answers_cnt) * test_ball
         lesson_student.save()
 
-        correct_question_ids = list(lesson.question_set.exclude(id__in=question_ids).values_list('pk', flat=True))
         update_student_wrong_answers_in_lesson_exam.delay(correct_question_ids=correct_question_ids,
                                                           wrong_question_ids=question_ids,
                                                           lesson_id=lesson.id, student_id=student.id)

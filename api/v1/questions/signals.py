@@ -51,6 +51,7 @@ def delete_the_excess(instance, *args, **kwargs):
 
         data = QuestionStudentLastResult.objects.filter(student=instance.student).aggregate(
             questions=Sum('questions'), answers=Sum('wrong_answers'))
+
         all_questions = data['questions']
         all_correct_answers = all_questions - data['answers']
         instance.student.last_exams_result = int(all_correct_answers / all_questions * 100)
