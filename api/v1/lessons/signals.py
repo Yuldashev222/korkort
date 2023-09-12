@@ -1,11 +1,14 @@
+from datetime import timedelta
+
 from django.dispatch import receiver
 from django.db.models import Sum, Count
 from django.db.models.signals import post_save, post_delete, pre_save
+from django.utils.timezone import now
 
 from api.v1.accounts.models import CustomUser
-from api.v1.chapters.models import ChapterStudent, Chapter
+from api.v1.chapters.models import ChapterStudent
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
-from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatistics, LessonStudentStatisticsByDay
+from api.v1.lessons.models import Lesson, LessonStudent
 
 
 @receiver(post_delete, sender=Lesson)
@@ -44,24 +47,6 @@ def update_chapter_time(instance, *args, **kwargs):  # last
         chapter.lessons = lessons if lessons else 0
         chapter.save()
     Lesson.set_redis()
-
-
-@receiver([post_save, post_delete], sender=LessonStudentStatistics)
-def change_student_lesson_view_statistics(instance, *args, **kwargs):
-    if instance.student:
-        obj, _ = LessonStudentStatisticsByDay.objects.get_or_create(date=instance.viewed_date, student=instance.student)
-        cnt = LessonStudentStatistics.objects.filter(student=instance.student, viewed_date=instance.viewed_date
-                                                     ).aggregate(cnt=Count('id'))['cnt']
-        obj.count = cnt if cnt else 0
-        obj.save()
-
-
-@receiver(post_save, sender=LessonStudentStatisticsByDay)
-def change_student_lesson_view_statistics(instance, *args, **kwargs):
-    if instance.student:
-        expire_objs = LessonStudentStatisticsByDay.objects.filter(student=instance.student
-                                                                  ).values_list('id', flat=True)[7:]
-        LessonStudentStatisticsByDay.objects.filter(student=instance.student, id__in=expire_objs).delete()
 
 
 @receiver(post_save, sender=Lesson)

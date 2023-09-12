@@ -105,23 +105,11 @@ class LessonStudent(models.Model):
         ordering = ['lesson__ordering_number']
 
 
-class LessonStudentStatistics(models.Model):
+class StudentLessonViewStatistics(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
-    viewed_date = models.DateField(auto_now=True)
+    viewed_date = models.DateField()
 
     class Meta:
-        unique_together = ['lesson', 'student']
-
-
-class LessonStudentStatisticsByDay(models.Model):
-    count = models.PositiveIntegerField(default=0)
-    date = models.DateField()
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
-
-    class Meta:
-        verbose_name = 'Student Lesson View'
-        verbose_name_plural = 'Student Lesson View'
-        unique_together = ['date', 'student']
-        ordering = ['-date']
+        ordering = ['-viewed_date']

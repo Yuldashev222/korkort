@@ -18,7 +18,4 @@ class IsOpenOrPurchased(BasePermission):
         student = request.user
         if obj.lesson.is_open:
             return True
-        try:
-            return student.tariff_expire_date >= now()
-        except TypeError:
-            return False
+        return student.tariff_expire_date > now()

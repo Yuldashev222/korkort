@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Lesson, LessonStudent, LessonWordInfo, LessonSource, LessonStudentStatisticsByDay
+from .models import Lesson, LessonStudent, LessonWordInfo, LessonSource
 
 
 class LessonWordInfoInline(admin.TabularInline):
@@ -79,22 +79,3 @@ class LessonSourceAdmin(admin.ModelAdmin):
 
     def source_link(self, obj):
         return format_html(f"<a href='{obj.link}'>{obj.link}</a>")
-
-
-@admin.register(LessonStudentStatisticsByDay)
-class LessonStudentStatisticsByDayAdmin(admin.ModelAdmin):
-    list_display = ['student', 'date', 'count']
-    list_display_links = list_display
-    list_filter = ['student', 'date']
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_queryset(self, request):
-        return LessonStudentStatisticsByDay.objects.select_related('student')

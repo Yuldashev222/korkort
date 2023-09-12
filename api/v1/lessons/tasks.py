@@ -1,12 +1,10 @@
-from uuid import uuid4
-
+from datetime import timedelta
 from celery import shared_task
 from django.db.models import Max
 from django.utils.timezone import now
 
+from api.v1.lessons.models import StudentLessonViewStatistics
 from api.v1.accounts.models import CustomUser
-from api.v1.chapters.models import Chapter
-from api.v1.lessons.models import LessonStudent, LessonStudentStatistics, Lesson, LessonWordInfo, LessonSource
 from api.v1.payments.models import Order
 
 
@@ -32,4 +30,5 @@ def change_student_tariff_expire_date(student_id):
 
 @shared_task
 def change_student_lesson_view_statistics(lesson_id, student_id):
-    LessonStudentStatistics.objects.get_or_create(lesson_id=lesson_id, student_id=student_id)
+    StudentLessonViewStatistics.objects.filter(viewed_date__lt=now().date() - timedelta(days=7)).delete()
+    StudentLessonViewStatistics.objects.get_or_create(lesson_id=lesson_id, student_id=student_id, viewed_date=now().date())

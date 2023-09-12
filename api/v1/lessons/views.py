@@ -1,13 +1,14 @@
-from rest_framework.mixins import ListModelMixin
+from django.db.models import Count
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.exams.views import ExamAnswerAPIView
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.lessons.models import LessonStudent, LessonStudentStatisticsByDay
+from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
-from api.v1.lessons.serializers import LessonRetrieveSerializer, LessonStudentStatisticsByDaySerializer
+from api.v1.lessons.serializers import LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.lessons import LessonAnswerSerializer
 
@@ -31,15 +32,16 @@ class LessonAPIView(ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class LessonStudentStatisticsByDayAPIView(ListModelMixin, GenericViewSet):
+class StudentLessonViewStatisticsAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
-    serializer_class = LessonStudentStatisticsByDaySerializer
+    serializer_class = StudentLessonViewStatisticsSerializer
 
     def get_queryset(self):
         student = self.request.user
-        return LessonStudentStatisticsByDay.objects.filter(student=student)[:7]
+        queryset = StudentLessonViewStatistics.objects.filter(student=student
+                                                              ).values('viewed_date').annotate(cnt=Count('viewed_date'))
+        return queryset
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)

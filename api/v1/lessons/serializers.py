@@ -2,8 +2,7 @@ from rest_framework import serializers
 from django.utils.timezone import now
 
 from api.v1.general.utils import get_language
-from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudentStatisticsByDay, LessonStudent
-from api.v1.questions.models import Question
+from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent, StudentLessonViewStatistics
 from api.v1.questions.serializers.questions import QuestionSerializer
 
 
@@ -63,14 +62,18 @@ class LessonSourceSerializer(serializers.ModelSerializer):
         return getattr(instance, 'text_' + get_language())
 
 
-class LessonStudentStatisticsByDaySerializer(serializers.ModelSerializer):
+class StudentLessonViewStatisticsSerializer(serializers.ModelSerializer):
     weekday = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
+
+    def get_count(self, instance):
+        return instance['cnt']
 
     def get_weekday(self, instance):
-        return instance.date.weekday()
+        return instance['viewed_date'].weekday()
 
     class Meta:
-        model = LessonStudentStatisticsByDay
+        model = StudentLessonViewStatistics
         fields = ['count', 'weekday']
 
 
