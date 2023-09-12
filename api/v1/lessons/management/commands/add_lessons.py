@@ -23,9 +23,9 @@ class Command(BaseCommand):
                                                text_swe=str(uuid4()) * i,
                                                text_en=str(uuid4()) * i,
                                                text_e_swe=str(uuid4()) * i,
-                                               video_swe='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
-                                               video_en='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
-                                               video_e_swe='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
+                                               video_swe='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
+                                               video_en='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
+                                               video_e_swe='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
                                                lesson_time=i * 2)
 
                 for j in range(10):
