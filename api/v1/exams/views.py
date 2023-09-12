@@ -43,8 +43,12 @@ class CategoryExamAPIView(GenericAPIView):
             filter_data['difficulty_level'] = obj.difficulty_level
 
         question_ids = sample(Question.get_question_ids(), obj.questions)
+        print(question_ids, filter_data)
         questions_queryset = Question.objects.filter(
-            id__in=question_ids, **filter_data).prefetch_related('lesson__lessonstudent_set', 'variant_set')
+            # id__in=question_ids, **filter_data).prefetch_related('lesson__lessonstudent_set', 'variant_set')
+            id__in=question_ids).prefetch_related('lesson__lessonstudent_set', 'variant_set')
+
+        print(questions_queryset.count())
 
         questions = QuestionExamSerializer(questions_queryset, many=True, context={'request': request}).data
         return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
