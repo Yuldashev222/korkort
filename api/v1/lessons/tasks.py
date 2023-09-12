@@ -31,4 +31,5 @@ def change_student_tariff_expire_date(student_id):
 @shared_task
 def change_student_lesson_view_statistics(lesson_id, student_id):
     StudentLessonViewStatistics.objects.filter(viewed_date__lt=now().date() - timedelta(days=7)).delete()
-    StudentLessonViewStatistics.objects.get_or_create(lesson_id=lesson_id, student_id=student_id, viewed_date=now().date())
+    StudentLessonViewStatistics.objects.get_or_create(lesson_id=lesson_id,
+                                                      student_id=student_id, viewed_date=now().date())
