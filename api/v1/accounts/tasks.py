@@ -41,7 +41,7 @@ def create_objects_for_student(student_id):
 
 
 @shared_task
-def update_student_correct_answers(student_id):
+def update_student_wrong_answers(student_id):
     all_questions_count = cache.get('all_questions_count')
     if not all_questions_count:
         Question.set_redis()
