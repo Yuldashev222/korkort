@@ -37,7 +37,7 @@ class CustomUser(AbstractUser):
 
     ball = models.PositiveBigIntegerField(default=0)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
-    correct_answers = models.PositiveIntegerField(default=0)
+    wrong_answers = models.PositiveIntegerField(default=0)
     last_exams_result = models.PositiveSmallIntegerField(default=0)
 
     tariff_expire_date = models.DateTimeField(default=now)
@@ -66,7 +66,7 @@ class CustomUser(AbstractUser):
         return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True, is_verified=True).exists()
 
     def save(self, *args, **kwargs):
-        self.ball = self.correct_answers * TestBall.get_ball()
+        self.ball = self.wrong_answers * TestBall.get_ball()
         self.first_name, self.last_name = normalize_text(self.first_name, self.last_name)
         self.bonus_money = round(self.bonus_money, 1)
         super().save(*args, **kwargs)

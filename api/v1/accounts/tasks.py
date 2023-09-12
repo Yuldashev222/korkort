@@ -51,7 +51,7 @@ def update_student_correct_answers(student_id):
 
     if all_questions_count:
         wrong_answers_count = StudentWrongAnswer.objects.filter(student=student).count()
-        student.correct_answers = all_questions_count - wrong_answers_count
+        student.wrong_answers = all_questions_count - wrong_answers_count
     else:
-        student.correct_answers = 0
+        student.wrong_answers = 0
     student.save()

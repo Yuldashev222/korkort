@@ -25,7 +25,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         'level',
         'level_image_id',
         'ball',
-        'correct_answers',
+        'wrong_answers',
         'completed_lessons',
         'last_exams_result',
         'avatar_id'
@@ -42,7 +42,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         'level_image_id',
         'ball',
         'completed_lessons',
-        'correct_answers',
+        'wrong_answers',
         'last_exams_result',
         'tariff_expire_date',
     ]
