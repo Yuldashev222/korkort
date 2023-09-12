@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'api.v1.tariffs.apps.TariffsConfig',
     'api.v1.chapters.apps.ChaptersConfig',
     'api.v1.lessons.apps.LessonsConfig',
-    'api.v1.balls.apps.BallsConfig',
     'api.v1.questions.apps.QuestionsConfig',
     'api.v1.exams.apps.ExamsConfig',
 ]
@@ -210,6 +209,7 @@ WEB_FORGOT_PASSWORD_URL = 'https://korkort.page.link/?uid={}&token={}'
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'
 
+TEST_BALL = 1
 MAX_QUESTIONS = 65
 MIN_QUESTIONS = 5
 CUSTOM_LANGUAGES = ['swe', 'en', 'e_swe']

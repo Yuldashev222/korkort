@@ -2,7 +2,6 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from api.v1.balls.models import TestBall
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
 from api.v1.lessons.models import LessonStudent
 from api.v1.questions.tasks import update_student_wrong_answers_in_exam_exam
@@ -75,11 +74,6 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
             for pk in question_ids:
                 if not Question.is_correct_question_id(question_id=pk):
                     raise ValidationError({'pk': 'not found'})
-
-        test_ball = TestBall.get_ball()
-
-        if not test_ball:
-            return {}
 
         wrong_answers_cnt = len(wrong_question_ids)
         QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,

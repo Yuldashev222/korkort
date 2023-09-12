@@ -1,13 +1,13 @@
 import string
 import secrets
 
+from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
-from api.v1.balls.models import TestBall
 from api.v1.general.services import normalize_text
 from api.v1.accounts.managers import CustomUserManager
 from api.v1.questions.models import Question
@@ -67,7 +67,7 @@ class CustomUser(AbstractUser):
         return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True, is_verified=True).exists()
 
     def save(self, *args, **kwargs):
-        self.ball = (Question.get_all_questions_count() - self.correct_answers) * TestBall.get_ball()
+        self.ball = (Question.get_all_questions_count() - self.correct_answers) * settings.TEST_BALL
         self.first_name, self.last_name = normalize_text(self.first_name, self.last_name)
         self.bonus_money = round(self.bonus_money, 1)
         super().save(*args, **kwargs)
