@@ -3,9 +3,12 @@ from django.utils.timezone import now
 
 from api.v1.general.utils import get_language
 from api.v1.chapters.models import ChapterStudent
+from api.v1.lessons.serializers import LessonListSerializer
 
 
 class ChapterStudentSerializer(serializers.ModelSerializer):
+    old_obj = None
+    old_obj_chapter_lessons = None
     title = serializers.SerializerMethodField()
     desc = serializers.SerializerMethodField()
     image = serializers.ImageField(source='chapter.image', max_length=300)
@@ -26,14 +29,17 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
     def get_desc(self, instance):
         return getattr(instance.chapter, 'desc_' + get_language())
 
-    old_obj = None
-
     def get_is_open(self, instance):
+        temp = LessonListSerializer.play
+        if self.context['request'].user.tariff_expire_date <= now():
+            temp = LessonListSerializer.buy_clock
+
+        elif not (self.old_obj and self.old_obj_chapter_lessons):
+            temp = LessonListSerializer.pause
+
+        elif self.old_obj.completed_lessons < self.old_obj_chapter_lessons.lessons:
+            temp = LessonListSerializer.clock
+
         self.old_obj = instance
-        if (
-                self.context['request'].user.tariff_expire_date <= now()
-                or
-                instance.completed_lessons < instance.chapter.lessons
-        ):
-            return False
-        return True
+        self.old_obj_chapter_lessons = instance.chapter.lessons
+        return temp
