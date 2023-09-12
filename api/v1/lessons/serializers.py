@@ -8,6 +8,7 @@ from api.v1.questions.serializers.questions import QuestionSerializer
 
 
 class LessonListSerializer(serializers.Serializer):
+    old_obj = None
     pause = 1
     play = 2
     clock = 3
@@ -18,14 +19,19 @@ class LessonListSerializer(serializers.Serializer):
     lesson_permission = serializers.SerializerMethodField()
 
     def get_lesson_permission(self, instance):
+        temp = self.clock
         tariff_expire_date = self.context['request'].user.tariff_expire_date
         if not instance.lesson.is_open and tariff_expire_date <= now():
-            return self.buy_clock
+            temp = self.buy_clock
+
+        elif not self.old_obj:
+            temp = self
 
         if instance.is_completed:
-            return self.play
+            temp = self.play
 
-        return self.clock
+        self.old_obj = instance
+        return temp
 
     def get_title(self, instance):
         return getattr(instance.lesson, 'title_' + get_language())
@@ -69,9 +75,11 @@ class LessonStudentStatisticsByDaySerializer(serializers.ModelSerializer):
 
 
 class LessonRetrieveSerializer(LessonListSerializer):
-    image = serializers.FileField(source='lesson.image')
+    # image = serializers.FileField(source='lesson.image')
+    image = serializers.URLField(default='http://16.171.170.49/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
     text = serializers.SerializerMethodField()
-    video = serializers.SerializerMethodField()
+    # video = serializers.SerializerMethodField()
+    video = serializers.URLField(default='http://16.171.170.49/media/chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20905c9192-956f-4054-9ce1-161/videos/a.mp4')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
