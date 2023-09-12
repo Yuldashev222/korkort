@@ -12,7 +12,8 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     desc = serializers.SerializerMethodField()
     # image = serializers.ImageField(source='chapter.image', max_length=300)
-    image = serializers.URLField(default='http://16.171.170.49/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
+    image = serializers.URLField(
+        default='http://16.171.170.49/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
     lessons = serializers.IntegerField(source='chapter.lessons')
     chapter_hour = serializers.IntegerField(source='chapter.chapter_hour')
     chapter_minute = serializers.IntegerField(source='chapter.chapter_minute')
@@ -32,11 +33,12 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
 
     def get_is_open(self, instance):
         temp = LessonListSerializer.play
-        if self.context['request'].user.tariff_expire_date <= now():
-            temp = LessonListSerializer.buy_clock
 
-        elif not (self.old_obj and self.old_obj_chapter_lessons):
+        if not (self.old_obj and self.old_obj_chapter_lessons):
             temp = LessonListSerializer.pause
+
+        elif self.context['request'].user.tariff_expire_date <= now():
+            temp = LessonListSerializer.buy_clock
 
         elif self.old_obj.completed_lessons < self.old_obj_chapter_lessons.lessons:
             temp = LessonListSerializer.clock

@@ -33,10 +33,7 @@ def create_objects_for_student(student_id):
     )
     LessonStudentStatisticsByDay.objects.bulk_create(objs)
 
-    objs = [
-        CategoryExamStudentResult(category=category, student_id=student_id)
-        for category in Category.objects.all()
-    ]
+    objs = [CategoryExamStudentResult(category=category, student_id=student_id) for category in Category.objects.all()]
     CategoryExamStudentResult.objects.bulk_create(objs)
 
 
