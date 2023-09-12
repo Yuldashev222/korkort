@@ -56,7 +56,7 @@ def create_lesson_questions(self):
                                   text_swe=f'{str(uuid4())}' * 2,
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
-                                  video='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
+                                  video='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
                                   image='discounts/images/IMG.png'
                                   )
                          )
