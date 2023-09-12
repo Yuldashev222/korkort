@@ -17,8 +17,9 @@ class QuestionSerializer(serializers.Serializer):
     variant_set = VariantSerializer(many=True)
 
     def get_is_saved(self, instance):
+        student = self.context['request'].user
         try:
-            StudentSavedQuestion.objects.get(question=instance)
+            StudentSavedQuestion.objects.get(question=instance, student=student)
         except StudentSavedQuestion.DoesNotExist:
             return False
         return True
