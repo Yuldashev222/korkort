@@ -14,7 +14,8 @@ class CategoryExamStudentSerializer(serializers.ModelSerializer):
 
 
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    # image = serializers.SerializerMethodField()
+    image = serializers.URLField(default='http://16.171.170.49/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
     name = serializers.SerializerMethodField()
     detail = CategoryExamStudentSerializer(source='categoryexamstudent_set', many=True)
 
@@ -25,8 +26,8 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
     def get_name(self, instance):
         return getattr(instance.category, 'name_' + get_language())
 
-    def get_image(self, instance):
-        return self.context['request'].build_absolute_uri(instance.category.image.url)
+    # def get_image(self, instance):
+    #     return self.context['request'].build_absolute_uri(instance.category.image.url)
 
 
 class WrongQuestionsExamSerializer(serializers.Serializer):
