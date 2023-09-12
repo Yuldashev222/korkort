@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from api.v1.balls.models import TestBall
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
 from api.v1.lessons.models import LessonStudent
-from api.v1.questions.tasks import update_student_wrong_answers_in_exam_test
+from api.v1.questions.tasks import update_student_wrong_answers_in_exam_exam
 from api.v1.questions.models import Question, QuestionStudentLastResult, Category
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
@@ -71,10 +71,8 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         correct_question_ids = list(set(question['pk'] for question in correct_questions))
 
         for question_ids in [correct_question_ids, wrong_question_ids]:
-            for pk in question_ids:  # last
-                try:
-                    Question.objects.get(pk=pk)
-                except Question.DoesNotExist:
+            for pk in question_ids:
+                if not Question.is_correct_question_id(question_id=pk):
                     raise ValidationError({'pk': 'not found'})
 
         test_ball = TestBall.get_ball()
@@ -89,7 +87,7 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         exam.wrong_answers = exam.questions - wrong_answers_cnt
         exam.time = data['time']
         exam.save()
-        update_student_wrong_answers_in_exam_test.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
+        update_student_wrong_answers_in_exam_exam.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                                         correct_question_ids=correct_question_ids)
 
         return data

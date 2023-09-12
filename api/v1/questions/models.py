@@ -1,10 +1,7 @@
-from random import sample
-
 from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator
 
-from api.v1.accounts.models import CustomUser
 from api.v1.general.services import normalize_text
 from api.v1.questions.services import category_image_location, question_image_location, question_video_location
 
@@ -44,12 +41,36 @@ class Question(models.Model):
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     @classmethod
-    def get_random_questions(cls, count):
+    def is_correct_question_id(cls, question_id):
+        question_ids = cls.get_question_ids()
+        left, right = 0, cache.get('all_questions_count') - 1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if question_ids[mid] == question_id:
+                return True
+            elif question_ids[mid] < question_id:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return False
+
+    @classmethod
+    def get_question_ids(cls):
         question_ids = cache.get('question_ids')
         if not question_ids:
             cls.set_redis()
             question_ids = cache.get('question_ids')
-        return sample(question_ids, count)
+        return question_ids
+
+    @classmethod
+    def get_all_questions_count(cls):
+        all_questions_count = cache.get('all_questions_count')
+        if not all_questions_count:
+            cls.set_redis()
+            all_questions_count = cache.get('all_questions_count')
+        return all_questions_count
 
     def __str__(self):
         return f'{self.id}: {self.text_swe}'[:30]
@@ -65,7 +86,7 @@ class Question(models.Model):
 
     @classmethod
     def set_redis(cls):
-        question_ids = list(Question.objects.values_list('id', flat=True))
+        question_ids = list(Question.objects.order_by('id').values_list('id', flat=True))
         cache.set('all_questions_count', len(question_ids), 60 * 60 * 24 * 30)
         cache.set('question_ids', question_ids, 60 * 60 * 24 * 30)
 
@@ -97,6 +118,18 @@ class StudentWrongAnswer(models.Model):
     class Meta:
         verbose_name = 'Wrong Answer'
         verbose_name_plural = 'Wrong Answers'
+
+    def __str__(self):
+        return str(self.question)
+
+
+class StudentCorrectAnswer(models.Model):
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Correct Answer'
+        verbose_name_plural = 'Correct Answers'
 
     def __str__(self):
         return str(self.question)

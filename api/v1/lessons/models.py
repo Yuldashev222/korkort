@@ -36,13 +36,16 @@ class Lesson(models.Model):
         unique_together = ['chapter', 'ordering_number']
 
     @classmethod
+    def get_all_lessons_count(cls):
+        all_lessons_count = cache.get('all_lessons_count')
+        if not all_lessons_count:
+            cls.set_redis()
+            all_lessons_count = cache.get('all_lessons_count')
+        return all_lessons_count
+
+    @classmethod
     def set_redis(cls):
         cnt = cls.objects.count()
-        last_open_lesson = cls.objects.filter(is_open=True).last()
-        if last_open_lesson:
-            cache.set('last_open_lesson_id', last_open_lesson.id, 60 * 60 * 24 * 30)
-        elif cache.get('last_open_lesson_id'):
-            cache.delete('last_open_lesson_id')
         cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 30)
 
     def save(self, *args, **kwargs):

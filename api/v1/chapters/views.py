@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.exceptions import PermissionDenied
@@ -23,12 +24,21 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
     def get_object(self):
         student = self.request.user
         chapter_student = get_object_or_404(ChapterStudent, pk=self.kwargs[self.lookup_field])
-        obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student,
-                                           is_completed=True).last()
 
-        if not obj:
-            obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, lesson__is_open=True,
-                                               student=student).first()
+        obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student,
+                                           is_completed=False).select_related('lesson').first()
+
+        if obj:
+            if obj.lesson.is_open:
+                return obj
+
+            elif student.tariff_expire_date <= now():
+                return None
+
+        else:
+            obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student,
+                                               is_completed=True).last()
+
         return obj
 
     def retrieve(self, request, *args, **kwargs):

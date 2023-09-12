@@ -49,10 +49,8 @@ def check_order(instance, *args, **kwargs):
         instance.tariff_days = tariff.days
 
         if tariff.student_discount:
-            tariff_discount = cache.get('tariff_discount')
-            if not tariff_discount:
-                TariffDiscount.set_redis()
-                tariff_discount = cache.get('tariff_discount')
+
+            tariff_discount = TariffDiscount.get_tariff_discount()
 
             # if tariff_discount and tariff_discount['valid_to'] <= now().date():
             if tariff_discount:
@@ -78,11 +76,8 @@ def check_order(instance, *args, **kwargs):
             instance.called_student_email = called_student.email
 
             if tariff.student_discount:
-                student_discount = cache.get('student_discount')
-                if not student_discount:
-                    StudentDiscount.set_redis()
-                    student_discount = cache.get('student_discount')
 
+                student_discount = StudentDiscount.get_student_discount()
                 if student_discount:
                     instance.student_discount_value = student_discount['discount_value']
                     instance.student_discount_is_percent = student_discount['is_percent']

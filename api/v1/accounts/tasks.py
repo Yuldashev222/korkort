@@ -1,14 +1,13 @@
 from datetime import timedelta
 
 from celery import shared_task
-from django.core.cache import cache
 from django.utils.timezone import now
 
 from api.v1.exams.models import CategoryExamStudentResult
 from api.v1.lessons.models import Lesson, LessonStudent
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import Chapter, ChapterStudent
-from api.v1.questions.models import Question, StudentWrongAnswer, Category
+from api.v1.questions.models import Category
 
 
 @shared_task
@@ -28,20 +27,3 @@ def create_objects_for_student(student_id):
 
     objs = [CategoryExamStudentResult(category=category, student_id=student_id) for category in Category.objects.all()]
     CategoryExamStudentResult.objects.bulk_create(objs)
-
-
-@shared_task
-def update_student_wrong_answers(student_id):
-    all_questions_count = cache.get('all_questions_count')
-    if not all_questions_count:
-        Question.set_redis()
-        all_questions_count = cache.get('all_questions_count')
-
-    student = CustomUser.objects.get(id=student_id)
-
-    if all_questions_count:
-        wrong_answers_count = StudentWrongAnswer.objects.filter(student=student).count()
-        student.wrong_answers = all_questions_count - wrong_answers_count
-    else:
-        student.wrong_answers = 0
-    student.save()

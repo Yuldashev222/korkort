@@ -28,6 +28,14 @@ class TariffDiscount(DiscountMixin):
     image = models.ImageField(upload_to='discounts/images/', max_length=300)
 
     @classmethod
+    def get_tariff_discount(cls):
+        tariff_discount = cache.get('tariff_discount')
+        if not tariff_discount:
+            cls.set_redis()
+            tariff_discount = cache.get('tariff_discount')
+        return tariff_discount
+
+    @classmethod
     def set_redis(cls):
         obj = cls.objects.first()
         if obj:
@@ -63,6 +71,14 @@ class StudentDiscount(DiscountMixin):
     def clean(self):
         if not self.pk and StudentDiscount.objects.exists():
             raise ValidationError('old student discount object exists')
+
+    @classmethod
+    def get_student_discount(cls):
+        student_discount = cache.get('student_discount')
+        if not student_discount:
+            cls.set_redis()
+            student_discount = cache.get('student_discount')
+        return student_discount
 
     @classmethod
     def set_redis(cls):

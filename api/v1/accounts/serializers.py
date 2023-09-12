@@ -9,8 +9,8 @@ from api.v1.questions.models import Question
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    all_lessons_count = serializers.SerializerMethodField()
-    all_questions_count = serializers.SerializerMethodField()
+    all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
+    all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())
     level = serializers.SerializerMethodField()
 
     class Meta:
@@ -23,22 +23,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def get_level(self, instance):
         return settings.LEVEL_NAMES[get_language()][instance.level]
-
-    def get_all_lessons_count(self, instance):
-        cnt = cache.get('all_lessons_count')
-        if not cnt:
-            Lesson.set_redis()
-            cnt = cache.get('all_lessons_count')
-
-        return cnt if cnt else 0
-
-    def get_all_questions_count(self, instance):
-        cnt = cache.get('all_questions_count')
-        if not cnt:
-            Question.set_redis()
-            cnt = cache.get('all_questions_count')
-
-        return cnt if cnt else 0
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):

@@ -7,7 +7,8 @@ from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import ChapterStudent
 from api.v1.exams.models import CategoryExamStudentResult, CategoryExamStudent
 from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
-from api.v1.questions.models import QuestionStudentLastResult, StudentSavedQuestion, StudentWrongAnswer
+from api.v1.questions.models import QuestionStudentLastResult, StudentSavedQuestion, StudentWrongAnswer, \
+    StudentCorrectAnswer
 
 
 @receiver(pre_save, sender=CustomUser)
@@ -38,3 +39,4 @@ def delete_relation_objects(instance, *args, **kwargs):
     QuestionStudentLastResult.objects.filter(student=instance).delete()
     StudentSavedQuestion.objects.filter(student=instance).delete()
     StudentWrongAnswer.objects.filter(student=instance).delete()
+    StudentCorrectAnswer.objects.filter(student=instance).delete()

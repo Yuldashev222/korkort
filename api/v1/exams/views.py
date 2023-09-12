@@ -1,3 +1,4 @@
+from random import sample
 from django.conf import settings
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
@@ -41,7 +42,7 @@ class CategoryExamAPIView(GenericAPIView):
         if obj.difficulty_level:
             filter_data['difficulty_level'] = obj.difficulty_level
 
-        question_ids = Question.get_random_questions(obj.questions)
+        question_ids = sample(Question.get_question_ids(), obj.questions)
         questions_queryset = Question.objects.filter(
             id__in=question_ids, **filter_data).prefetch_related('lesson__lessonstudent_set', 'variant_set')
 

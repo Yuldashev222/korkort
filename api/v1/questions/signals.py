@@ -1,8 +1,8 @@
 from django.dispatch import receiver
-from django.db.models import Count
+from django.db.models import Sum
 from django.db.models.signals import post_save, post_delete, pre_save
 
-from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
+from api.v1.exams.models import CategoryExamStudentResult
 from api.v1.general.utils import delete_object_file_pre_save, delete_object_file_post_delete
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question, QuestionStudentLastResult, Category
@@ -50,7 +50,7 @@ def delete_the_excess(instance, *args, **kwargs):
         QuestionStudentLastResult.objects.filter(student=instance.student, id__in=expire_objs).delete()
 
         data = QuestionStudentLastResult.objects.filter(student=instance.student).aggregate(
-            questions=Count('questions'), answers=Count('wrong_answers'))
+            questions=Sum('questions'), answers=Sum('wrong_answers'))
         all_questions = data['questions']
         all_correct_answers = all_questions - data['answers']
         instance.student.last_exams_result = int(all_correct_answers / all_questions * 100)

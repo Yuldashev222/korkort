@@ -8,10 +8,8 @@ from api.v1.discounts.serializers import TariffDiscountSerializer
 
 class TariffDiscountAPIView(APIView):
     def get(self, request, *args, **kwargs):
-        obj = cache.get('tariff_discount')
-        if not obj:
-            TariffDiscount.set_redis()
-            obj = cache.get('tariff_discount')
+
+        obj = TariffDiscount.get_tariff_discount()
         if not obj:
             return Response({})
         serializer = TariffDiscountSerializer(obj)
