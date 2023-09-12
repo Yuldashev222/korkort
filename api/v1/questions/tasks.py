@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from api.v1.accounts.tasks import update_student_correct_answers
+from api.v1.accounts.tasks import update_student_wrong_answers
 from api.v1.questions.models import Question, StudentWrongAnswer
 
 
@@ -12,7 +12,7 @@ def update_student_wrong_answers_in_lesson_test(student_id, lesson_id, wrong_que
         objs = [StudentWrongAnswer(question=question, student_id=student_id) for question in questions]
         StudentWrongAnswer.objects.bulk_create(objs)
 
-    update_student_correct_answers(student_id)
+    update_student_wrong_answers(student_id)
 
 
 @shared_task
@@ -24,4 +24,4 @@ def update_student_wrong_answers_in_exam_test(student_id, wrong_question_ids, co
         objs = [StudentWrongAnswer(question=question, student_id=student_id) for question in questions]
         StudentWrongAnswer.objects.bulk_create(objs)
 
-    update_student_correct_answers(student_id)
+    update_student_wrong_answers(student_id)
