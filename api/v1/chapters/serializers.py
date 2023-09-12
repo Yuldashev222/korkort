@@ -26,9 +26,10 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
     def get_desc(self, instance):
         return getattr(instance.chapter, 'desc_' + get_language())
 
+    old_obj = None
+
     def get_is_open(self, instance):
-        if instance.id == 1:
-            return True
+        self.old_obj = instance
         if (
                 self.context['request'].user.tariff_expire_date <= now()
                 or
