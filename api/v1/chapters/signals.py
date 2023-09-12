@@ -35,24 +35,6 @@ def add_chapter_to_all_students(instance, created, *args, **kwargs):
         ChapterStudent.objects.bulk_create(objs)
 
 
-@receiver(pre_save, sender=ChapterStudent)
-def add_chapter_to_all_students(instance, *args, **kwargs):
-    if instance.student and instance.chapter:
-        obj = LessonStudent.objects.filter(student=instance.student, lesson__chapter=instance.chapter,
-                                           is_completed=True).last()
-        if not obj:
-            obj = LessonStudent.objects.filter(student=instance.student, lesson__chapter=instance.chapter).first()
-        instance.last_lesson = obj if obj else None
-
-        old_obj = ChapterStudent.objects.filter(student=instance.student, chapter=instance.chapter,
-                                                chapter__ordering_number__lt=instance.chapter.ordering_number).last()
-
-        if not old_obj:
-            instance.is_open = True
-        else:
-            instance.is_open = old_obj.completed_lessons == old_obj.chapter.lessons
-
-
 @receiver(post_save, sender=ChapterStudent)
 def update_student_completed_lessons(instance, *args, **kwargs):
     if instance.student and instance.chapter:

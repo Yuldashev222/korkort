@@ -3,7 +3,7 @@ from django.db.models import Sum, Count
 from django.db.models.signals import post_save, post_delete, pre_save
 
 from api.v1.accounts.models import CustomUser
-from api.v1.chapters.models import ChapterStudent
+from api.v1.chapters.models import ChapterStudent, Chapter
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
 from api.v1.lessons.models import Lesson, LessonStudent, LessonStudentStatistics, LessonStudentStatisticsByDay
 

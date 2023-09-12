@@ -22,11 +22,7 @@ def create_objects_for_student(student_id):
     objs = (LessonStudent(lesson_id=lesson_id, student_id=student_id) for lesson_id in lesson_ids)
     LessonStudent.objects.bulk_create(objs)
 
-    objs = [
-        ChapterStudent(last_lesson=LessonStudent.objects.filter(lesson__chapter=chapter, student_id=student_id).first(),
-                       chapter=chapter, student_id=student_id)
-        for chapter in Chapter.objects.all()
-    ]
+    objs = [ChapterStudent(chapter=chapter, student_id=student_id) for chapter in Chapter.objects.all()]
     objs[0].is_open = True
     ChapterStudent.objects.bulk_create(objs)
 

@@ -38,7 +38,12 @@ class Lesson(models.Model):
     @classmethod
     def set_redis(cls):
         cnt = cls.objects.count()
-        cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 7)
+        last_open_lesson = cls.objects.filter(is_open=True).last()
+        if last_open_lesson:
+            cache.set('last_open_lesson_id', last_open_lesson.id, 60 * 60 * 24 * 30)
+        elif cache.get('last_open_lesson_id'):
+            cache.delete('last_open_lesson_id')
+        cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 30)
 
     def save(self, *args, **kwargs):
         # self.lesson_time = get_video_duration(self.video_swe.path)

@@ -32,8 +32,6 @@ class ChapterStudent(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.SET_NULL, null=True)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
-    last_lesson = models.ForeignKey('lessons.LessonStudent', on_delete=models.SET_NULL, null=True, blank=True)
-    is_open = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.chapter)

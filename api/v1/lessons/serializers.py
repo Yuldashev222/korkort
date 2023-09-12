@@ -18,7 +18,7 @@ class LessonListSerializer(serializers.Serializer):
     lesson_permission = serializers.SerializerMethodField()
 
     def get_lesson_permission(self, instance):
-        tariff_expire_date = instance.student.tariff_expire_date
+        tariff_expire_date = self.context['request'].user.tariff_expire_date
         if not instance.lesson.is_open and tariff_expire_date <= now():
             return self.buy_clock
 
@@ -78,7 +78,9 @@ class LessonRetrieveSerializer(LessonListSerializer):
     questions = serializers.SerializerMethodField()
 
     def get_lessons(self, instance):
-        queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter, student=instance.student)
+        student = self.context['request'].user
+        queryset = LessonStudent.objects.filter(lesson__chapter=instance.lesson.chapter, student=student
+                                                ).select_related('lesson')
         lessons = LessonListSerializer(queryset, many=True, context={'request': self.context['request']}).data
         for idx, lesson in enumerate(lessons):
             if lesson['lesson_permission'] == LessonListSerializer.clock:
@@ -87,7 +89,7 @@ class LessonRetrieveSerializer(LessonListSerializer):
         return lessons
 
     def get_questions(self, instance):
-        queryset = Question.objects.filter(lesson=instance.lesson, for_lesson=True)
+        queryset = instance.lesson.question_set.filter(for_lesson=True).prefetch_related('variant_set')
         return QuestionSerializer(queryset, many=True, context={'request': self.context['request']}).data
 
     def get_text(self, instance):
