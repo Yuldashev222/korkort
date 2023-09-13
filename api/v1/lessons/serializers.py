@@ -62,7 +62,7 @@ class LessonSourceSerializer(serializers.ModelSerializer):
         return getattr(instance, 'text_' + get_language())
 
 
-class StudentLessonViewStatisticsSerializer(serializers.ModelSerializer):
+class StudentLessonViewStatisticsSerializer(serializers.Serializer):
     weekday = serializers.SerializerMethodField()
     count = serializers.SerializerMethodField()
 
@@ -71,10 +71,6 @@ class StudentLessonViewStatisticsSerializer(serializers.ModelSerializer):
 
     def get_weekday(self, instance):
         return instance['viewed_date'].weekday()
-
-    class Meta:
-        model = StudentLessonViewStatistics
-        fields = ['count', 'weekday']
 
 
 class LessonRetrieveSerializer(LessonListSerializer):
