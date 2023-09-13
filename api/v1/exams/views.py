@@ -1,4 +1,3 @@
-from random import sample
 from django.conf import settings
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
@@ -13,7 +12,7 @@ from api.v1.exams.serializers import CategoryExamStudentResultSerializer, WrongQ
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.exams import (QuestionExamSerializer,
                                                 CategoryExamAnswerSerializer,
-                                                QuestionExamCreateSerializer)
+                                                QuestionExamCreateSerializer, WrongQuestionsExamAnswerSerializer)
 
 
 class ExamAnswerAPIView(GenericAPIView):
@@ -27,6 +26,10 @@ class ExamAnswerAPIView(GenericAPIView):
 
 class CategoryExamAnswerAPIView(ExamAnswerAPIView):
     serializer_class = CategoryExamAnswerSerializer
+
+
+class WrongQuestionsExamAnswerAPIView(ExamAnswerAPIView):
+    serializer_class = WrongQuestionsExamAnswerSerializer
 
 
 class CategoryExamAPIView(GenericAPIView):
@@ -68,8 +71,7 @@ class WrongQuestionsExamAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = WrongQuestionsExamFilter
 
-    queryset = StudentWrongAnswer.objects.select_related('question', 'question__lesson'
-                                                         ).prefetch_related('question__variant_set')
+    queryset = StudentWrongAnswer.objects.select_related('question__lesson')
 
     def filter_queryset(self, queryset):
         my_questions = self.request.query_params.get('my_questions')

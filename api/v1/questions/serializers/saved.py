@@ -1,5 +1,5 @@
+from django.db import IntegrityError
 from django.conf import settings
-from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -19,18 +19,12 @@ class SavedQuestionListCreateSerializer(serializers.Serializer):
             if not Question.is_correct_question_id(question_id=pk):
                 raise ValidationError({'pk': 'not found'})
 
-        for pk in question_ids:
-            StudentSavedQuestion.objects.get_or_create(student=student, question_id=pk)
-        return {}
-
-
-@transaction.atomic
-def delete_saved_questions(student_id, question_ids):
-    for pk in question_ids:
         try:
-            StudentSavedQuestion.objects.get_or_create(student_id=student_id, question_id=pk)
-        except StudentSavedQuestion.DoesNotExist:
-            raise ValidationError({'pk': 'not found'})
+            objs = [StudentSavedQuestion(student=student, question_id=pk) for pk in question_ids]
+            StudentSavedQuestion.objects.bulk_create(objs)
+        except IntegrityError:
+            raise ValidationError({'questions': 'already exists'})
+        return {}
 
 
 class SavedQuestionListDeleteSerializer(SavedQuestionListCreateSerializer):
@@ -40,5 +34,5 @@ class SavedQuestionListDeleteSerializer(SavedQuestionListCreateSerializer):
         super().to_internal_value(data)
         student = self.context['request'].user
         question_ids = list(set(question['pk'] for question in data['questions']))
-        delete_saved_questions(student_id=student.id, question_ids=question_ids)
+        StudentSavedQuestion.objects.filter(id__in=question_ids, student=student).delete()
         return {}

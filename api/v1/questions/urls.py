@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .models import StudentWrongAnswer
 from .views import SavedQuestionStudentAPIVIew, SavedQuestionStudentDestroyAPIVIew
 
 urlpatterns = [

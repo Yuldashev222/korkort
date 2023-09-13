@@ -116,6 +116,7 @@ class StudentWrongAnswer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ['student', 'question']
         verbose_name = 'Wrong Answer'
         verbose_name_plural = 'Wrong Answers'
 
@@ -156,3 +157,5 @@ class QuestionStudentLastResult(models.Model):
 
     class Meta:
         ordering = ['-id']
+
+
