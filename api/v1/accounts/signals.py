@@ -32,8 +32,8 @@ def generation_objects_for_student(instance, created, *args, **kwargs):
 @transaction.atomic
 def delete_relation_objects(instance, *args, **kwargs):
     ChapterStudent.objects.filter(student=instance).delete()
+    CategoryExamStudent.objects.filter(result__student=instance).delete()
     CategoryExamStudentResult.objects.filter(student=instance).delete()
-    CategoryExamStudent.objects.filter(student=instance).delete()
     StudentLessonViewStatistics.objects.filter(student=instance).delete()
     LessonStudent.objects.filter(student=instance).delete()
     QuestionStudentLastResult.objects.filter(student=instance).delete()

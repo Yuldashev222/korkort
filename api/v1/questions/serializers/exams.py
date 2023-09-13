@@ -19,8 +19,8 @@ class QuestionExamSerializer(QuestionSerializer):
 
 class QuestionExamCreateSerializer(serializers.ModelSerializer):
     obj = None
-    student = serializers.HiddenField(default=serializers.CurrentUserDefault())
     category_id = serializers.IntegerField()
+    difficulty_level = serializers.ChoiceField(choices=Question.DIFFICULTY_LEVEL, allow_null=True)
 
     def validate_category_id(self, cat_id):
         try:
@@ -30,6 +30,7 @@ class QuestionExamCreateSerializer(serializers.ModelSerializer):
         return cat_id
 
     def create(self, validated_data):
+        validated_data.pop('difficulty_level')
         cat_id = validated_data.pop('category_id')
         student = self.context['request'].user
         result, _ = CategoryExamStudentResult.objects.get_or_create(category_id=cat_id, student=student)
@@ -38,7 +39,7 @@ class QuestionExamCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CategoryExamStudent
-        fields = ['id', 'student', 'category_id', 'questions', 'difficulty_level']
+        fields = ['id', 'category_id', 'questions', 'difficulty_level']
 
 
 class CategoryExamAnswerSerializer(serializers.Serializer):

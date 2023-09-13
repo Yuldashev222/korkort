@@ -17,16 +17,10 @@ class CategoryExamStudentResult(models.Model):
 
 class CategoryExamStudent(models.Model):
     result = models.ForeignKey(CategoryExamStudentResult, on_delete=models.SET_NULL, null=True)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     correct_answers = models.PositiveSmallIntegerField(default=0)
-    difficulty_level = models.PositiveSmallIntegerField(choices=Question.DIFFICULTY_LEVEL, null=True)
-
     questions = models.PositiveSmallIntegerField(validators=[MaxValueValidator(settings.MAX_QUESTIONS),
                                                              MinValueValidator(settings.MIN_QUESTIONS)])
     percent = models.PositiveSmallIntegerField(default=0)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    time = models.FloatField(default=0, validators=[MinValueValidator(0)])
 
     class Meta:
         ordering = ['-id']

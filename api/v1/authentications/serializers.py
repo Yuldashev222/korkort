@@ -24,7 +24,6 @@ from api.v1.accounts.models import CustomUser
 
 from .models import CustomToken
 from .tasks import send_confirm_link_email, send_password_reset_email
-from ..general.enums import LINK_TYPES
 
 
 class RegisterSerializer(serializers.ModelSerializer):

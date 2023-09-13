@@ -41,9 +41,11 @@ class CategoryExamAPIView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         obj = serializer.obj
-        filter_data = {'category_id': request.data['category_id']}
-        if obj.difficulty_level:
-            filter_data['difficulty_level'] = obj.difficulty_level
+        category_id = request.data['category_id']
+        difficulty_level = request.data.get('difficulty_level')
+        filter_data = {'category_id': category_id}
+        if difficulty_level:
+            filter_data['difficulty_level'] = difficulty_level
 
         questions_queryset = Question.objects.filter(**filter_data).prefetch_related('variant_set'
                                                                                      ).order_by('?')[:obj.questions]

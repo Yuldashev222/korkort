@@ -10,7 +10,7 @@ from api.v1.questions.serializers.variants import VariantSerializer
 class CategoryExamStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryExamStudent
-        exclude = ['student']
+        fields = ['questions', 'percent']
 
 
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
