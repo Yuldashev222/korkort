@@ -48,9 +48,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class AuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField(write_only=True)
-    password = serializers.CharField(write_only=True,
-                                     style={'input_type': 'password'},
-                                     trim_whitespace=False)
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'}, trim_whitespace=False)
     token = serializers.CharField(read_only=True)
     user = ProfileSerializer(read_only=True)
 
@@ -173,7 +171,7 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
 
 class GoogleSignInSerializer(serializers.Serializer):
-    id_token = serializers.CharField(write_only=True, max_length=1200)
+    id_token = serializers.CharField(write_only=True)
     token = serializers.CharField(max_length=40, read_only=True, default='')
     user = ProfileSerializer(read_only=True)
 
