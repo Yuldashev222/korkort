@@ -1,10 +1,12 @@
 from django.conf import settings
+from django.db import transaction, IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
-from api.v1.questions.tasks import update_student_wrong_answers_in_exam, delete_student_correct_and_wrong_fields
-from api.v1.questions.models import Question, QuestionStudentLastResult, Category, StudentWrongAnswer
+from api.v1.questions.tasks import update_student_wrong_answers_in_exam
+from api.v1.questions.models import (Question, QuestionStudentLastResult, Category, StudentWrongAnswer,
+                                     StudentSavedQuestion)
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
 
@@ -44,24 +46,24 @@ class QuestionExamCreateSerializer(serializers.ModelSerializer):
 
 class CategoryExamAnswerSerializer(serializers.Serializer):
     exam_id = serializers.IntegerField()
-    time = serializers.FloatField(default=0)
     wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
     correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
+    saved_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
+    delete_saved_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(),
+                                                        max_length=settings.MAX_QUESTIONS)
 
+    @transaction.atomic
     def to_internal_value(self, data):
         super().to_internal_value(data)
+        student = self.context['request'].user
+        exam_id = data['exam_id']
+        saved_questions = data['saved_questions']
         wrong_questions = data['wrong_questions']
         correct_questions = data['correct_questions']
+        delete_saved_questions = data['delete_saved_questions']
 
         if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
             raise ValidationError('max length')
-
-        wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
-        correct_question_ids = list(set(question['pk'] for question in correct_questions))
-        wrong_question_ids = [i for i in wrong_question_ids if i not in correct_question_ids]
-
-        exam_id = data['exam_id']
-        student = self.context['request'].user
 
         try:
             exam = CategoryExamStudent.objects.get(id=exam_id)
@@ -71,17 +73,32 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         if exam.correct_answers > 0:
             raise ValidationError({'exam_id': 'not found'})
 
-        for question_ids in [correct_question_ids, wrong_question_ids]:
+        saved_question_ids = list(set(question['pk'] for question in saved_questions))
+        wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
+        correct_question_ids = list(set(question['pk'] for question in correct_questions))
+        delete_saved_question_ids = list(set(question['pk'] for question in delete_saved_questions))
+
+        wrong_question_ids = [i for i in wrong_question_ids if i not in correct_question_ids]
+        delete_saved_question_ids = [i for i in delete_saved_question_ids if i not in saved_question_ids]
+
+        for question_ids in [correct_question_ids, wrong_question_ids, saved_question_ids, delete_saved_question_ids]:
             for pk in question_ids:
                 if not Question.is_correct_question_id(question_id=pk):
                     raise ValidationError({'pk': 'not found'})
+
+        try:
+            objs = [StudentSavedQuestion(student=student, question_id=pk) for pk in saved_question_ids]
+            StudentSavedQuestion.objects.bulk_create(objs)
+        except IntegrityError:
+            raise ValidationError({'saved_questions': 'already exists'})
+
+        StudentSavedQuestion.objects.filter(id__in=delete_saved_question_ids, student=student).delete()
 
         wrong_answers_cnt = len(wrong_question_ids)
         QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,
                                                  student=student)
 
         exam.correct_answers = exam.questions - wrong_answers_cnt
-        exam.time = data['time']
         exam.save()
         update_student_wrong_answers_in_exam.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                                    correct_question_ids=correct_question_ids)
@@ -90,24 +107,42 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
 
 
 class WrongQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):
-    time = None
+    question_counts = serializers.IntegerField()
     exam_id = None
     wrong_questions = None
-    question_counts = serializers.IntegerField()
 
+    @transaction.atomic
     def to_internal_value(self, data):
         serializers.Serializer.to_internal_value(self, data)
         student = self.context['request'].user
-        correct_question_ids = list(set(question['pk'] for question in data['correct_questions']))
+        saved_questions = data['saved_questions']
+        delete_saved_questions = data['delete_saved_questions']
+        correct_questions = data['correct_questions']
         question_counts = data['question_counts']
 
-        for pk in correct_question_ids:
-            if not Question.is_correct_question_id(question_id=pk):
-                raise ValidationError({'pk': 'not found'})
+        saved_question_ids = list(set(question['pk'] for question in saved_questions))
+        correct_question_ids = list(set(question['pk'] for question in correct_questions))
+        delete_saved_question_ids = list(set(question['pk'] for question in delete_saved_questions))
 
-        correct_answers_cnt = len(correct_question_ids)
-        QuestionStudentLastResult.objects.create(wrong_answers=question_counts - correct_answers_cnt, student=student,
-                                                 questions=question_counts)
+        delete_saved_question_ids = [i for i in delete_saved_question_ids if i not in saved_question_ids]
 
-        delete_student_correct_and_wrong_fields.delay(StudentWrongAnswer, correct_question_ids, student.id)
+        for question_ids in [correct_question_ids, saved_question_ids, delete_saved_question_ids]:
+            for pk in question_ids:
+                if not Question.is_correct_question_id(question_id=pk):
+                    raise ValidationError({'pk': 'not found'})
+
+        try:
+            objs = [StudentSavedQuestion(student=student, question_id=pk) for pk in saved_question_ids]
+            StudentSavedQuestion.objects.bulk_create(objs)
+        except IntegrityError:
+            raise ValidationError({'saved_questions': 'already exists'})
+
+        StudentSavedQuestion.objects.filter(id__in=delete_saved_question_ids, student=student).delete()
+
+        wrong_answers_cnt = question_counts - len(correct_question_ids)
+        QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=question_counts,
+                                                 student=student)
+
+        StudentWrongAnswer.objects.filter(id__in=correct_question_ids, student=student).delete()
+
         return data
