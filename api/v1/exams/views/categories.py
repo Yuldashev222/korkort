@@ -1,14 +1,17 @@
+from random import sample
+
+from django.conf import settings
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer, CategoryExamCreateSerializer, \
-    CategoryMixExamCreateSerializer, CategoryMixExamAnswerSerializer
-from api.v1.exams.serializers.general import QuestionExamSerializer
 from api.v1.questions.models import Question
+from api.v1.exams.serializers.general import QuestionExamSerializer
 from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.accounts.permissions import IsStudent
+from api.v1.exams.serializers.categories import (CategoryExamAnswerSerializer, CategoryExamCreateSerializer,
+                                                 CategoryMixExamCreateSerializer, CategoryMixExamAnswerSerializer)
 
 
 class CategoryExamAnswerAPIView(ExamAnswerAPIView):
@@ -39,6 +42,15 @@ class CategoryExamAPIView(GenericAPIView):
 
         questions = QuestionExamSerializer(questions_queryset, many=True, context={'request': request}).data
         return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
+
+
+class FinalExamAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = QuestionExamSerializer
+
+    def get_queryset(self):
+        random_questions = sample(Question.get_question_ids(), settings.MAX_QUESTIONS)
+        return Question.objects.filter(id__in=random_questions).prefetch_related('variant_set')
 
 
 class CategoryMixExamAPIView(CategoryExamAPIView):
