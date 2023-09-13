@@ -9,7 +9,7 @@ from api.v1.questions.serializers.variants import VariantSerializer
 
 
 class WrongQuestionsExamSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(source='question_id')
     question_text = serializers.SerializerMethodField()
     question_video = serializers.FileField(source='question.video')
     question_image = serializers.ImageField(source='question.image')
