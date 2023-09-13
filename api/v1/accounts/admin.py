@@ -29,23 +29,10 @@ class CustomUserAdmin(admin.ModelAdmin):
         'avatar_id'
     ]
     readonly_fields = [
-        'email',
-        'date_joined',
-        'avatar_id',
-        'user_code',
-        'bonus_money',
-        'level',
-        'level_image_id',
-        'ball',
-        'completed_lessons',
-        'correct_answers',
-        'last_exams_result',
-        'tariff_expire_date',
+        'email', 'date_joined', 'avatar_id', 'user_code', 'bonus_money', 'level', 'level_image_id', 'ball',
+        'completed_lessons', 'correct_answers', 'last_exams_result', 'tariff_expire_date',
     ]
     search_help_text = 'email, first_name, last_name'
-
-    # inlines = []
-    # raw_id_fields = ['']
 
     def get_queryset(self, request):
         return CustomUser.objects.filter(is_staff=False)

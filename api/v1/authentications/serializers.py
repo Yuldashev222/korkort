@@ -175,6 +175,7 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 class GoogleSignInSerializer(serializers.Serializer):
     id_token = serializers.CharField(write_only=True, max_length=1200)
     token = serializers.CharField(max_length=40, read_only=True, default='')
+    user = ProfileSerializer(read_only=True)
 
     def validate(self, attrs):
         token = attrs.get('id_token')
@@ -185,7 +186,6 @@ class GoogleSignInSerializer(serializers.Serializer):
         except Exception as e:
             raise ValidationError({'msg': str(e)})
 
-        print(id_info)
         user, created = CustomUser.objects.get_or_create(email=id_info['email'])
         if created:
             user.from_google_auth = True
@@ -204,6 +204,7 @@ class GoogleSignInSerializer(serializers.Serializer):
         CustomToken.objects.filter(user=user).delete()
         token = CustomToken.objects.create(user=user)
         attrs['token'] = token.key
+        attrs['user'] = user
         return attrs
 
 
