@@ -1,5 +1,5 @@
-from django.conf import settings
 from django.db import transaction, IntegrityError
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 

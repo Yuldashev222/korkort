@@ -1,7 +1,6 @@
-import secrets
-import string
-
 import jwt
+import string
+import secrets
 import requests
 from django.conf import settings
 from django.core.cache import cache
@@ -24,6 +23,7 @@ from api.v1.accounts.models import CustomUser
 
 from .models import CustomToken
 from .tasks import send_confirm_link_email, send_password_reset_email
+from ..accounts.serializers import ProfileSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -52,6 +52,7 @@ class AuthTokenSerializer(serializers.Serializer):
                                      style={'input_type': 'password'},
                                      trim_whitespace=False)
     token = serializers.CharField(read_only=True)
+    user = ProfileSerializer(read_only=True)
 
     def validate(self, attrs):
         email = attrs['email']
@@ -68,7 +69,10 @@ class AuthTokenSerializer(serializers.Serializer):
         if not user.is_active:
             raise AuthenticationFailed({'msg': 'User inactive or deleted.'})
 
+        CustomToken.objects.filter(user=user).delete()
+        token = CustomToken.objects.create(user=user)
         attrs['user'] = user
+        attrs['token'] = token.key
         return attrs
 
 
@@ -169,7 +173,7 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
 
 class GoogleSignInSerializer(serializers.Serializer):
-    id_token = serializers.CharField(write_only=True)
+    id_token = serializers.CharField(write_only=True, max_length=1200)
     token = serializers.CharField(max_length=40, read_only=True, default='')
 
     def validate(self, attrs):
@@ -178,27 +182,28 @@ class GoogleSignInSerializer(serializers.Serializer):
             id_info = id_token.verify_oauth2_token(token, google_requests.Request())
             if id_info['aud'] not in settings.SOCIAL_SIGN_IN_IDS:
                 raise ValidationError({'msg': 'Invalid client ID.'})
-
-            user, created = CustomUser.objects.get_or_create(email=id_info['email'])
-
-            if created:
-                user.from_google_auth = True
-                user.first_name = id_info['given_name']
-                user.last_name = id_info['family_name']
-                user.is_verified = True
-                user.set_password(None)
-                user.save()
-            elif not user.is_active:
-                raise AuthenticationFailed(_('User inactive'))
-            elif not user.is_verified:
-                user.is_verified = True
-                user.save()
-
-            CustomToken.objects.filter(user=user).delete()
-            token = CustomToken.objects.create(user=user)
-            attrs['token'] = token.key
         except Exception as e:
             raise ValidationError({'msg': str(e)})
+
+        print(id_info)
+        user, created = CustomUser.objects.get_or_create(email=id_info['email'])
+        if created:
+            user.from_google_auth = True
+            user.first_name = id_info['given_name']
+            user.last_name = id_info['family_name']
+            user.is_verified = True
+            user.set_password(None)
+
+        elif not user.is_active:
+            raise AuthenticationFailed(_('User inactive'))
+
+        elif not user.is_verified:
+            user.is_verified = True
+
+        user.save()
+        CustomToken.objects.filter(user=user).delete()
+        token = CustomToken.objects.create(user=user)
+        attrs['token'] = token.key
         return attrs
 
 

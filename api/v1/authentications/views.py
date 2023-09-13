@@ -12,15 +12,10 @@ from api.v1.accounts.models import CustomUser
 
 from .models import CustomToken
 
-from .serializers import (
-    AuthTokenSerializer,
-    RegisterSerializer,
-    PasswordResetSerializer,
-    PasswordResetConfirmSerializer,
-    GoogleSignInSerializer, FacebookSignInSerializer, AppleSignInSerializer, PasswordResetCodeSerializer,
-    CodePasswordResetConfirmSerializer
-)
 from api.v1.accounts.serializers import ProfileSerializer
+from .serializers import (AuthTokenSerializer, RegisterSerializer, PasswordResetSerializer,
+                          PasswordResetCodeSerializer, PasswordResetConfirmSerializer, AppleSignInSerializer,
+                          GoogleSignInSerializer, FacebookSignInSerializer, CodePasswordResetConfirmSerializer)
 
 
 # login view
@@ -32,11 +27,7 @@ class AuthTokenAPIView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        CustomToken.objects.filter(user=user).delete()
-        token = CustomToken.objects.create(user=user)
-        user_data = ProfileSerializer(user, context={'request': request}).data
-        return Response({'token': token.key, 'user': user_data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # register view

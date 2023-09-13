@@ -30,9 +30,6 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
 
-    google_id = models.CharField(max_length=100, default='-')
-    facebook_id = models.CharField(max_length=100, default='-')
-
     level = models.PositiveSmallIntegerField(default=0)
     level_image_id = models.PositiveSmallIntegerField(default=0)
 
