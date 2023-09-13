@@ -136,13 +136,6 @@ TOKEN_EXPIRE_DAY = 7
 
 FACEBOOK_CLIENT_ID = os.environ.get('FACEBOOK_CLIENT_ID')
 FACEBOOK_CLIENT_SECRET = os.environ.get('FACEBOOK_CLIENT_SECRET')
-# SOCIAL_AUTH_FACEBOOK_API_VERSION = '2.10'
-# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-# SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-#   'locale': 'ru_RU',
-#   'fields': 'id, name, email, age_range'
-# }
-
 GOOGLE_CLIENT_ID_ANDROID = os.environ.get('GOOGLE_CLIENT_ID_ANDROID')
 GOOGLE_CLIENT_ID_IOS = os.environ.get('GOOGLE_CLIENT_ID_IOS')
 GOOGLE_CLIENT_ID_WEB = os.environ.get('GOOGLE_CLIENT_ID_WEB')
@@ -279,4 +272,3 @@ JAZZMIN_SETTINGS = {
     "site_logo": 'logos/site-logo.png',
     "copyright": 'test copyright',
 }
-

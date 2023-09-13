@@ -1,21 +1,23 @@
+import requests
+from django.conf import settings
 from django.http import HttpResponse
+from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 
 from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.models import CustomUser
-
-from .models import CustomToken
-
-from api.v1.accounts.serializers import ProfileSerializer
-from .serializers import (AuthTokenSerializer, RegisterSerializer, PasswordResetSerializer,
-                          PasswordResetCodeSerializer, PasswordResetConfirmSerializer, AppleSignInSerializer,
-                          GoogleSignInSerializer, FacebookSignInSerializer, CodePasswordResetConfirmSerializer)
+from api.v1.authentications.serializers.backend import AuthTokenSerializer, RegisterSerializer
+from api.v1.authentications.serializers.google import GoogleSignInSerializer
+from api.v1.authentications.serializers.password import (PasswordResetSerializer, PasswordResetCodeSerializer,
+                                                         PasswordResetConfirmSerializer,
+                                                         CodePasswordResetConfirmSerializer)
 
 
 # login view
@@ -109,15 +111,40 @@ class GoogleSignInAPIView(CreateAPIView):
         pass
 
 
-# facebook auth view
-class FacebookSignInAPIView(CreateAPIView):
-    permission_classes = ()
-    serializer_class = FacebookSignInSerializer
+def facebook_login(request):
+    redirect_uri = "%s://%s%s" % (request.scheme, request.get_host(), reverse('app:facebook_login'))
+    code = request.GET.get('code')
+    url = 'https://graph.facebook.com/v2.10/oauth/access_token'
+    params = {
+        'client_id': settings.FACEBOOK_CLIENT_ID,
+        'client_secret': settings.FACEBOOK_CLIENT_SECRET,
+        'code': code,
+        'redirect_uri': redirect_uri,
+    }
+    response = requests.get(url, params=params)
+    params = response.json()
+    params.update({'fields': 'id,last_name,first_name,email'})
+    url = 'https://graph.facebook.com/me'
+    user_data = requests.get(url, params=params).json()
+    email = user_data.get('email')
 
-    def perform_create(self, serializer):
-        pass
+    if email:
+        user, created = CustomUser.objects.get_or_create(email=email)
 
+        if created:
+            user.first_name = user_data['first_name']
+            user.last_name = user_data['last_name']
+            user.auth_provider = 'facebook'
+            user.is_verified = True
+            user.set_password(None)
 
-class AppleSignInCallbackView(CreateAPIView):
-    permission_classes = ()
-    serializer_class = AppleSignInSerializer
+        elif not user.is_active:
+            raise AuthenticationFailed('User inactive')
+
+        elif not user.is_verified:
+            user.is_verified = True
+
+        user.save()
+        # login(request, user)
+    else:
+        raise AuthenticationFailed('Unable to login with Facebook Please try again')
