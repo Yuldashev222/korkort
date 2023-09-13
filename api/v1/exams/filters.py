@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from api.v1.questions.models import StudentWrongAnswer
+from api.v1.questions.models import StudentWrongAnswer, StudentSavedQuestion
 
 
 class WrongQuestionsExamFilter(filters.FilterSet):
@@ -10,3 +10,8 @@ class WrongQuestionsExamFilter(filters.FilterSet):
     class Meta:
         model = StudentWrongAnswer
         fields = ['my_questions', 'counts']
+
+
+class SavedQuestionsExamFilter(WrongQuestionsExamFilter):
+    class Meta(WrongQuestionsExamFilter.Meta):
+        model = StudentSavedQuestion
