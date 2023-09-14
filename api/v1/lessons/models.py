@@ -11,7 +11,7 @@ class Lesson(models.Model):
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
     lesson_time = models.FloatField(help_text='in minute')
-    ordering_number = models.PositiveSmallIntegerField(default=1, validators=[MinValueValidator(1)])
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     title_en = models.CharField(verbose_name='Title English', max_length=300, blank=True)
     title_swe = models.CharField(verbose_name='Title Swedish', max_length=300)

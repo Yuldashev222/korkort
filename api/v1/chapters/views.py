@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from rest_framework.response import Response
@@ -8,10 +9,10 @@ from rest_framework.permissions import IsAuthenticated
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import LessonStudent
 from api.v1.chapters.models import ChapterStudent
+from api.v1.questions.models import StudentSavedQuestion
 from api.v1.lessons.serializers import LessonRetrieveSerializer
 from api.v1.accounts.permissions import IsStudent
 from api.v1.chapters.serializers import ChapterStudentSerializer
-from api.v1.questions.models import StudentSavedQuestion
 
 
 class ChapterStudentAPIView(ReadOnlyModelViewSet):
@@ -34,12 +35,19 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
 
     def get_object(self):
         student = self.request.user
-        chapter_student = get_object_or_404(ChapterStudent, pk=self.kwargs[self.lookup_field])
+        try:
+            chapter_student = ChapterStudent.objects.select_related('chapter').get(pk=self.kwargs[self.lookup_field])
+            chapter = chapter_student.chapter
+        except ChapterStudent.DoesNotExist:
+            raise Http404({'detail': 'not found'})
 
-        obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student,
-                                           is_completed=False).select_related('lesson').first()
+        obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=False
+                                           ).select_related('lesson').first()
 
         if obj:
+            if chapter.ordering_number != 1 and obj.lesson.ordering_number == 1:
+                return None
+
             if obj.lesson.is_open:
                 return obj
 
@@ -47,8 +55,7 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
                 return None
 
         else:
-            obj = LessonStudent.objects.filter(lesson__chapter_id=chapter_student.chapter_id, student=student,
-                                               is_completed=True).last()
+            obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=True).last()
 
         return obj
 
