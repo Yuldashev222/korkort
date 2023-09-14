@@ -1,12 +1,12 @@
-from django.conf import settings
 from django.db import transaction, IntegrityError
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
 from api.v1.general.utils import get_language
-from api.v1.questions.models import Question, StudentSavedQuestion, Category
 from api.v1.questions.tasks import update_student_wrong_answers_in_exam
+from api.v1.questions.models import Question, StudentSavedQuestion, Category
 from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 
 

@@ -2,11 +2,11 @@ from django.conf import settings
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
-from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 from api.v1.general.utils import get_language
 from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question
+from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -18,6 +18,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_last_exams(self, instance):
         last_exams = instance.studentlastexamresult_set.all()[:10]
         data = StudentLastExamResultSerializer(last_exams, many=True).data
+        len_data = len(data)
+        if len_data < 10:
+            obj = {'questions': 0, 'percent': 0}
+            data.extend([obj] * (10 - len_data))
         data.reverse()
         return data
 
