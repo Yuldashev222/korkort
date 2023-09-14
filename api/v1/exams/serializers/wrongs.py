@@ -33,7 +33,7 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
 
 
 class WrongQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):
-    question_counts = serializers.IntegerField()
+    question_counts = serializers.IntegerField(min_value=5)
     exam_id = None
     wrong_questions = None
 

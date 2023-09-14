@@ -13,7 +13,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
     all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())
     level = serializers.SerializerMethodField()
-    last_exams = StudentLastExamResultSerializer(source='studentlastexamresult_set', many=True)
+    last_exams = serializers.SerializerMethodField()
+
+    def get_last_exams(self, instance):
+        last_exams = instance.studentlastexamresult_set.all()[:10]
+        data = StudentLastExamResultSerializer(last_exams, many=True).data
+        data.reverse()
+        return data
 
     class Meta:
         model = CustomUser

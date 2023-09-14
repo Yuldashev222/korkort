@@ -17,4 +17,4 @@ class StudentLastExamResultSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentLastExamResult
-        fields = ['questions']
+        fields = ['questions', 'percent']

@@ -27,7 +27,10 @@ class SavedQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):
         delete_saved_questions = data['delete_saved_questions']
 
         if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
-            raise ValidationError('max length')
+            raise ValidationError({'detail': 'max length'})
+
+        if len(wrong_questions) + len(correct_questions) < 1:
+            raise ValidationError({'detail': 'min length'})
 
         wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
         correct_question_ids = list(set(question['pk'] for question in correct_questions))

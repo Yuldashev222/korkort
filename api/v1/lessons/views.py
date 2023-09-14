@@ -1,16 +1,16 @@
 from django.db.models import Count
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
+from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
-from api.v1.accounts.permissions import IsStudent
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer)
 from api.v1.questions.models import StudentSavedQuestion
+from api.v1.accounts.permissions import IsStudent
 
 
 class LessonAnswerAPIView(ExamAnswerAPIView):
