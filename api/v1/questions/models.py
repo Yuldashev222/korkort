@@ -41,9 +41,14 @@ class Question(models.Model):
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     @classmethod
-    def is_correct_question_id(cls, question_id):
-        question_ids = cls.get_question_ids()
-        left, right = 0, cache.get('all_questions_count') - 1
+    def is_correct_question_id(cls, question_id, question_ids=None):
+        if question_ids is None:
+            question_ids = cls.get_question_ids()
+            len_question_ids = cache.get('all_questions_count')
+        else:
+            len_question_ids = len(question_ids)
+
+        left, right = 0, len_question_ids - 1
 
         while left <= right:
             mid = (left + right) // 2

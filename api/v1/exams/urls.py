@@ -20,3 +20,4 @@ urlpatterns = [
     path('categories/answers/', CategoryExamAnswerAPIView.as_view()),
     path('categories/mix/answers/', CategoryMixExamAnswerAPIView.as_view())
 ]
+

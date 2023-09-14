@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from api.v1.exams.filters import WrongQuestionsExamFilter
 from api.v1.exams.serializers.wrongs import WrongQuestionsExamSerializer, WrongQuestionsExamAnswerSerializer
-from api.v1.questions.models import StudentWrongAnswer
+from api.v1.questions.models import StudentWrongAnswer, StudentSavedQuestion
 from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.accounts.permissions import IsStudent
 
@@ -22,6 +22,17 @@ class WrongQuestionsExamAPIView(ListAPIView):
     filterset_class = WrongQuestionsExamFilter
 
     queryset = StudentWrongAnswer.objects.select_related('question__lesson', 'question__category').order_by('?')
+    
+    def get_serializer_context(self):
+        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
+            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'student_saved_question_ids': student_saved_question_ids
+        }
+
 
     def filter_queryset(self, queryset):
         my_questions = self.request.query_params.get('my_questions')

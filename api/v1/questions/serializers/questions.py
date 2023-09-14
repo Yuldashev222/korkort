@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from api.v1.general.utils import get_language
-from api.v1.questions.models import StudentSavedQuestion
+from api.v1.questions.models import StudentSavedQuestion, Question
 from api.v1.questions.serializers.variants import VariantSerializer
 
 
@@ -19,12 +19,10 @@ class QuestionSerializer(serializers.Serializer):
     variant_set = VariantSerializer(many=True)
 
     def get_is_saved(self, instance):
-        student = self.context['request'].user
-        try:
-            StudentSavedQuestion.objects.get(question=instance, student=student)
-        except StudentSavedQuestion.DoesNotExist:
-            return False
-        return True
+        if Question.is_correct_question_id(question_ids=self.context['student_saved_question_ids'],
+                                           question_id=instance.id):
+            return True
+        return False
 
     def get_question_text(self, instance):
         return getattr(instance, 'text_' + get_language())

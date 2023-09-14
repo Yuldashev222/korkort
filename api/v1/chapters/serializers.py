@@ -40,7 +40,7 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
         elif self.context['request'].user.tariff_expire_date <= now():
             temp = LessonListSerializer.buy_clock
 
-        elif self.old_obj.completed_lessons < self.old_obj_chapter_lessons.lessons:
+        elif self.old_obj.completed_lessons < self.old_obj_chapter_lessons:
             temp = LessonListSerializer.clock
 
         self.old_obj = instance

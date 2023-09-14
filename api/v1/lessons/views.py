@@ -10,6 +10,7 @@ from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.accounts.permissions import IsStudent
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer)
+from api.v1.questions.models import StudentSavedQuestion
 
 
 class LessonAnswerAPIView(ExamAnswerAPIView):
@@ -19,6 +20,16 @@ class LessonAnswerAPIView(ExamAnswerAPIView):
 class LessonStudentAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted, IsOpenOrPurchased)
     serializer_class = LessonRetrieveSerializer
+
+    def get_serializer_context(self):
+        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
+            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'student_saved_question_ids': student_saved_question_ids
+        }
 
     def get_queryset(self):
         return LessonStudent.objects.filter(student=self.request.user).select_related('student')

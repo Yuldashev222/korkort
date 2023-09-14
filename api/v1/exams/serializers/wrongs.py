@@ -22,12 +22,10 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
     variant_set = VariantSerializer(source='question.variant_set', many=True)
 
     def get_is_saved(self, instance):
-        student = self.context['request'].user
-        try:
-            StudentSavedQuestion.objects.get(question=instance.question, student=student)
-        except StudentSavedQuestion.DoesNotExist:
-            return False
-        return True
+        if Question.is_correct_question_id(question_ids=self.context['student_saved_question_ids'],
+                                           question_id=instance.id):
+            return True
+        return False
 
     def get_question_text(self, instance):
         return getattr(instance.question, 'text_' + get_language())

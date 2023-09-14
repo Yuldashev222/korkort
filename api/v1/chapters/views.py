@@ -11,11 +11,22 @@ from api.v1.chapters.models import ChapterStudent
 from api.v1.lessons.serializers import LessonRetrieveSerializer
 from api.v1.accounts.permissions import IsStudent
 from api.v1.chapters.serializers import ChapterStudentSerializer
+from api.v1.questions.models import StudentSavedQuestion
 
 
 class ChapterStudentAPIView(ReadOnlyModelViewSet):
     serializer_class = ChapterStudentSerializer
     permission_classes = (IsAuthenticated, IsStudent)
+
+    def get_serializer_context(self):
+        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
+            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'student_saved_question_ids': student_saved_question_ids
+        }
 
     def get_queryset(self):
         student = self.request.user
@@ -47,5 +58,5 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
             raise PermissionDenied()
         student = self.request.user
         change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.lesson_id)
-        serializer = LessonRetrieveSerializer(instance, context={'request': request})
+        serializer = LessonRetrieveSerializer(instance, context=self.get_serializer_context())
         return Response(serializer.data)
