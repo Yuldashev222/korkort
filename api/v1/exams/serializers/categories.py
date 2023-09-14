@@ -21,7 +21,17 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
     image = serializers.URLField(
         default='https://www.e-report.uz/media/chapters/1%3A%202014e1e9-a989-4995-b36f-77a/images/IMG.png')
     name = serializers.SerializerMethodField()
-    detail = CategoryExamStudentSerializer(source='categoryexamstudent_set', many=True)
+    detail = serializers.SerializerMethodField()
+
+    def get_detail(self, instance):
+        last_exams = instance.categoryexamstudent_set.all()[:10]
+        data = CategoryExamStudentSerializer(last_exams, many=True).data
+        len_data = len(data)
+        if len_data < 10:
+            obj = {'questions': 0, 'percent': 0}
+            data.extend([obj] * (10 - len_data))
+        data.reverse()
+        return data
 
     class Meta:
         model = CategoryExamStudentResult
