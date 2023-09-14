@@ -80,11 +80,11 @@ class StudentLessonViewStatisticsSerializer(serializers.Serializer):
 class LessonRetrieveSerializer(LessonListSerializer):
     # image = serializers.FileField(source='lesson.image')
     image = serializers.URLField(
-        default='https://www.e-report.uz/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
+        default='https://www.e-report.uz/media/chapters/1%3A%202014e1e9-a989-4995-b36f-77a/images/IMG.png')
     text = serializers.SerializerMethodField()
     # video = serializers.SerializerMethodField()
     video = serializers.URLField(
-        default='https://www.e-report.uz/media/chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20905c9192-956f-4054-9ce1-161/videos/a.mp4')
+        default='https://www.e-report.uz/media/chapters/1%3A%202014e1e9-a989-4995-b36f-77a/lessons/1%3A%207f319207-d48e-41c2-b6dd-ca2/videos/a.mp4')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
