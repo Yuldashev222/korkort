@@ -19,7 +19,7 @@ class CategoryExamStudentSerializer(serializers.ModelSerializer):
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
     # image = serializers.SerializerMethodField()
     image = serializers.URLField(
-        default='http://16.171.170.49/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
+        default='https://e-report.uz/media/chapters/1:%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1:%20905c9192-956f-4054-9ce1-161/images/Re_A8H4vJl.png')
     name = serializers.SerializerMethodField()
     detail = CategoryExamStudentSerializer(source='categoryexamstudent_set', many=True)
 
