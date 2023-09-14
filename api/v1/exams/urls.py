@@ -1,11 +1,12 @@
 from django.urls import path
 
+from api.v1.exams.views.final import FinalExamAPIView
 from api.v1.exams.views.saved import SavedQuestionsExamAPIView, SavedQuestionsExamAnswerAPIView
 from api.v1.exams.views.wrongs import WrongQuestionsExamAPIView, WrongQuestionsExamAnswerAPIView
 from api.v1.exams.views.general import ExamStudentResult
 
 from api.v1.exams.views.categories import (CategoryExamAnswerAPIView, CategoryExamAPIView, CategoryMixExamAPIView,
-                                           CategoryMixExamAnswerAPIView, FinalExamAPIView)
+                                           CategoryMixExamAnswerAPIView)
 
 urlpatterns = [
     path('', ExamStudentResult.as_view()),
