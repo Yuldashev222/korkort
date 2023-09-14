@@ -153,14 +153,3 @@ class StudentSavedQuestion(models.Model):
     class Meta:
         ordering = ['-created_at']
         unique_together = ['question', 'student']
-
-
-class QuestionStudentLastResult(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
-    questions = models.PositiveSmallIntegerField()
-    wrong_answers = models.PositiveSmallIntegerField()
-
-    class Meta:
-        ordering = ['-id']
-
-

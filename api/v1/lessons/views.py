@@ -53,9 +53,11 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
 
     def get_queryset(self):
         student = self.request.user
-        return StudentLessonViewStatistics.objects.filter(student=student
-                                                          ).values('viewed_date').annotate(cnt=Count('lesson'))[:7]
+        return StudentLessonViewStatistics.objects.filter(
+            student=student).values('viewed_date').annotate(cnt=Count('lesson')).order_by('-viewed_date')[:7]
 
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_queryset(), many=True)
-        return Response(serializer.data)
+        data = serializer.data
+        data.reverse()
+        return Response(data)

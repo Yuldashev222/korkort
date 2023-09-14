@@ -207,7 +207,7 @@ MAX_QUESTIONS = 65
 MAX_WRONG_QUESTIONS = 20
 MIN_QUESTIONS = 5
 CUSTOM_LANGUAGES = ['swe', 'en', 'e_swe']
-LEVEL_NAMES = {
+LEVELS = {
     'en': [
         'Nyckelknippe',
         'Startmotorn',

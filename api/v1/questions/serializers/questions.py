@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from api.v1.general.utils import get_language
-from api.v1.questions.models import StudentSavedQuestion, Question
+from api.v1.questions.models import Question
 from api.v1.questions.serializers.variants import VariantSerializer
 
 

@@ -2,9 +2,10 @@ from django.db import transaction, IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from api.v1.exams.models import StudentLastExamResult
 from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
 from api.v1.general.utils import get_language
-from api.v1.questions.models import StudentSavedQuestion, Question, QuestionStudentLastResult, StudentWrongAnswer
+from api.v1.questions.models import StudentSavedQuestion, Question, StudentWrongAnswer
 from api.v1.questions.serializers.variants import VariantSerializer
 
 
@@ -65,8 +66,8 @@ class WrongQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):
         StudentSavedQuestion.objects.filter(id__in=delete_saved_question_ids, student=student).delete()
 
         wrong_answers_cnt = question_counts - len(correct_question_ids)
-        QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=question_counts,
-                                                 student=student)
+        StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=question_counts,
+                                             student=student)
 
         StudentWrongAnswer.objects.filter(id__in=correct_question_ids, student=student).delete()
 

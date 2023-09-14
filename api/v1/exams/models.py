@@ -31,3 +31,12 @@ class CategoryExamStudent(models.Model):
         else:
             self.percent = 0
         super().save(*args, **kwargs)
+
+
+class StudentLastExamResult(models.Model):
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    questions = models.PositiveSmallIntegerField()
+    wrong_answers = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ['-id']

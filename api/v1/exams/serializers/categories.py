@@ -3,9 +3,9 @@ from django.db import transaction, IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult
+from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
 from api.v1.general.utils import get_language
-from api.v1.questions.models import Question, StudentSavedQuestion, QuestionStudentLastResult, Category
+from api.v1.questions.models import Question, StudentSavedQuestion, Category
 from api.v1.questions.tasks import update_student_wrong_answers_in_exam
 from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 
@@ -85,8 +85,8 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         StudentSavedQuestion.objects.filter(id__in=delete_saved_question_ids, student=student).delete()
 
         wrong_answers_cnt = len(wrong_question_ids)
-        QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,
-                                                 student=student)
+        StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,
+                                             student=student)
 
         exam.correct_answers = exam.questions - wrong_answers_cnt
         exam.save()
@@ -139,8 +139,8 @@ class CategoryMixExamAnswerSerializer(CategoryExamAnswerSerializer):
 
         wrong_answers_cnt = len(wrong_question_ids)
         all_questions_cnt = len(correct_question_ids) + wrong_answers_cnt
-        QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=all_questions_cnt,
-                                                 student=student)
+        StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=all_questions_cnt,
+                                             student=student)
 
         update_student_wrong_answers_in_exam.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                                    correct_question_ids=correct_question_ids)

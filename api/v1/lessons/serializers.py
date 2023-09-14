@@ -3,10 +3,11 @@ from rest_framework import serializers
 from django.utils.timezone import now
 from rest_framework.exceptions import ValidationError
 
+from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import get_language
 from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent
 from api.v1.questions.tasks import update_student_wrong_answers_in_lesson_exam
-from api.v1.questions.models import Question, QuestionStudentLastResult
+from api.v1.questions.models import Question
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
 
@@ -139,8 +140,8 @@ class LessonAnswerSerializer(serializers.Serializer):
         wrong_answers_cnt = len(question_ids)
         correct_question_ids = list(lesson.question_set.exclude(id__in=question_ids).values_list('pk', flat=True))
         lesson_all_questions_cnt = wrong_answers_cnt + len(correct_question_ids)
-        QuestionStudentLastResult.objects.create(wrong_answers=wrong_answers_cnt, questions=lesson_all_questions_cnt,
-                                                 student=student)
+        StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=lesson_all_questions_cnt,
+                                             student=student)
         if wrong_answers_cnt == 0:
             lesson_student.is_completed = True
 
