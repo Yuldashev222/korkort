@@ -37,8 +37,8 @@ class CategoryExamAPIView(GenericAPIView):
         if difficulty_level:
             filter_data['difficulty_level'] = difficulty_level
 
-        questions_queryset = Question.objects.filter(**filter_data).prefetch_related('variant_set'
-                                                                                     ).order_by('?')[:obj.questions]
+        questions_queryset = Question.objects.filter(
+            **filter_data).select_related('category').prefetch_related('variant_set').order_by('?')[:obj.questions]
 
         questions = QuestionExamSerializer(questions_queryset, many=True, context={'request': request}).data
         return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
@@ -50,12 +50,12 @@ class FinalExamAPIView(ListAPIView):
 
     def get_queryset(self):
         random_questions = sample(Question.get_question_ids(), settings.MAX_QUESTIONS)
-        return Question.objects.filter(id__in=random_questions).prefetch_related('variant_set')
+        return Question.objects.filter(id__in=random_questions).select_related('category').prefetch_related('variant_set')
 
 
 class CategoryMixExamAPIView(CategoryExamAPIView):
     serializer_class = CategoryMixExamCreateSerializer
-    queryset = Question.objects.prefetch_related('variant_set')
+    queryset = Question.objects.select_related('category').prefetch_related('variant_set')
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

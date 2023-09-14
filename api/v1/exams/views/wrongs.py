@@ -21,7 +21,7 @@ class WrongQuestionsExamAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = WrongQuestionsExamFilter
 
-    queryset = StudentWrongAnswer.objects.select_related('question__lesson').order_by('?')
+    queryset = StudentWrongAnswer.objects.select_related('question__lesson', 'question__category').order_by('?')
 
     def filter_queryset(self, queryset):
         my_questions = self.request.query_params.get('my_questions')

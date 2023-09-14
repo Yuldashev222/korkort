@@ -11,4 +11,4 @@ class SavedQuestionsExamAnswerAPIView(ExamAnswerAPIView):
 
 class SavedQuestionsExamAPIView(WrongQuestionsExamAPIView):
     filterset_class = SavedQuestionsExamFilter
-    queryset = StudentSavedQuestion.objects.order_by('?')
+    queryset = StudentSavedQuestion.objects.select_related('question__category').order_by('?')

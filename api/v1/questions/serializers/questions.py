@@ -7,6 +7,8 @@ from api.v1.questions.serializers.variants import VariantSerializer
 
 class QuestionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
+    category_id = serializers.IntegerField()
+    category = serializers.StringRelatedField()
     question_text = serializers.SerializerMethodField()
     # question_video = serializers.FileField(source='video')
     question_video = serializers.URLField(default='http://16.171.170.49/media/questions/18000%3A%200fac9957-9516-4083-9ae4/videos/giphy.gif')
