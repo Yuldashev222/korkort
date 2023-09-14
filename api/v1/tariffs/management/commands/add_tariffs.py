@@ -9,18 +9,11 @@ from api.v1.tariffs.models import Tariff
 class Command(BaseCommand):
     def handle(self, *args, **options):
         if not StudentDiscount.objects.exists():
-            StudentDiscount.objects.create(title=f'{str(uuid4())}',
-                                           discount_value=2,
-                                           is_percent=True,)
+            StudentDiscount.objects.create(title=f'{str(uuid4())}', discount_value=2, is_percent=True)
+
         if not TariffDiscount.objects.exists():
-            TariffDiscount.objects.create(title=f'{str(uuid4())}',
-                                          discount_value=20,
-                                          is_percent=True,
+            TariffDiscount.objects.create(title=f'{str(uuid4())}', discount_value=20, is_percent=True,
                                           image='discounts/images/IMG.png')
-        for i in range(7):
-            Tariff.objects.create(title=f'{str(uuid4())}',
-                                  desc=f'{str(uuid4())} {str(uuid4())}',
-                                  days=i * 10,
-                                  price=i * 100,
-                                  tariff_discount=i % 2 == 0,
-                                  student_discount=i % 2 == 1)
+        for i in range(1, 7):
+            Tariff.objects.create(title=f'{str(uuid4())}', desc=f'{str(uuid4())} {str(uuid4())}', days=i * 10,
+                                  price=i * 100, tariff_discount=i % 2 == 0, student_discount=i % 2 == 1)
