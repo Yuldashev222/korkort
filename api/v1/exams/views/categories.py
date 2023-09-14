@@ -18,7 +18,7 @@ class CategoryExamAnswerAPIView(ExamAnswerAPIView):
     serializer_class = CategoryExamAnswerSerializer
 
 
-class CategoryMixExamAnswerAPIView(CategoryExamAnswerAPIView):
+class CategoryMixExamAnswerAPIView(ExamAnswerAPIView):
     serializer_class = CategoryMixExamAnswerSerializer
 
 

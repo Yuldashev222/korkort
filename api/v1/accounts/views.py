@@ -9,7 +9,6 @@ from api.v1.accounts.serializers import ProfileSerializer, ProfileUpdateSerializ
 
 class ProfileAPIView(mixins.ListModelMixin,
                      mixins.UpdateModelMixin,
-                     mixins.DestroyModelMixin,
                      GenericAPIView):
     permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = ProfileUpdateSerializer

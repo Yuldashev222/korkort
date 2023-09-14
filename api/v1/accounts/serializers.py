@@ -1,6 +1,6 @@
 from django.conf import settings
 from rest_framework import serializers
-from django.core.cache import cache
+from django.contrib.auth.hashers import make_password
 
 from api.v1.general.utils import get_language
 from api.v1.lessons.models import Lesson
@@ -32,3 +32,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}
         }
+
+    def validate_password(self, new_password):
+        hash_password = make_password(new_password)
+        return hash_password
