@@ -1,5 +1,4 @@
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -52,7 +51,11 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
                 return obj
 
             elif student.tariff_expire_date <= now():
-                return None
+                obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, lesson__is_open=True,
+                                                   is_completed=True).last()
+                if not obj and chapter.ordering_number == 1:
+                    obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
+                                                       lesson__is_open=True).last()
 
         else:
             obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=True).last()
