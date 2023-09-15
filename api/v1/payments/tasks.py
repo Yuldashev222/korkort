@@ -13,12 +13,8 @@ def delete_expire_orders():
 
 @shared_task
 def change_student_tariff_expire_date(student_id):
-    try:
-        student = CustomUser.objects.get(id=student_id)
-    except CustomUser.DoesNotExist:
-        return
-
-    max_expire_at = Order.objects.filter(is_paid=True, expire_at__gt=now()
+    student = CustomUser.objects.get(id=student_id)
+    max_expire_at = Order.objects.filter(student=student, is_paid=True, expire_at__gt=student.tariff_expire_date
                                          ).aggregate(max_expire_at=Max('expire_at'))['max_expire_at']
 
     if max_expire_at:

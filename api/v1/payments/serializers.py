@@ -13,9 +13,9 @@ class StripeCheckoutSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         called_student = None
-        tariff_id = attrs.get('tariff_id')
-        use_bonus_money = attrs.get('use_bonus_money', False)
-        user_code = attrs.get('user_code', '')
+        tariff_id = attrs['tariff_id']
+        user_code = attrs.get('user_code', None)
+        use_bonus_money = attrs['use_bonus_money']
         student = self.context['request'].user
 
         try:
@@ -23,13 +23,16 @@ class StripeCheckoutSerializer(serializers.Serializer):
         except Tariff.DoesNotExist:
             raise ValidationError({'tariff_id': ['not found']})
 
-        if user_code:
+        if user_code is not None:
             if use_bonus_money:
-                raise ValidationError({'use_bonus_money': 'choice'})
+                raise ValidationError({'use_bonus_money': ['choice']})
+
             if not tariff.student_discount:
                 raise ValidationError({'user_code': ['Currently, the coupon system is not working for this tariff']})
+
             if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
                 raise ValidationError({'user_code': ['not found']})
+
             called_student = CustomUser.objects.get(user_code=user_code)
             if Order.objects.filter(called_student=called_student, student=student).exists():
                 raise ValidationError({'user_code': ['You have already registered this code']})
