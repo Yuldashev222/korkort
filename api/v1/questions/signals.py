@@ -11,7 +11,7 @@ from api.v1.questions.models import Question, Category
 @receiver(post_delete, sender=Question)
 def delete_image(instance, *args, **kwargs):
     delete_object_file_post_delete(instance, 'image')
-    delete_object_file_post_delete(instance, 'video')
+    delete_object_file_post_delete(instance, 'gif')
     Question.set_redis()
 
 
@@ -19,7 +19,7 @@ def delete_image(instance, *args, **kwargs):
 def delete_image(instance, *args, **kwargs):
     try:
         delete_object_file_pre_save(Question, instance, 'image')
-        delete_object_file_pre_save(Question, instance, 'video')
+        delete_object_file_pre_save(Question, instance, 'gif')
     except Question.DoesNotExist:
         pass
 

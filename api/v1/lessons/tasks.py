@@ -1,5 +1,5 @@
-from datetime import timedelta
 from celery import shared_task
+from datetime import timedelta
 from django.utils.timezone import now
 
 from api.v1.lessons.models import StudentLessonViewStatistics

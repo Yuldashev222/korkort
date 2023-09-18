@@ -1,15 +1,13 @@
 import string
 import secrets
 from django.db import models
-from django.conf import settings
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
-from api.v1.general.services import normalize_text
-from api.v1.accounts.managers import CustomUserManager
 from api.v1.questions.models import Question
+from api.v1.accounts.managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):

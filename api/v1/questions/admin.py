@@ -42,7 +42,7 @@ class QuestionAdmin(admin.ModelAdmin):
         'text_e_swe',
         'answer',
         'image',
-        'video',
+        'gif',
     ]
 
 

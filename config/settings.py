@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'api.v1.lessons.apps.LessonsConfig',
     'api.v1.questions.apps.QuestionsConfig',
     'api.v1.exams.apps.ExamsConfig',
+    'api.v1.swish.apps.SwishConfig'
 ]
 
 MIDDLEWARE = [

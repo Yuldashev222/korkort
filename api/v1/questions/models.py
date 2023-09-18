@@ -1,9 +1,10 @@
 from django.db import models
 from django.core.cache import cache
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
-from api.v1.questions.services import category_image_location, question_image_location, question_video_location
+from api.v1.questions.services import category_image_location, question_image_location, question_gif_location, \
+    get_last_frame_number
 
 
 class Category(models.Model):
@@ -21,9 +22,7 @@ class Category(models.Model):
 
 class Question(models.Model):
     DIFFICULTY_LEVEL = [
-        [1, 'easy'],
-        [2, 'normal'],
-        [3, 'hard']
+        [1, 'easy'], [2, 'normal'], [3, 'hard']
     ]
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.PROTECT)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
@@ -33,11 +32,13 @@ class Question(models.Model):
 
     answer = models.CharField(max_length=500, blank=True)
 
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish')
     text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
+    text_swe = models.CharField(max_length=300, verbose_name='Swedish')
     text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
 
-    video = models.FileField(upload_to=question_video_location, blank=True, null=True, max_length=300)
+    gif = models.FileField(upload_to=question_gif_location, blank=True, null=True, max_length=300,
+                           validators=[FileExtensionValidator(allowed_extensions=['gif'])])
+    gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     @classmethod
@@ -85,6 +86,8 @@ class Question(models.Model):
         unique_together = ['lesson', 'for_lesson', 'ordering_number']
 
     def save(self, *args, **kwargs):
+        if self.gif:
+            self.gif_last_frame_number = get_last_frame_number(self.gif.path)
         self.text_swe, self.text_en, self.text_e_swe, self.answer = normalize_text(self.text_swe, self.text_en,
                                                                                    self.text_e_swe, self.answer)
         super().save(*args, **kwargs)

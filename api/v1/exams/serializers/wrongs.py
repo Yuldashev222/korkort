@@ -14,7 +14,7 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
     category = serializers.StringRelatedField(source='question.category')
     category_id = serializers.IntegerField(source='question.category_id')
     question_text = serializers.SerializerMethodField()
-    question_video = serializers.FileField(source='question.video')
+    question_gif = serializers.FileField(source='question.gif')
     question_image = serializers.ImageField(source='question.image')
     lesson_id = serializers.IntegerField(source='question.lesson_id')
     answer = serializers.CharField(source='question.answer')
