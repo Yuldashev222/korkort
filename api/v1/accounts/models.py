@@ -62,9 +62,3 @@ class CustomUser(AbstractUser):
     @classmethod
     def user_id_exists(cls, user_code):
         return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True, is_verified=True).exists()
-
-    def save(self, *args, **kwargs):
-        self.ball = (Question.get_all_questions_count() - self.correct_answers) * settings.TEST_BALL
-        self.first_name, self.last_name = normalize_text(self.first_name, self.last_name)
-        self.bonus_money = round(self.bonus_money, 1)
-        super().save(*args, **kwargs)
