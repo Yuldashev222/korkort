@@ -13,7 +13,7 @@ class QuestionSerializer(serializers.Serializer):
     # question_gif = serializers.FileField(source='gif')
     question_gif = serializers.URLField(default='questions/6000%3A%2052a70a5f-6c1a-41af-b385-/gifs/giphy_PZKlRXf.gif')
     # question_image = serializers.ImageField(source='image')
-    question_image = serializers.URLField(default='https://www.e-report.uz/media/chapters/1%3A%202014e1e9-a989-4995-b36f-77a/images/IMG.png')
+    question_image = serializers.URLField(default='http://51.20.2.33/media/chapters/1:%20a940a76e-290f-46c7-ac6d-0a3/lessons/1:%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png')
     is_saved = serializers.SerializerMethodField()
 
     variant_set = VariantSerializer(many=True)
