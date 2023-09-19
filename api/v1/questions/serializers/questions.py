@@ -11,7 +11,7 @@ class QuestionSerializer(serializers.Serializer):
     category = serializers.StringRelatedField()
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
-    question_gif = serializers.URLField(default='https://www.e-report.uz/media/questions/6000%3A%204be96439-5bb9-4e3a-915b-/videos/giphy.gif')
+    question_gif = serializers.URLField(default='questions/6000%3A%2052a70a5f-6c1a-41af-b385-/gifs/giphy_PZKlRXf.gif')
     # question_image = serializers.ImageField(source='image')
     question_image = serializers.URLField(default='https://www.e-report.uz/media/chapters/1%3A%202014e1e9-a989-4995-b36f-77a/images/IMG.png')
     is_saved = serializers.SerializerMethodField()

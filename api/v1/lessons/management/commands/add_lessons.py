@@ -16,16 +16,16 @@ class Command(BaseCommand):
                 lesson = Lesson.objects.create(chapter=chapter,
                                                is_open=is_open,
                                                ordering_number=i + 1,
-                                               image='discounts/images/IMG.png',
+                                               image='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png',
                                                title_swe=str(uuid4()),
                                                title_en=str(uuid4()),
                                                title_e_swe=str(uuid4()),
                                                text_swe=str(uuid4()) * i,
                                                text_en=str(uuid4()) * i,
                                                text_e_swe=str(uuid4()) * i,
-                                               video_swe='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
-                                               video_en='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
-                                               video_e_swe='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
+                                               video_swe='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/videos/a.mp4',
+                                               video_en='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/videos/a.mp4',
+                                               video_e_swe='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/videos/a.mp4',
                                                lesson_time=i * 2)
 
                 for j in range(10):

@@ -11,7 +11,7 @@ def create_categories():
         Category.objects.create(name_swe=str(uuid4()),
                                 name_en=str(uuid4()),
                                 name_e_swe=str(uuid4()),
-                                image='discounts/images/IMG.png')
+                                image='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png')
 
 
 def create_lesson_questions(self):
@@ -24,9 +24,11 @@ def create_lesson_questions(self):
         for index, category in enumerate(categories, 1):
             if index > 7:
                 difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
+            elif index % 2 == 0:
+                difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
             else:
-                difficulty_level = Question.DIFFICULTY_LEVEL[0][0] if index % 2 == 0 else Question.DIFFICULTY_LEVEL[1][
-                    0]
+                difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
+
             objs1.append(Question(lesson=lesson,
                                   category=category,
                                   for_lesson=True,
@@ -37,16 +39,17 @@ def create_lesson_questions(self):
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
                                   gif='chapters/4:%20askjdbkjas%20bdkajs%20bdkja%20bsa/lessons/10:%20askjdbkjas%20bdkajs%20bdkja%20bsaaskjdbkjas%20bdkajs%20bdkja%20bsa/videos/a.mp4',
-                                  image='discounts/images/IMG.png'
+                                  image='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png'
                                   )
                          )
 
         for index, category in enumerate(categories, 1):
             if index > 7:
                 difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
+            elif index % 2 == 0:
+                difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
             else:
-                difficulty_level = Question.DIFFICULTY_LEVEL[0][0] if index % 2 == 0 else \
-                    Question.DIFFICULTY_LEVEL[1][0]
+                difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
             objs2.append(Question(lesson=lesson,
                                   category=category,
                                   for_lesson=False,
@@ -56,8 +59,8 @@ def create_lesson_questions(self):
                                   text_swe=f'{str(uuid4())}' * 2,
                                   text_en=f'{str(uuid4())}' * 3,
                                   text_e_swe=f'{str(uuid4())}' * 4,
-                                  gif='chapters/1%3A%20836c4b38-fe8e-4ef2-9a9c-bab/lessons/1%3A%20614101a6-4c87-4dbc-9629-23a/videos/a.mp4',
-                                  image='discounts/images/IMG.png'
+                                  gif='questions/6000%3A%2052a70a5f-6c1a-41af-b385-/gifs/giphy_PZKlRXf.gif',
+                                  image='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png'
                                   )
                          )
     Question.objects.bulk_create(objs1)
