@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, OperationalError
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
@@ -39,7 +39,10 @@ class Lesson(models.Model):
     def get_all_lessons_count(cls):
         all_lessons_count = cache.get('all_lessons_count')
         if not all_lessons_count:
-            cls.set_redis()
+            try:
+                cls.set_redis()
+            except OperationalError:
+                return 0
             all_lessons_count = cache.get('all_lessons_count')
         return all_lessons_count
 

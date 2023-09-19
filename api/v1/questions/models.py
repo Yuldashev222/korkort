@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, OperationalError
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
@@ -74,7 +74,10 @@ class Question(models.Model):
     def get_all_questions_count(cls):
         all_questions_count = cache.get('all_questions_count')
         if not all_questions_count:
-            cls.set_redis()
+            try:
+                cls.set_redis()
+            except OperationalError:
+                return 0
             all_questions_count = cache.get('all_questions_count')
         return all_questions_count
 

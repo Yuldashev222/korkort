@@ -48,19 +48,14 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
     exam_id = serializers.IntegerField()
     wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
     correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
-    saved_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
-    delete_saved_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(),
-                                                        max_length=settings.MAX_QUESTIONS)
 
     @transaction.atomic
     def to_internal_value(self, data):
         super().to_internal_value(data)
         student = self.context['request'].user
         exam_id = data['exam_id']
-        saved_questions = data['saved_questions']
         wrong_questions = data['wrong_questions']
         correct_questions = data['correct_questions']
-        delete_saved_questions = data['delete_saved_questions']
 
         if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
             raise ValidationError({'detail': 'max length'})
@@ -76,26 +71,15 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
         if exam.correct_answers > 0:
             raise ValidationError({'exam_id': 'not found'})
 
-        saved_question_ids = list(set(question['pk'] for question in saved_questions))
         wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
         correct_question_ids = list(set(question['pk'] for question in correct_questions))
-        delete_saved_question_ids = list(set(question['pk'] for question in delete_saved_questions))
 
         wrong_question_ids = [i for i in wrong_question_ids if i not in correct_question_ids]
-        delete_saved_question_ids = [i for i in delete_saved_question_ids if i not in saved_question_ids]
 
-        for question_ids in [correct_question_ids, wrong_question_ids, saved_question_ids, delete_saved_question_ids]:
+        for question_ids in [correct_question_ids, wrong_question_ids]:
             for pk in question_ids:
                 if not Question.is_correct_question_id(question_id=pk):
                     raise ValidationError({'pk': 'not found'})
-
-        try:
-            objs = [StudentSavedQuestion(student=student, question_id=pk) for pk in saved_question_ids]
-            StudentSavedQuestion.objects.bulk_create(objs)
-        except IntegrityError:
-            raise ValidationError({'saved_questions': 'already exists'})
-
-        StudentSavedQuestion.objects.filter(id__in=delete_saved_question_ids, student=student).delete()
 
         wrong_answers_cnt = len(wrong_question_ids)
         StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,
@@ -113,18 +97,13 @@ class CategoryMixExamAnswerSerializer(CategoryExamAnswerSerializer):
     exam_id = None
     wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
     correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
-    saved_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
-    delete_saved_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(),
-                                                        max_length=settings.MAX_QUESTIONS)
 
     @transaction.atomic
     def to_internal_value(self, data):
         serializers.Serializer.to_internal_value(self, data)
         student = self.context['request'].user
-        saved_questions = data['saved_questions']
         wrong_questions = data['wrong_questions']
         correct_questions = data['correct_questions']
-        delete_saved_questions = data['delete_saved_questions']
 
         if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
             raise ValidationError({'detail': 'max length'})
@@ -132,26 +111,15 @@ class CategoryMixExamAnswerSerializer(CategoryExamAnswerSerializer):
         if len(wrong_questions) + len(correct_questions) < 1:
             raise ValidationError({'detail': 'min length'})
 
-        saved_question_ids = list(set(question['pk'] for question in saved_questions))
         wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
         correct_question_ids = list(set(question['pk'] for question in correct_questions))
-        delete_saved_question_ids = list(set(question['pk'] for question in delete_saved_questions))
 
         wrong_question_ids = [i for i in wrong_question_ids if i not in correct_question_ids]
-        delete_saved_question_ids = [i for i in delete_saved_question_ids if i not in saved_question_ids]
 
-        for question_ids in [correct_question_ids, wrong_question_ids, saved_question_ids, delete_saved_question_ids]:
+        for question_ids in [correct_question_ids, wrong_question_ids]:
             for pk in question_ids:
                 if not Question.is_correct_question_id(question_id=pk):
                     raise ValidationError({'pk': 'not found'})
-
-        try:
-            objs = [StudentSavedQuestion(student=student, question_id=pk) for pk in saved_question_ids]
-            StudentSavedQuestion.objects.bulk_create(objs)
-        except IntegrityError:
-            raise ValidationError({'saved_questions': 'already exists'})
-
-        StudentSavedQuestion.objects.filter(id__in=delete_saved_question_ids, student=student).delete()
 
         wrong_answers_cnt = len(wrong_question_ids)
         all_questions_cnt = len(correct_question_ids) + wrong_answers_cnt
