@@ -18,4 +18,5 @@ def get_last_frame_number(gif_path):
         with Image.open(gif_path) as img:
             return img.n_frames - 1
     except Exception as e:
-        return None
+        print(e)
+        return 0
