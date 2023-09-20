@@ -22,16 +22,6 @@ class LessonStudentAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted, IsOpenOrPurchased)
     serializer_class = LessonRetrieveSerializer
 
-    def get_serializer_context(self):
-        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
-            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self,
-            'student_saved_question_ids': student_saved_question_ids
-        }
-
     def get_queryset(self):
         return LessonStudent.objects.filter(student=self.request.user).select_related('student')
 
@@ -65,18 +55,25 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
 
 
 class LessonQuestionAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)
+    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted, IsOpenOrPurchased)
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        return Question.objects.filter(for_lesson=True, lesson_id=self.get_object_id()
-                                       ).select_related('category').prefetch_related('variant_set')
-
-    def get_object_id(self):
-        obj = get_object_or_404(LessonStudent, pk=self.kwargs['pk'])
-        self.check_object_permissions(self.request, obj)
-        return obj.lesson_id
+        return LessonStudent.objects.filter(student=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_queryset(), many=True)
+        questions = Question.objects.filter(for_lesson=True, lesson_id=self.get_object().lesson_id
+                                            ).select_related('category').prefetch_related('variant_set')
+
+        serializer = self.get_serializer(questions, many=True)
         return Response(serializer.data)
+
+    def get_serializer_context(self):
+        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
+            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'student_saved_question_ids': student_saved_question_ids
+        }
