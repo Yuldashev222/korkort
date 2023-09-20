@@ -81,11 +81,11 @@ class StudentLessonViewStatisticsSerializer(serializers.Serializer):
 class LessonRetrieveSerializer(LessonListSerializer):
     # image = serializers.FileField(source='lesson.image')
     image = serializers.URLField(
-        default='http://51.20.2.33/media/chapters/1:_df478f64-8c95-4fe0-a9d2-30e/lessons/1:%208908c739-1de4-4f39-9d38-929/images/Re_z4gl9tD.png')
+        default='http://91.226.221.227/media/chapters/1%3A_a04d16a9-155c-464d-82e5-e6d/images/Rectangle_625.png')
     text = serializers.SerializerMethodField()
     # video = serializers.SerializerMethodField()
     video = serializers.URLField(
-        default='http://51.20.2.33/media/chapters/1%3A_df478f64-8c95-4fe0-a9d2-30e/lessons/1%3A%208908c739-1de4-4f39-9d38-929/videos/a.mp4')
+        default='http://91.226.221.227/media/chapters/1%3A_a04d16a9-155c-464d-82e5-e6d/lessons/1%3A%2069da2c47-d162-4377-bb66-ceb/videos/a.mp4')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
