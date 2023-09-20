@@ -14,7 +14,7 @@ def question_image_location(instance, image):
 
 
 def get_last_frame_number(gif_path):
-    try:
+    try:  # last
         with Image.open(gif_path) as img:
             return img.n_frames - 1
     except Exception as e:

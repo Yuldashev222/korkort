@@ -1,5 +1,5 @@
 from django.db.models import Count
-from rest_framework.generics import GenericAPIView, RetrieveAPIView
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -9,8 +9,9 @@ from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer)
-from api.v1.questions.models import StudentSavedQuestion
+from api.v1.questions.models import StudentSavedQuestion, Question
 from api.v1.accounts.permissions import IsStudent
+from api.v1.questions.serializers.questions import QuestionSerializer
 
 
 class LessonAnswerAPIView(ExamAnswerAPIView):
@@ -61,3 +62,21 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
         data = serializer.data
         data.reverse()
         return Response(data)
+
+
+class LessonQuestionAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = QuestionSerializer
+
+    def get_queryset(self):
+        return Question.objects.filter(for_lesson=True, lesson_id=self.get_object_id()
+                                       ).select_related('category').prefetch_related('variant_set')
+
+    def get_object_id(self):
+        obj = get_object_or_404(LessonStudent, pk=self.kwargs['pk'])
+        self.check_object_permissions(self.request, obj)
+        return obj.lesson_id
+
+    def get(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(serializer.data)
