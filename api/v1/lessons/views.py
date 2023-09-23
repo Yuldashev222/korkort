@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
 from api.v1.exams.views.general import ExamAnswerAPIView
-from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
+from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer)
 from api.v1.questions.models import StudentSavedQuestion, Question
@@ -55,7 +55,7 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
 
 
 class LessonQuestionAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted, IsOpenOrPurchased)
+    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompletedForQuestions, IsOpenOrPurchased)
     serializer_class = QuestionSerializer
 
     def get_queryset(self):

@@ -16,6 +16,15 @@ class OldLessonCompleted(BasePermission):
                                                 is_completed=False).exists()
 
 
+class OldLessonCompletedForQuestions(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        student = request.user
+        return not LessonStudent.objects.filter(lesson__chapter=obj.lesson.chapter,
+                                                student=student,
+                                                lesson__ordering_number__lt=obj.lesson.ordering_number,
+                                                is_completed=False).exists()
+
+
 class IsOpenOrPurchased(BasePermission):
     def has_object_permission(self, request, view, obj):
         student = request.user
