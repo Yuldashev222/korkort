@@ -14,7 +14,7 @@ from api.v1.authentications.models import CustomToken
 
 class GoogleSignInSerializer(serializers.Serializer):
     id_token = serializers.CharField(write_only=True)
-    token = serializers.CharField(max_length=40, read_only=True, default='')
+    token = serializers.CharField(read_only=True, default='')
     user = ProfileSerializer(read_only=True)
 
     def validate(self, attrs):

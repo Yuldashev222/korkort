@@ -50,7 +50,7 @@ def create_lesson_questions(self):
         else:
             difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
         objs2.append(Question(category=category,
-                              ordering_number=None,
+                              ordering_number=100000,
                               difficulty_level=difficulty_level,
                               answer=f'{str(uuid4())}' * 3,
                               text_swe=f'{str(uuid4())}' * 2,

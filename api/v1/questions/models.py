@@ -91,7 +91,7 @@ class Question(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.lesson:
-            self.ordering_number = randint(10000, 100000)
+            self.ordering_number = 100000
         self.gif_last_frame_number = get_last_frame_number(self.gif.path) if self.gif else 0
         self.text_swe, self.text_en, self.text_e_swe, self.answer = normalize_text(self.text_swe, self.text_en,
                                                                                    self.text_e_swe, self.answer)
