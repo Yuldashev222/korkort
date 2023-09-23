@@ -1,5 +1,5 @@
 from django.db.models import Count
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 

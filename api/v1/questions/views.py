@@ -1,6 +1,6 @@
 from django.db import IntegrityError
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.questions.models import StudentSavedQuestion

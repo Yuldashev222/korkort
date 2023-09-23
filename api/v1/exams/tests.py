@@ -1,10 +1,12 @@
-{
-    "exam_id": 5,
-    "time": 100,
-    "wrong_questions": [
-        {"pk": 7902},
-        {"pk": 8162},
-        {"pk": 502}
-    ],
-    "correct_questions": []
+cats = {
+
+    "category1": {
+        "correct": [{"pk": 1}, {"pk": 2}, {"pk": 3}],
+        "wrong": [{"pk": 1}, {"pk": 2}, {"pk": 3}]
+    },
+
+    "category2": {
+        "correct": [{"pk": 1}, {"pk": 2}, {"pk": 3}],
+        "wrong": [{"pk": 1}, {"pk": 2}, {"pk": 3}]
+    }
 }
