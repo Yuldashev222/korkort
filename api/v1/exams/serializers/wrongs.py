@@ -14,9 +14,10 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
     category = serializers.StringRelatedField(source='question.category')
     category_id = serializers.IntegerField(source='question.category_id')
     question_text = serializers.SerializerMethodField()
-    question_gif = serializers.FileField(source='question.gif')
+    # question_gif = serializers.FileField(source='question.gif')
+    question_gif = serializers.URLField(default='https://1.bp.blogspot.com/-T5yxabA5RIk/YGKiSWsw1rI/AAAAAAABPx4/aRUha-H9YHQj7ETYMvAgTHCWgLEDLvTpQCLcBGAsYHQ/w640-h358/Hnet-image.gif')
     # question_gif_last_frame_number = serializers.IntegerField(source='question.gif_last_frame_number')
-    question_gif_last_frame_number = serializers.IntegerField(default=24)
+    question_gif_last_frame_number = serializers.IntegerField(default=458)
     question_image = serializers.ImageField(source='question.image')
     answer = serializers.CharField(source='question.answer')
     is_saved = serializers.SerializerMethodField()  # last
