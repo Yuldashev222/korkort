@@ -41,10 +41,10 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'avatar_id', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        extra_kwargs = {'first_name': {'min_length': 3},
+                        'last_name': {'min_length': 3},
+                        'password': {'write_only': True, 'style': {'input_type': 'password'}}}
 
-    def validate_password(self, new_password):
-        hash_password = make_password(new_password)
-        return hash_password
+    def update(self, instance, validated_data):
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().update(instance, validated_data)
