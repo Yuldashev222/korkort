@@ -11,7 +11,7 @@ class QuestionSerializer(serializers.Serializer):
     category = serializers.StringRelatedField()
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
-    question_gif = serializers.URLField(default='https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/tenor_1.gif')
+    question_gif = serializers.URLField(default='https://timertopia.files.wordpress.com/2017/04/1-minute.gif')
     # gif_last_frame_number = serializers.IntegerField()
     question_gif_last_frame_number = serializers.IntegerField(default=9)
     # question_image = serializers.ImageField(source='image')

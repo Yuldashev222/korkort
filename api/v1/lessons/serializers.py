@@ -84,8 +84,7 @@ class LessonRetrieveSerializer(LessonListSerializer):
         default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     text = serializers.SerializerMethodField()
     # video = serializers.SerializerMethodField()
-    video = serializers.URLField(
-        default='https://www.youtube.com/watch?v=tZDvHTXKVaU')
+    video = serializers.URLField(default='https://www.youtube.com/watch?v=tZDvHTXKVaU')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
