@@ -24,10 +24,10 @@ class VariantInline(admin.TabularInline):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = [
-        'ordering_number', 'category', 'text_swe', 'text_en', 'text_e_swe', 'for_lesson', 'difficulty_level'
+        'ordering_number', 'category', 'text_swe', 'text_en', 'text_e_swe', 'difficulty_level'
     ]
     list_display_links = ['text_swe', 'text_en', 'text_e_swe']
-    list_filter = ['ordering_number', 'category', 'lesson', 'for_lesson', 'difficulty_level']
+    list_filter = ['ordering_number', 'category', 'lesson', 'difficulty_level']
     search_fields = ['text_swe', 'text_en', 'text_e_swe', 'answer']
     inlines = (VariantInline,)
 
@@ -36,7 +36,6 @@ class QuestionAdmin(admin.ModelAdmin):
         'category',
         'difficulty_level',
         'lesson',
-        'for_lesson',
         'text_swe',
         'text_en',
         'text_e_swe',

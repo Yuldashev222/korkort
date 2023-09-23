@@ -21,7 +21,7 @@ class WrongQuestionsExamAPIView(ListAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = WrongQuestionsExamFilter
 
-    queryset = StudentWrongAnswer.objects.select_related('question__lesson', 'question__category').order_by('?')
+    queryset = StudentWrongAnswer.objects.select_related('question__category').order_by('?')
     
     def get_serializer_context(self):
         student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
@@ -32,7 +32,6 @@ class WrongQuestionsExamAPIView(ListAPIView):
             'view': self,
             'student_saved_question_ids': student_saved_question_ids
         }
-
 
     def filter_queryset(self, queryset):
         my_questions = self.request.query_params.get('my_questions')

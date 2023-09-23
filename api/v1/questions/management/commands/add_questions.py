@@ -31,7 +31,6 @@ def create_lesson_questions(self):
 
             objs1.append(Question(lesson=lesson,
                                   category=category,
-                                  for_lesson=True,
                                   ordering_number=index,
                                   difficulty_level=difficulty_level,
                                   answer=f'{str(uuid4())}' * 3,
@@ -43,26 +42,24 @@ def create_lesson_questions(self):
                                   )
                          )
 
-        for index, category in enumerate(categories, 1):
-            if index > 7:
-                difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
-            elif index % 2 == 0:
-                difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
-            else:
-                difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
-            objs2.append(Question(lesson=lesson,
-                                  category=category,
-                                  for_lesson=False,
-                                  ordering_number=None,
-                                  difficulty_level=difficulty_level,
-                                  answer=f'{str(uuid4())}' * 3,
-                                  text_swe=f'{str(uuid4())}' * 2,
-                                  text_en=f'{str(uuid4())}' * 3,
-                                  text_e_swe=f'{str(uuid4())}' * 4,
-                                  gif='questions/6000%3A%2052a70a5f-6c1a-41af-b385-/gifs/giphy_PZKlRXf.gif',
-                                  image='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png'
-                                  )
-                         )
+    for index, category in enumerate(categories, 1):
+        if index > 7:
+            difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
+        elif index % 2 == 0:
+            difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
+        else:
+            difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
+        objs2.append(Question(category=category,
+                              ordering_number=None,
+                              difficulty_level=difficulty_level,
+                              answer=f'{str(uuid4())}' * 3,
+                              text_swe=f'{str(uuid4())}' * 2,
+                              text_en=f'{str(uuid4())}' * 3,
+                              text_e_swe=f'{str(uuid4())}' * 4,
+                              gif='questions/6000%3A%2052a70a5f-6c1a-41af-b385-/gifs/giphy_PZKlRXf.gif',
+                              image='chapters/1%3A%20a940a76e-290f-46c7-ac6d-0a3/lessons/1%3A%2014303787-0823-44c8-a572-535/images/Re_hDa0ivt.png'
+                              )
+                     )
     Question.objects.bulk_create(objs1)
     Question.objects.bulk_create(objs2)
     Question.set_redis()

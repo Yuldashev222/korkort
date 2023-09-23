@@ -62,7 +62,7 @@ class LessonQuestionAPIView(GenericAPIView):
         return LessonStudent.objects.filter(student=self.request.user)
 
     def get(self, request, *args, **kwargs):
-        questions = Question.objects.filter(for_lesson=True, lesson_id=self.get_object().lesson_id
+        questions = Question.objects.filter(lesson_id=self.get_object().lesson_id
                                             ).select_related('category').prefetch_related('variant_set')
 
         serializer = self.get_serializer(questions, many=True)

@@ -18,7 +18,6 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
     # question_gif_last_frame_number = serializers.IntegerField(source='question.gif_last_frame_number')
     question_gif_last_frame_number = serializers.IntegerField(default=24)
     question_image = serializers.ImageField(source='question.image')
-    lesson_id = serializers.IntegerField(source='question.lesson_id')
     answer = serializers.CharField(source='question.answer')
     is_saved = serializers.SerializerMethodField()  # last
 

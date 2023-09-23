@@ -89,7 +89,6 @@ class LessonRetrieveSerializer(LessonListSerializer):
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
-    # questions = serializers.SerializerMethodField()
 
     def get_lessons(self, instance):
         student = self.context['request'].user
@@ -97,11 +96,6 @@ class LessonRetrieveSerializer(LessonListSerializer):
                                                 ).select_related('lesson')
         lessons = LessonListSerializer(queryset, many=True, context=self.context).data
         return lessons
-
-    # def get_questions(self, instance):
-    #     queryset = instance.lesson.question_set.filter(for_lesson=True).select_related('category'
-    #                                                                                    ).prefetch_related('variant_set')
-    #     return QuestionSerializer(queryset, many=True, context=self.context).data
 
     def get_text(self, instance):
         return getattr(instance.lesson, 'text_' + get_language())
