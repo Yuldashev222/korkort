@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
 from api.v1.questions.services import (category_image_location, question_image_location, question_gif_location,
-                                       get_last_frame_number)
+                                       get_last_frame_number_and_duration)
 
 
 class Category(models.Model):
@@ -40,6 +40,7 @@ class Question(models.Model):
     gif = models.FileField(upload_to=question_gif_location, blank=True, null=True, max_length=300,
                            validators=[FileExtensionValidator(allowed_extensions=['gif'])])
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
+    gif_duration = models.PositiveSmallIntegerField(default=0)
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     @classmethod
@@ -90,11 +91,17 @@ class Question(models.Model):
         unique_together = ['lesson', 'ordering_number']
 
     def save(self, *args, **kwargs):
-        if not self.lesson:
-            self.ordering_number = 100000
-        self.gif_last_frame_number = get_last_frame_number(self.gif.path) if self.gif else 0
         self.text_swe, self.text_en, self.text_e_swe, self.answer = normalize_text(self.text_swe, self.text_en,
                                                                                    self.text_e_swe, self.answer)
+
+        if not self.lesson:
+            self.ordering_number = 100000
+
+        if self.gif:
+            self.gif_last_frame_number, self.gif_duration = get_last_frame_number_and_duration(self.gif.path)
+        else:
+            self.gif_last_frame_number, self.gif_duration = (0, 0)
+
         super().save(*args, **kwargs)
 
     @classmethod

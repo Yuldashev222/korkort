@@ -19,6 +19,7 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
         default='https://1.bp.blogspot.com/-T5yxabA5RIk/YGKiSWsw1rI/AAAAAAABPx4/aRUha-H9YHQj7ETYMvAgTHCWgLEDLvTpQCLcBGAsYHQ/w640-h358/Hnet-image.gif')
     # question_gif_last_frame_number = serializers.IntegerField(source='question.gif_last_frame_number')
     question_gif_last_frame_number = serializers.IntegerField(default=458)
+    question_gif_duration = serializers.IntegerField(default=458)
     question_image = serializers.ImageField(source='question.image')
     answer = serializers.CharField(source='question.answer')
     is_saved = serializers.SerializerMethodField()  # last

@@ -13,10 +13,15 @@ def question_image_location(instance, image):
     return f'questions/{str(instance).replace(" ", "_")}/images/{image}'
 
 
-def get_last_frame_number(gif_path):
-    try:  # last
+def get_last_frame_number_and_duration(gif_path):
+    try:
         with Image.open(gif_path) as img:
-            return img.n_frames - 1
+            last_frame_number = img.n_frames - 1
+            duration = 0
+            if img.is_animated:
+                duration = img.info.get("duration", 0) / 1000.0
+
+            return duration, last_frame_number
     except Exception as e:
         print(e)
-        return 0
+        return 0, 0

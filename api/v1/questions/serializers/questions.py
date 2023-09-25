@@ -14,6 +14,7 @@ class QuestionSerializer(serializers.Serializer):
     question_gif = serializers.URLField(default='https://timertopia.files.wordpress.com/2017/04/1-minute.gif')
     # gif_last_frame_number = serializers.IntegerField()
     question_gif_last_frame_number = serializers.IntegerField(default=60)
+    question_gif_duration = serializers.IntegerField(default=60)
     # question_image = serializers.ImageField(source='image')
     question_image = serializers.URLField(default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     is_saved = serializers.SerializerMethodField()
