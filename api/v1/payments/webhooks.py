@@ -39,9 +39,10 @@ class StripeWebhookView(View):
                 order.is_paid = True
                 order.stripe_id = session.payment_intent
                 order.save()
-                user = order.student
+
+                student = order.student
                 message = render_to_string('payments/checkout.html')
-                send_mail('Hello Everyone', message, settings.DEFAULT_FROM_EMAIL, recipient_list=[user.email],
+                send_mail('Hello Everyone', message, settings.DEFAULT_FROM_EMAIL, recipient_list=[student.email],
                           html_message=message)
 
         return HttpResponse(status=200)

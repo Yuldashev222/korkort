@@ -6,7 +6,7 @@ from django.utils.timezone import now
 
 
 class Order(models.Model):
-    order_id = models.CharField(verbose_name='ID', unique=True, max_length=50)
+    order_id = models.CharField(verbose_name='ID', unique=True, max_length=7)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True, related_name='orders')
     student_email = models.EmailField()
     student_bonus_amount = models.FloatField(verbose_name='bonus amount', default=0)

@@ -14,7 +14,7 @@ class StripeCheckoutSerializer(serializers.Serializer):
     def validate(self, attrs):
         called_student = None
         tariff_id = attrs['tariff_id']
-        user_code = attrs.get('user_code', None)
+        user_code = attrs.get('user_code')
         use_bonus_money = attrs['use_bonus_money']
         student = self.context['request'].user
 

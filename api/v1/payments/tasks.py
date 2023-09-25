@@ -19,4 +19,4 @@ def change_student_tariff_expire_date(student_id):
 
     if max_expire_at:
         student.tariff_expire_date = max_expire_at
-    student.save()
+        student.save()

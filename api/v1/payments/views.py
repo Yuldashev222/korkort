@@ -16,15 +16,12 @@ class OrderAPIView(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, IsStudent)
 
     def get_queryset(self):
-        student = self.request.user
-        if student.is_authenticated:
-            return Order.objects.filter(student=self.request.user)
-        return Order.objects.none()
+        return Order.objects.filter(student=self.request.user)
 
 
 class CheckCouponAPIView(CreateAPIView):
     serializer_class = CheckCouponSerializer
-    permission_classes = [IsAuthenticated, IsStudent]
+    permission_classes = (IsAuthenticated, IsStudent)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
