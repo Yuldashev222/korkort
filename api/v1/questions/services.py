@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageSequence
 
 
 def category_image_location(instance, image):
@@ -16,16 +16,24 @@ def question_image_location(instance, image):
 def get_last_frame_number_and_duration(gif_path):
     try:
         with Image.open(gif_path) as img:
-            last_frame_number = img.n_frames - 1
-            duration = 0
-            if img.is_animated:
-                duration = round(img.info.get("duration", 0), 2)
+            if not img.is_animated:
+                return 0, 0
 
-            return last_frame_number, duration
+            duration = 0
+            for frame in ImageSequence.Iterator(img):
+                duration += frame.info.get("duration", 0)
+            return img.n_frames - 1, duration
     except Exception as e:
         print(e)
         return 0, 0
 
-# pt = '/home/oybek/Downloads/11xHTywJSoZIMTgyfgFLBJQ-1.gif'
-#
-# print(get_last_frame_number_and_duration(pt))
+
+# Provide the path to your GIF file
+gif_file_path = '/home/oybek/Downloads/4HSx.gif'
+
+duration = get_last_frame_number_and_duration(gif_file_path)
+
+if duration is not None:
+    print(f"The duration of the GIF is {duration} seconds.")
+else:
+    print("Failed to retrieve GIF duration.")

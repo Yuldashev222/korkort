@@ -11,12 +11,13 @@ class QuestionSerializer(serializers.Serializer):
     category = serializers.SerializerMethodField()
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
-    question_gif = serializers.URLField(default='https://www.wired.com/wp-content/uploads/2016/05/11xHTywJSoZIMTgyfgFLBJQ-1.gif')
+    question_gif = serializers.URLField(default='https://i.gifer.com/4HSx.gif')
     # gif_last_frame_number = serializers.IntegerField()
-    question_gif_last_frame_number = serializers.IntegerField(default=29)
-    question_gif_duration = serializers.FloatField(default=800)
+    question_gif_last_frame_number = serializers.IntegerField(default=18)
+    question_gif_duration = serializers.FloatField(default=1900)
     # question_image = serializers.ImageField(source='image')
-    question_image = serializers.URLField(default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
+    question_image = serializers.URLField(
+        default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     is_saved = serializers.SerializerMethodField()
 
     variant_set = VariantSerializer(many=True)
