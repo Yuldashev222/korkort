@@ -19,13 +19,12 @@ def get_last_frame_number_and_duration(gif_path):
             last_frame_number = img.n_frames - 1
             duration = 0
             if img.is_animated:
-                duration = round(img.info.get("duration", 0) / 1000.0, 2)
+                duration = round(img.info.get("duration", 0), 2)
 
-            return duration, last_frame_number
+            return last_frame_number, duration
     except Exception as e:
         print(e)
         return 0, 0
-
 
 # pt = '/home/oybek/Downloads/11xHTywJSoZIMTgyfgFLBJQ-1.gif'
 #
