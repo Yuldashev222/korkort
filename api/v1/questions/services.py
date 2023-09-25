@@ -27,6 +27,6 @@ def get_last_frame_number_and_duration(gif_path):
         return 0, 0
 
 
-pt = '/home/oybek/Downloads/11xHTywJSoZIMTgyfgFLBJQ-1.gif'
-
-print(get_last_frame_number_and_duration(pt))
+# pt = '/home/oybek/Downloads/11xHTywJSoZIMTgyfgFLBJQ-1.gif'
+#
+# print(get_last_frame_number_and_duration(pt))
