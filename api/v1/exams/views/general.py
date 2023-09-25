@@ -23,8 +23,9 @@ class ExamStudentResult(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         student = self.request.user
-        category_exam_query = CategoryExamStudentResult.objects.filter(student=student
-                                                                       ).prefetch_related('categoryexamstudent_set')
+        category_exam_query = CategoryExamStudentResult.objects.filter(
+            student=student).select_related('category').prefetch_related('categoryexamstudent_set')
+
         category_exams = CategoryExamStudentResultSerializer(category_exam_query, many=True,
                                                              context={'request': request}).data
         data = {

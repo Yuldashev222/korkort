@@ -8,7 +8,7 @@ from api.v1.questions.serializers.variants import VariantSerializer
 class QuestionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     category_id = serializers.IntegerField()
-    category = serializers.StringRelatedField()
+    category = serializers.SerializerMethodField()
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
     question_gif = serializers.URLField(default='https://timertopia.files.wordpress.com/2017/04/1-minute.gif')
@@ -28,6 +28,9 @@ class QuestionSerializer(serializers.Serializer):
 
     def get_question_text(self, instance):
         return getattr(instance, 'text_' + get_language())
+
+    def get_category(self, instance):
+        return getattr(instance.category, 'name_' + get_language())
 
 
 class QuestionAnswerSerializer(serializers.Serializer):

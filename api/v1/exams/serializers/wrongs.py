@@ -1,21 +1,22 @@
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import get_language
-from api.v1.questions.models import StudentSavedQuestion, Question, StudentWrongAnswer
+from api.v1.questions.models import Question, StudentWrongAnswer
 from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
 from api.v1.questions.serializers.variants import VariantSerializer
 
 
 class WrongQuestionsExamSerializer(serializers.Serializer):
     id = serializers.IntegerField(source='question_id')
-    category = serializers.StringRelatedField(source='question.category')
+    category = serializers.SerializerMethodField()
     category_id = serializers.IntegerField(source='question.category_id')
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='question.gif')
-    question_gif = serializers.URLField(default='https://1.bp.blogspot.com/-T5yxabA5RIk/YGKiSWsw1rI/AAAAAAABPx4/aRUha-H9YHQj7ETYMvAgTHCWgLEDLvTpQCLcBGAsYHQ/w640-h358/Hnet-image.gif')
+    question_gif = serializers.URLField(
+        default='https://1.bp.blogspot.com/-T5yxabA5RIk/YGKiSWsw1rI/AAAAAAABPx4/aRUha-H9YHQj7ETYMvAgTHCWgLEDLvTpQCLcBGAsYHQ/w640-h358/Hnet-image.gif')
     # question_gif_last_frame_number = serializers.IntegerField(source='question.gif_last_frame_number')
     question_gif_last_frame_number = serializers.IntegerField(default=458)
     question_image = serializers.ImageField(source='question.image')
@@ -23,6 +24,9 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
     is_saved = serializers.SerializerMethodField()  # last
 
     variant_set = VariantSerializer(source='question.variant_set', many=True)
+
+    def get_category(self, instance):
+        return getattr(instance.question.category, 'name_' + get_language())
 
     def get_is_saved(self, instance):
         if Question.is_correct_question_id(question_ids=self.context['student_saved_question_ids'],

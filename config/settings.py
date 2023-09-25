@@ -198,7 +198,7 @@ STRIPE_CHECKOUT_TIMEOUT = 30  # in minute
 
 SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
 
-WEB_FORGOT_PASSWORD_URL = 'https://korkort.page.link/?uid={}&token={}'
+WEB_FORGOT_PASSWORD_URL = 'http://localhost:8000/api/v1/auth/password-reset/confirm/link/?uid={}&token={}'
 
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'

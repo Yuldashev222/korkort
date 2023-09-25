@@ -9,7 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError, AuthenticationFailed
+from rest_framework.exceptions import ValidationError
 
 from api.v1.accounts.models import CustomUser
 from api.v1.authentications.tasks import send_password_reset_email
@@ -47,7 +47,8 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True,
                                          style={'input_type': 'password'},
                                          trim_whitespace=False,
-                                         validators=[validate_password], allow_null=True)
+                                         validators=[validate_password],
+                                         allow_null=True)
 
     def validate(self, attrs):
         uid = attrs.get('uid')
