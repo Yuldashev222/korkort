@@ -22,7 +22,7 @@ class WrongQuestionsExamAPIView(ListAPIView):
     filterset_class = WrongQuestionsExamFilter
 
     queryset = StudentWrongAnswer.objects.select_related('question__category').order_by('?')
-    
+
     def get_serializer_context(self):
         student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
             student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
@@ -36,8 +36,12 @@ class WrongQuestionsExamAPIView(ListAPIView):
     def filter_queryset(self, queryset):
         my_questions = self.request.query_params.get('my_questions')
         counts = self.request.query_params.get('counts')
+        difficulty_level = self.request.query_params.get('difficulty_level')
         if my_questions == 'true':
             queryset = queryset.filter(student=self.request.user)
+
+        if difficulty_level in [1, 2, 3]:
+            queryset = queryset.filter(question__difficulty_level=difficulty_level)
 
         if counts:
             try:
