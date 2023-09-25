@@ -40,7 +40,7 @@ class Question(models.Model):
     gif = models.FileField(upload_to=question_gif_location, blank=True, null=True, max_length=300,
                            validators=[FileExtensionValidator(allowed_extensions=['gif'])])
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
-    gif_duration = models.PositiveSmallIntegerField(default=0)
+    gif_duration = models.FloatField(default=0)
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     @classmethod

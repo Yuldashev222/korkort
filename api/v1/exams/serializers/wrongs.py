@@ -19,7 +19,7 @@ class WrongQuestionsExamSerializer(serializers.Serializer):
         default='https://www.wired.com/wp-content/uploads/2016/05/11xHTywJSoZIMTgyfgFLBJQ-1.gif')
     # question_gif_last_frame_number = serializers.IntegerField(source='question.gif_last_frame_number')
     question_gif_last_frame_number = serializers.IntegerField(default=29)
-    question_gif_duration = serializers.IntegerField(default=0.8)
+    question_gif_duration = serializers.FloatField(default=0.8)
     question_image = serializers.ImageField(source='question.image')
     answer = serializers.CharField(source='question.answer')
     is_saved = serializers.SerializerMethodField()  # last
