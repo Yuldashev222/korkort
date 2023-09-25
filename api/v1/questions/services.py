@@ -29,7 +29,7 @@ def get_last_frame_number_and_duration(gif_path):
 
 
 # Provide the path to your GIF file
-gif_file_path = '/home/oybek/Downloads/4HSx.gif'
+gif_file_path = '/home/oybek/Downloads/d733345e4f11231904e7634a04439e21.gif'
 
 duration = get_last_frame_number_and_duration(gif_file_path)
 

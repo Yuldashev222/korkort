@@ -11,10 +11,10 @@ class QuestionSerializer(serializers.Serializer):
     category = serializers.SerializerMethodField()
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
-    question_gif = serializers.URLField(default='https://i.gifer.com/4HSx.gif')
+    question_gif = serializers.URLField(default='https://i.pinimg.com/originals/d7/33/34/d733345e4f11231904e7634a04439e21.gif')
     # gif_last_frame_number = serializers.IntegerField()
-    question_gif_last_frame_number = serializers.IntegerField(default=18)
-    question_gif_duration = serializers.FloatField(default=1900)
+    question_gif_last_frame_number = serializers.IntegerField(default=1302)
+    question_gif_duration = serializers.FloatField(default=59220)
     # question_image = serializers.ImageField(source='image')
     question_image = serializers.URLField(
         default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
