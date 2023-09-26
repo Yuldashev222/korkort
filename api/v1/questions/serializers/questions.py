@@ -11,7 +11,8 @@ class QuestionSerializer(serializers.Serializer):
     category = serializers.SerializerMethodField()
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
-    question_gif = serializers.URLField(default='https://i.pinimg.com/originals/d7/33/34/d733345e4f11231904e7634a04439e21.gif')
+    question_gif = serializers.URLField(
+        default='https://i.pinimg.com/originals/d7/33/34/d733345e4f11231904e7634a04439e21.gif')
     # gif_last_frame_number = serializers.IntegerField()
     question_gif_last_frame_number = serializers.IntegerField(default=1302)
     question_gif_duration = serializers.FloatField(default=59220)
@@ -23,10 +24,8 @@ class QuestionSerializer(serializers.Serializer):
     variant_set = VariantSerializer(many=True)
 
     def get_is_saved(self, instance):
-        if Question.is_correct_question_id(question_ids=self.context['student_saved_question_ids'],
-                                           question_id=instance.id):
-            return True
-        return False
+        return Question.is_correct_question_id(question_ids=self.context['student_saved_question_ids'],
+                                               question_id=instance.id)
 
     def get_question_text(self, instance):
         return getattr(instance, 'text_' + get_language())

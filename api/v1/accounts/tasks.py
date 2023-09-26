@@ -1,13 +1,10 @@
-from datetime import timedelta
-
 from celery import shared_task
-from django.utils.timezone import now
 
-from api.v1.accounts.services import delete_not_confirmed_accounts
 from api.v1.exams.models import CategoryExamStudentResult
-from api.v1.lessons.models import Lesson, LessonStudent, StudentLessonViewStatistics
+from api.v1.lessons.models import Lesson, LessonStudent
 from api.v1.chapters.models import Chapter, ChapterStudent
 from api.v1.questions.models import Category
+from api.v1.accounts.services import delete_not_confirmed_accounts
 
 
 @shared_task
