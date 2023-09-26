@@ -26,14 +26,3 @@ def get_last_frame_number_and_duration(gif_path):
     except Exception as e:
         print(e)
         return 0, 0
-
-
-# Provide the path to your GIF file
-gif_file_path = '/home/oybek/Downloads/d733345e4f11231904e7634a04439e21.gif'
-
-duration = get_last_frame_number_and_duration(gif_file_path)
-
-if duration is not None:
-    print(f"The duration of the GIF is {duration} seconds.")
-else:
-    print("Failed to retrieve GIF duration.")

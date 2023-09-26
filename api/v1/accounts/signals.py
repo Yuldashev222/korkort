@@ -14,9 +14,12 @@ from api.v1.questions.models import StudentSavedQuestion, StudentWrongAnswer, St
 
 @receiver(pre_save, sender=CustomUser)
 def change_fields_pre_save(instance, *args, **kwargs):
-    instance.ball = instance.correct_answers * settings.TEST_BALL
     instance.first_name, instance.last_name = normalize_text(instance.first_name, instance.last_name)
-    instance.bonus_money = round(instance.bonus_money, 1)
+
+    if not instance.is_staff:
+        instance.ball = instance.correct_answers * settings.TEST_BALL
+        instance.bonus_money = round(instance.bonus_money, 1)
+
     if not instance.pk:
         if instance.is_staff:
             instance.user_code = instance.email

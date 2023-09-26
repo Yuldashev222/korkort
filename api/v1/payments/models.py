@@ -43,11 +43,7 @@ class Order(models.Model):
     called_student_bonus_added = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['-id']
-
-    @classmethod
-    def expire_orders(cls):
-        return cls.objects.filter(created_at__lt=now() - timedelta(days=1), is_paid=False)
+        ordering = ['-created_at']
 
     @property
     def generate_unique_order_id(self):

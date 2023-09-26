@@ -1,14 +1,9 @@
 from celery import shared_task
 from django.db.models import Max
-from django.utils.timezone import now
 
 from api.v1.accounts.models import CustomUser
 from api.v1.payments.models import Order
-
-
-@shared_task
-def delete_expire_orders():
-    Order.expire_orders().delete()
+from api.v1.payments.services import delete_expire_orders
 
 
 @shared_task
@@ -20,3 +15,5 @@ def change_student_tariff_expire_date(student_id):
     if max_expire_at:
         student.tariff_expire_date = max_expire_at
         student.save()
+
+    delete_expire_orders()
