@@ -23,11 +23,4 @@ def create_objects_for_student(student_id):
     objs = [CategoryExamStudentResult(category=category, student_id=student_id) for category in Category.objects.all()]
     CategoryExamStudentResult.objects.bulk_create(objs)
 
-    today_data = now().date()
-    objs = [
-        StudentLessonViewStatistics(student_id=student_id, viewed_date=today_data - timedelta(days=i))
-        for i in [0, 1, 2, 3, 4, 5, 6]
-    ]
-    StudentLessonViewStatistics.objects.bulk_create(objs)
-
     delete_not_confirmed_accounts()

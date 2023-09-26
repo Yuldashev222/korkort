@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from django.db.models import Count
+from django.utils.timezone import now
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -43,15 +46,29 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
     serializer_class = StudentLessonViewStatisticsSerializer
 
     def get_queryset(self):
-        student = self.request.user
         return StudentLessonViewStatistics.objects.filter(
-            student=student).values('viewed_date').annotate(cnt=Count('lesson')).order_by('-viewed_date')[:7]
+            student=self.request.user).values('viewed_date').annotate(cnt=Count('lesson')).order_by('-viewed_date')[:7]
 
     def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_queryset(), many=True)
-        data = serializer.data
-        data.reverse()
-        return Response(data)
+        today_date = now().date()
+        response = []
+        queryset = self.get_queryset()
+
+        for i in range(7):
+            try:
+                obj = queryset[i]
+            except IndexError:
+                obj = {'viewed_date': today_date, 'cnt': 0}
+
+            if obj['viewed_date'] != today_date:
+                response.append({'count': 0, 'weekday': today_date.weekday()})
+            else:
+                response.append({'count': obj['cnt'], 'weekday': obj['viewed_date'].weekday()})
+
+            today_date = today_date - timedelta(days=1)
+
+        response.reverse()
+        return Response(response)
 
 
 class LessonQuestionAPIView(GenericAPIView):
