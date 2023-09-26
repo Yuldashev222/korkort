@@ -51,24 +51,26 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         today_date = now().date()
-        response = []
-        queryset = self.get_queryset()
+        data = list(self.get_queryset())
 
         for i in range(7):
+            new_obj = {'weekday': today_date.weekday(), 'count': 0}
             try:
-                obj = queryset[i]
+                obj = data[i]
             except IndexError:
-                obj = {'viewed_date': today_date, 'cnt': 0}
+                data.insert(i, new_obj)
+                continue
 
             if obj['viewed_date'] != today_date:
-                response.append({'count': 0, 'weekday': today_date.weekday()})
+                data.insert(i, new_obj)
             else:
-                response.append({'count': obj['cnt'], 'weekday': obj['viewed_date'].weekday()})
+                new_obj['count'] = obj['cnt']
+                data[i] = new_obj
 
             today_date = today_date - timedelta(days=1)
 
-        response.reverse()
-        return Response(response)
+        data.reverse()
+        return Response(data)
 
 
 class LessonQuestionAPIView(GenericAPIView):
