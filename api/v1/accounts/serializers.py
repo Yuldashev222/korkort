@@ -19,6 +19,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['level_percent'] = int(ret['correct_answers'] / self.gt_correct_count * 100)
+        ret['level_id'] = settings.LEVEL_NAMES[get_language()].index(ret['level'])
         return ret
 
     def get_level(self, instance):
