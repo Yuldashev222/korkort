@@ -46,5 +46,6 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
                         'password': {'write_only': True, 'style': {'input_type': 'password'}}}
 
     def update(self, instance, validated_data):
-        validated_data['password'] = make_password(validated_data['password'])
+        if validated_data.get('password'):
+            validated_data['password'] = make_password(validated_data['password'])
         return super().update(instance, validated_data)
