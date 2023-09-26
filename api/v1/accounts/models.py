@@ -50,9 +50,9 @@ class CustomUser(AbstractUser):
             return settings.LEVEL_NAMES[language][0], settings.LEVEL_CORRECT_COUNTS[1]
 
         for idx, cnt in enumerate(settings.LEVEL_CORRECT_COUNTS):
-            if correct_answers > cnt:
-                return settings.LEVEL_NAMES[language][idx - 1], settings.LEVEL_CORRECT_COUNTS[idx + 1]
-        return settings.LEVEL_NAMES[language][-1], settings.LEVEL_CORRECT_COUNTS[-1]
+            if correct_answers < cnt:
+                return settings.LEVEL_NAMES[language][idx - 1], settings.LEVEL_CORRECT_COUNTS[idx]
+        return settings.LEVEL_NAMES[language][-1], correct_answers
 
     def __str__(self):
         return self.get_full_name()[:30]
