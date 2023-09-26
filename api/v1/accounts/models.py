@@ -1,5 +1,7 @@
 import string
 import secrets
+
+from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -28,7 +30,6 @@ class CustomUser(AbstractUser):
     is_verified = models.BooleanField(default=False)
 
     level = models.PositiveSmallIntegerField(default=0)
-    level_image_id = models.PositiveSmallIntegerField(default=0)
     auth_provider = models.CharField(max_length=100, default='-')
 
     ball = models.PositiveBigIntegerField(default=0)
@@ -42,6 +43,16 @@ class CustomUser(AbstractUser):
         verbose_name = 'Student'
         verbose_name_plural = 'Students'
         ordering = ['-date_joined']
+
+    def get_level_and_gt_correct_count(self, language='en'):
+        correct_answers = self.correct_answers
+        if correct_answers <= settings.LEVEL_CORRECT_COUNTS[0]:
+            return settings.LEVEL_NAMES[language][0], settings.LEVEL_CORRECT_COUNTS[1]
+
+        for idx, cnt in enumerate(settings.LEVEL_CORRECT_COUNTS):
+            if correct_answers > cnt:
+                return settings.LEVEL_NAMES[language][idx - 1], settings.LEVEL_CORRECT_COUNTS[idx + 1]
+        return settings.LEVEL_NAMES[language][-1], settings.LEVEL_CORRECT_COUNTS[-1]
 
     def __str__(self):
         return self.get_full_name()[:30]

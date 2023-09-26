@@ -211,7 +211,8 @@ MAX_QUESTIONS = 65
 MAX_WRONG_QUESTIONS = 20
 MIN_QUESTIONS = 5
 CUSTOM_LANGUAGES = ['swe', 'en', 'e_swe']
-LEVELS = {
+LEVEL_CORRECT_COUNTS = [0, 50, 150, 300, 500, 750, 1150, 1650, 2350, 3200]
+LEVEL_NAMES = {
     'en': [
         'Nyckelknippe',
         'Startmotorn',

@@ -21,7 +21,6 @@ class CustomUserAdmin(admin.ModelAdmin):
         'is_verified',
         'bonus_money',
         'level',
-        'level_image_id',
         'ball',
         'correct_answers',
         'completed_lessons',
@@ -29,7 +28,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         'avatar_id'
     ]
     readonly_fields = [
-        'email', 'date_joined', 'avatar_id', 'user_code', 'bonus_money', 'level', 'level_image_id', 'ball',
+        'email', 'date_joined', 'avatar_id', 'user_code', 'bonus_money', 'level', 'ball',
         'completed_lessons', 'correct_answers', 'last_exams_result', 'tariff_expire_date',
     ]
     search_help_text = 'email, first_name, last_name'
