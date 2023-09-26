@@ -46,31 +46,27 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
     serializer_class = StudentLessonViewStatisticsSerializer
 
     def get_queryset(self):
-        return StudentLessonViewStatistics.objects.filter(
-            student=self.request.user).values('viewed_date').annotate(cnt=Count('lesson')).order_by('-viewed_date')[:7]
+        return StudentLessonViewStatistics.objects.filter(student=self.request.user).values(
+            'viewed_date').annotate(count=Count('lesson')).order_by('-viewed_date')[:7]
 
     def get(self, request, *args, **kwargs):
         today_date = now().date()
-        data = list(self.get_queryset())
+        data1 = list(self.get_queryset())
+        data2 = list(map(lambda el: el['viewed_date'], data1))
+        response = []
 
         for i in range(7):
-            new_obj = {'weekday': today_date.weekday(), 'count': 0}
-            try:
-                obj = data[i]
-            except IndexError:
-                data.insert(i, new_obj)
-                continue
+            obj = today_date
 
-            if obj['viewed_date'] != today_date:
-                data.insert(i, new_obj)
+            if obj in data2:
+                obj = data1[data2.index(obj)]
+                response.append({'weekday': obj['viewed_date'].weekday(), 'count': obj['count']})
             else:
-                new_obj['count'] = obj['cnt']
-                data[i] = new_obj
-
+                response.append({'weekday': obj.weekday(), 'count': 0})
             today_date = today_date - timedelta(days=1)
 
-        data.reverse()
-        return Response(data)
+        response.reverse()
+        return Response(response)
 
 
 class LessonQuestionAPIView(GenericAPIView):
