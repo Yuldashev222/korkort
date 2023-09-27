@@ -8,7 +8,6 @@ from api.v1.questions.models import Question
 class CategoryExamStudentResult(models.Model):
     category = models.ForeignKey('questions.Category', on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
-    percent = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         verbose_name = 'Category Exam'

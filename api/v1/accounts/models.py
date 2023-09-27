@@ -35,7 +35,6 @@ class CustomUser(AbstractUser):
     ball = models.PositiveBigIntegerField(default=0)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
-    last_exams_result = models.PositiveSmallIntegerField(default=0)
 
     tariff_expire_date = models.DateTimeField(default=now)
 

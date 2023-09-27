@@ -11,6 +11,7 @@ from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 class ProfileSerializer(serializers.ModelSerializer):
     gt_correct_count = 0
+    last_exams_result = 0
     all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
     all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())
     level = serializers.SerializerMethodField()
@@ -20,6 +21,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         ret['level_percent'] = int(ret['correct_answers'] / self.gt_correct_count * 100)
         ret['level_id'] = settings.LEVEL_NAMES[get_language()].index(ret['level'])
+        ret['last_exams_result'] = self.last_exams_result
         return ret
 
     def get_level(self, instance):
@@ -34,6 +36,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             obj = {'questions': 0, 'percent': 0}
             data.extend([obj] * (10 - len_data))
         data.reverse()
+        temp = list(map(lambda el: el['percent'], data))
+        self.last_exams_result = int(sum(temp) / len(temp))
         return data
 
     class Meta:
@@ -41,7 +45,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = [
             'first_name', 'last_name', 'email', 'avatar_id', 'user_code', 'bonus_money', 'ball',
             'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers',
-            'last_exams_result', 'level', 'tariff_expire_date', 'last_exams'
+            'level', 'tariff_expire_date', 'last_exams'
         ]
 
 
