@@ -1,5 +1,6 @@
 import os
 
+import requests
 from moviepy.editor import VideoFileClip
 
 
@@ -28,3 +29,4 @@ def delete_object_file_pre_save(model_class, instance, field_name):
     instance_file = getattr(instance, field_name)
     if instance_file and instance_file != old_file and os.path.isfile(old_file.path):
         os.remove(old_file.path)
+

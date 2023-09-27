@@ -12,8 +12,7 @@ class ChapterStudentSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     desc = serializers.SerializerMethodField()
     # image = serializers.ImageField(source='chapter.image', max_length=300)
-    image = serializers.URLField(
-        default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
+    image = serializers.URLField(default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     lessons = serializers.IntegerField(source='chapter.lessons')
     chapter_hour = serializers.IntegerField(source='chapter.chapter_hour')
     chapter_minute = serializers.IntegerField(source='chapter.chapter_minute')

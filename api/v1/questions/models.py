@@ -1,3 +1,6 @@
+import random
+
+import requests
 from django.db import models, OperationalError
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
@@ -5,6 +8,7 @@ from django.core.validators import MinValueValidator, FileExtensionValidator
 from api.v1.general.services import normalize_text
 from api.v1.questions.services import (category_image_location, question_image_location, question_gif_location,
                                        get_last_frame_number_and_duration)
+from api.v1.questions.tests import gifs
 
 
 class Category(models.Model):
@@ -39,6 +43,9 @@ class Question(models.Model):
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
     gif_duration = models.FloatField(default=0)
     image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
+
+    def get_random_gif(self):
+        return random.choice(gifs)
 
     @classmethod
     def is_correct_question_id(cls, question_id, question_ids=None):

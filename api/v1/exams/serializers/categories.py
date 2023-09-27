@@ -20,7 +20,7 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
     percent = 0
     # image = serializers.SerializerMethodField()
     image = serializers.URLField(
-        default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
+        default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     name = serializers.SerializerMethodField()
     detail = serializers.SerializerMethodField()
 
