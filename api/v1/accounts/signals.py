@@ -9,7 +9,7 @@ from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import ChapterStudent
 from api.v1.general.services import normalize_text
-from api.v1.questions.models import StudentSavedQuestion, StudentWrongAnswer, StudentCorrectAnswer, Question
+from api.v1.questions.models import StudentSavedQuestion, StudentWrongAnswer, StudentCorrectAnswer
 
 
 @receiver(pre_save, sender=CustomUser)

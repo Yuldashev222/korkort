@@ -1,12 +1,12 @@
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
 from api.v1.general.utils import get_language
-from api.v1.questions.tasks import update_student_wrong_answers
-from api.v1.questions.models import Question, StudentSavedQuestion, Category
+from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
+from api.v1.questions.models import Question, Category
 from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 
 
@@ -87,6 +87,9 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
 
         exam.correct_answers = exam.questions - wrong_answers_cnt
         exam.save()
+
+        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_ids,
+                                       correct_question_ids=correct_question_ids)
         update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                            correct_question_ids=correct_question_ids)
 
@@ -126,6 +129,8 @@ class CategoryMixExamAnswerSerializer(CategoryExamAnswerSerializer):
         StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=all_questions_cnt,
                                              student=student)
 
+        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_ids,
+                                       correct_question_ids=correct_question_ids)
         update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                            correct_question_ids=correct_question_ids)
 

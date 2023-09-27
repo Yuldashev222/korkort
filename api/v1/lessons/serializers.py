@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import get_language
 from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent
-from api.v1.questions.tasks import update_student_wrong_answers
+from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
@@ -142,6 +142,8 @@ class LessonAnswerSerializer(serializers.Serializer):
         lesson_student.ball = (lesson_all_questions_cnt - wrong_answers_cnt) * test_ball
         lesson_student.save()
 
+        update_student_correct_answers(student=student, correct_question_ids=correct_question_ids,
+                                       wrong_question_ids=question_ids)
         update_student_wrong_answers.delay(correct_question_ids=correct_question_ids, wrong_question_ids=question_ids,
                                            lesson_id=lesson.id, student_id=student.id)
 

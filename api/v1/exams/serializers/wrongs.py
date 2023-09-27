@@ -2,13 +2,12 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from api.v1.accounts.services import update_student_correct_answers
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import get_language
-from api.v1.questions.models import Question, StudentWrongAnswer, StudentCorrectAnswer
+from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
+from api.v1.questions.models import Question
 from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
 from api.v1.questions.serializers.variants import VariantSerializer
-from api.v1.questions.tasks import update_student_wrong_answers
 
 
 class WrongQuestionsExamSerializer(serializers.Serializer):
@@ -60,6 +59,9 @@ class WrongQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):
         wrong_answers_cnt = question_counts - len(correct_question_ids)
         StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=question_counts,
                                              student=student)
+
+        update_student_correct_answers(student=student, correct_question_ids=correct_question_ids,
+                                       wrong_question_ids=[])
 
         update_student_wrong_answers.delay(student_id=student.id, correct_question_ids=correct_question_ids,
                                            wrong_question_ids=[])

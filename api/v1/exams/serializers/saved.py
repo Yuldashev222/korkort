@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import StudentLastExamResult
-from api.v1.questions.tasks import update_student_wrong_answers
+from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question
 from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
@@ -43,6 +43,8 @@ class SavedQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):
         StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=all_questions_cnt,
                                              student=student)
 
+        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_ids,
+                                       correct_question_ids=correct_question_ids)
         update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
                                            correct_question_ids=correct_question_ids)
 

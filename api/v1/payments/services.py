@@ -1,7 +1,5 @@
 from datetime import timedelta
-
 from django.utils.timezone import now
-
 from api.v1.payments.models import Order
 
 
