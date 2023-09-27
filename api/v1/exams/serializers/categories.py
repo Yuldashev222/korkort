@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
 from api.v1.general.utils import get_language
-from api.v1.questions.tasks import update_student_wrong_answers_in_exam
+from api.v1.questions.tasks import update_student_wrong_answers
 from api.v1.questions.models import Question, StudentSavedQuestion, Category
 from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 
@@ -87,8 +87,8 @@ class CategoryExamAnswerSerializer(serializers.Serializer):
 
         exam.correct_answers = exam.questions - wrong_answers_cnt
         exam.save()
-        update_student_wrong_answers_in_exam.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
-                                                   correct_question_ids=correct_question_ids)
+        update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
+                                           correct_question_ids=correct_question_ids)
 
         return data
 
@@ -126,8 +126,8 @@ class CategoryMixExamAnswerSerializer(CategoryExamAnswerSerializer):
         StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=all_questions_cnt,
                                              student=student)
 
-        update_student_wrong_answers_in_exam.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
-                                                   correct_question_ids=correct_question_ids)
+        update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
+                                           correct_question_ids=correct_question_ids)
 
         return data
 

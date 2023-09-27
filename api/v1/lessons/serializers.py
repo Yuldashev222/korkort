@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import get_language
 from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent
-from api.v1.questions.tasks import update_student_wrong_answers_in_lesson_exam
+from api.v1.questions.tasks import update_student_wrong_answers
 from api.v1.questions.models import Question
 from api.v1.questions.serializers.questions import QuestionSerializer, QuestionAnswerSerializer
 
@@ -84,7 +84,8 @@ class LessonRetrieveSerializer(LessonListSerializer):
         default='http://91.226.221.227/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     text = serializers.SerializerMethodField()
     # video = serializers.SerializerMethodField()
-    video = serializers.URLField(default='https://offentligabeslut.se/wp-content/uploads/2023/06/Kopia-av-Namnlos-design-1.mp4')
+    video = serializers.URLField(
+        default='https://offentligabeslut.se/wp-content/uploads/2023/06/Kopia-av-Namnlos-design-1.mp4')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
@@ -141,8 +142,7 @@ class LessonAnswerSerializer(serializers.Serializer):
         lesson_student.ball = (lesson_all_questions_cnt - wrong_answers_cnt) * test_ball
         lesson_student.save()
 
-        update_student_wrong_answers_in_lesson_exam.delay(correct_question_ids=correct_question_ids,
-                                                          wrong_question_ids=question_ids,
-                                                          lesson_id=lesson.id, student_id=student.id)
+        update_student_wrong_answers.delay(correct_question_ids=correct_question_ids, wrong_question_ids=question_ids,
+                                           lesson_id=lesson.id, student_id=student.id)
 
         return data

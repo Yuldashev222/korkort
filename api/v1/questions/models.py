@@ -1,5 +1,3 @@
-from random import randint
-
 from django.db import models, OperationalError
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
