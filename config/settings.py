@@ -199,9 +199,10 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
 STRIPE_CHECKOUT_TIMEOUT = 30 * 60  # in second
 STRIPE_CHECKOUT_CURRENCY = 'SEK'
 
-SITE_URL = 'http://127.0.0.1:8000'  # frontend domain
+FRONT_DOMAIN = os.environ.get('FRONT_DOMAIN', f'https://{ALLOWED_HOSTS[0]}')  # frontend domain  # last
 
-WEB_FORGOT_PASSWORD_URL = 'http://localhost:8000/api/v1/auth/password-reset/confirm/link/?uid={}&token={}'
+WEB_FORGOT_PASSWORD_URL = '/api/v1/auth/password-reset/confirm/link/?uid={}&token={}'  # last
+WEB_FORGOT_PASSWORD_URL = FRONT_DOMAIN + WEB_FORGOT_PASSWORD_URL
 
 SUCCESS_PAYMENT_URL = 'https://google.com'
 FAILURE_PAYMENT_URL = 'https://youtube.com'

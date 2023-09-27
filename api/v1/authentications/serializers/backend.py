@@ -18,8 +18,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'email', 'password']
         extra_kwargs = {'first_name': {'min_length': 3},
                         'last_name': {'min_length': 3},
-                        'password': {'write_only': True, 'style': {'input_type': 'password'}}
-                        }
+                        'password': {'write_only': True,
+                                     'trim_whitespace': False,
+                                     'style': {'input_type': 'password'}}}
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)

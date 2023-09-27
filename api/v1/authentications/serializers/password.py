@@ -47,35 +47,29 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True,
                                          style={'input_type': 'password'},
                                          trim_whitespace=False,
-                                         validators=[validate_password],
-                                         allow_null=True)
+                                         validators=[validate_password])
 
     def validate(self, attrs):
-        uid = attrs.get('uid')
-        token = attrs.get('token')
-        new_password = attrs.get('new_password')
+        uid = attrs['uid']
+        token = attrs['token']
+        new_password = attrs['new_password']
 
         try:
             uid = force_str(urlsafe_base64_decode(uid))
-            self.user = CustomUser.objects.get(pk=uid)
+            user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, AttributeError, CustomUser.DoesNotExist):
             raise ValidationError('Invalid password reset link')
 
-        if not new_password:
-            raise ValidationError({'new_password': 'This field is required.'})
-
-        form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
+        form = SetPasswordForm(user=user, data={'new_password1': new_password, 'new_password2': new_password})
         if not form.is_valid():
             raise ValidationError(form.errors)
 
-        if not default_token_generator.check_token(self.user, token):
+        if not default_token_generator.check_token(user, token):  # last time 10 minute
             raise ValidationError('Invalid password reset link')
 
+        user.set_password(new_password)
+        user.save()
         return attrs
-
-    def save(self):
-        self.user.set_password(self.validated_data['new_password'])
-        self.user.save()
 
 
 class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
@@ -93,20 +87,19 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
             raise ValidationError({'new_password': 'This field is required.'})
 
         try:
-            self.user = CustomUser.objects.get(email=email)
+            user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
             raise ValidationError({'email': 'not found'})
 
         if cache.get(f'{email}_reset_password') != code:
             raise ValidationError({'code': 'not valid or expired'})
 
-        form = SetPasswordForm(user=self.user, data={'new_password1': new_password, 'new_password2': new_password})
+        form = SetPasswordForm(user=user, data={'new_password1': new_password, 'new_password2': new_password})
         if not form.is_valid():
             raise ValidationError(form.errors)
 
+        user.set_password(new_password)
+        user.save()
+        if cache.get(f'{user.email}_reset_password'):
+            cache.delete(f'{user.email}_reset_password')
         return attrs
-
-    def save(self):
-        self.user.set_password(self.validated_data['new_password'])
-        self.user.save()
-        cache.delete(f'{self.user.email}_reset_password')
