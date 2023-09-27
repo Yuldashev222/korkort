@@ -57,17 +57,17 @@ class QuestionCategoryAdmin(admin.ModelAdmin):
         return '-'
 
 
-@admin.register(StudentWrongAnswer)
-class StudentWrongAnswerAdmin(admin.ModelAdmin):
-    list_display = ['student', 'question']
-    list_display_links = list_display
-    list_filter = list_display
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+# @admin.register(StudentWrongAnswer)
+# class StudentWrongAnswerAdmin(admin.ModelAdmin):
+#     list_display = ['student', 'question']
+#     list_display_links = list_display
+#     list_filter = list_display
+#
+#     def has_change_permission(self, request, obj=None):
+#         return False
+#
+#     def has_add_permission(self, request, obj=None):
+#         return False
+#
+#     def has_delete_permission(self, request, obj=None):
+#         return False

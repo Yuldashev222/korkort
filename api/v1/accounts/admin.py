@@ -23,7 +23,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         'level',
         'ball',
         'correct_answers',
-        'completed_lessons'
+        'completed_lessons',
         'avatar_id'
     ]
     readonly_fields = [

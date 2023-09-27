@@ -21,10 +21,9 @@ class Category(models.Model):
 
 
 class Question(models.Model):
-    DIFFICULTY_LEVEL = [
-        [1, 'easy'], [2, 'normal'], [3, 'hard']
-    ]
-    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, blank=True, null=True)
+    DIFFICULTY_LEVEL = [[1, 'easy'], [2, 'normal'], [3, 'hard']]
+
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, blank=True, null=True)  # last
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])

@@ -39,6 +39,6 @@ def add_chapter_to_all_students(instance, created, *args, **kwargs):
 def update_student_completed_lessons(instance, *args, **kwargs):
     if instance.student and instance.chapter:
         completed_lessons = ChapterStudent.objects.filter(student=instance.student
-                                                          ).aggregate(cnt=Sum('completed_lessons'))['cnt']
+                                                          ).aggregate(amount=Sum('completed_lessons'))['amount']
         instance.student.completed_lessons = completed_lessons if completed_lessons else 0
         instance.student.save()

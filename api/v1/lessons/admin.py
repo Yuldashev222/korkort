@@ -43,24 +43,24 @@ class LessonAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(LessonStudent)
-class LessonStudentAdmin(admin.ModelAdmin):
-    list_display = ['lesson', 'student', 'is_completed', 'ball']
-    list_display_links = ['lesson', 'student']
-    list_filter = ['lesson', 'student', 'is_completed']
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def get_queryset(self, request):
-        return LessonStudent.objects.select_related('student', 'lesson')
-
+# @admin.register(LessonStudent)
+# class LessonStudentAdmin(admin.ModelAdmin):
+#     list_display = ['lesson', 'student', 'is_completed', 'ball']
+#     list_display_links = ['lesson', 'student']
+#     list_filter = ['lesson', 'student', 'is_completed']
+#
+#     def has_change_permission(self, request, obj=None):
+#         return False
+#
+#     def has_add_permission(self, request, obj=None):
+#         return False
+#
+#     def has_delete_permission(self, request, obj=None):
+#         return False
+#
+#     def get_queryset(self, request):
+#         return LessonStudent.objects.select_related('student', 'lesson')
+#
 
 @admin.register(LessonWordInfo)
 class LessonWordInfoAdmin(admin.ModelAdmin):

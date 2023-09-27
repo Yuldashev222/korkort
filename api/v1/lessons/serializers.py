@@ -129,17 +129,15 @@ class LessonAnswerSerializer(serializers.Serializer):
             if not Question.is_correct_question_id(question_id=pk):
                 raise ValidationError({'pk': 'not found'})
 
-        test_ball = settings.TEST_BALL
-
         wrong_answers_cnt = len(question_ids)
-        correct_question_ids = list(lesson.question_set.exclude(id__in=question_ids).values_list('pk', flat=True))
+        correct_question_ids = list(lesson.question_set.exclude(id__in=question_ids).values_list('pk', flat=True))  # last
         lesson_all_questions_cnt = wrong_answers_cnt + len(correct_question_ids)
         StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=lesson_all_questions_cnt,
                                              student=student)
         if wrong_answers_cnt == 0:
             lesson_student.is_completed = True
 
-        lesson_student.ball = (lesson_all_questions_cnt - wrong_answers_cnt) * test_ball
+        lesson_student.ball = (lesson_all_questions_cnt - wrong_answers_cnt) * settings.TEST_BALL
         lesson_student.save()
 
         update_student_correct_answers(student=student, correct_question_ids=correct_question_ids,
