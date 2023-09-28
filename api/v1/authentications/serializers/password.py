@@ -47,7 +47,8 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True,
                                          style={'input_type': 'password'},
                                          trim_whitespace=False,
-                                         validators=[validate_password])
+                                         validators=[validate_password],
+                                         allow_null=True)
 
     def validate(self, attrs):
         uid = attrs['uid']
