@@ -84,9 +84,6 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
         new_password = attrs.get('new_password')
         email = attrs['email']
 
-        if not new_password:
-            raise ValidationError({'new_password': 'This field is required.'})
-
         try:
             user = CustomUser.objects.get(email=email)
         except CustomUser.DoesNotExist:
@@ -95,12 +92,13 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
         if cache.get(f'{email}_reset_password') != code:
             raise ValidationError({'code': 'not valid or expired'})
 
-        form = SetPasswordForm(user=user, data={'new_password1': new_password, 'new_password2': new_password})
-        if not form.is_valid():
-            raise ValidationError(form.errors)
+        if new_password:
+            form = SetPasswordForm(user=user, data={'new_password1': new_password, 'new_password2': new_password})
+            if not form.is_valid():
+                raise ValidationError(form.errors)
 
-        user.set_password(new_password)
-        user.save()
-        if cache.get(f'{user.email}_reset_password'):
-            cache.delete(f'{user.email}_reset_password')
+            user.set_password(new_password)
+            user.save()
+            if cache.get(f'{user.email}_reset_password'):
+                cache.delete(f'{user.email}_reset_password')
         return attrs
