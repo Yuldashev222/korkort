@@ -4,17 +4,16 @@ from rest_framework.response import Response
 
 from .models import Tariff
 from .serializers import TariffSerializer
-from api.v1.accounts.permissions import IsStudent
 from api.v1.discounts.models import StudentDiscount, TariffDiscount
+from api.v1.accounts.permissions import IsStudent
 
 
 class TariffAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = TariffSerializer
-    queryset = Tariff.objects.filter(is_active=True)
 
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = Tariff.get_tariffs()
         serializer = self.get_serializer(queryset, many=True)
         student = self.request.user
 

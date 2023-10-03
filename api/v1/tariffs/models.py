@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -29,3 +30,19 @@ class Tariff(models.Model):
 
     def __str__(self):
         return f'Tariff: {self.days} days'
+
+    @classmethod
+    def get_tariffs(cls):
+        tariffs = cache.get('tariffs')
+        if not tariffs:
+            cls.set_redis()
+            tariffs = cache.get('tariffs')
+        return tariffs
+
+    @classmethod
+    def set_redis(cls):
+        tariffs = cls.objects.all()
+        if tariffs:
+            cache.set('tariffs', tariffs, 60 * 60 * 24 * 30)
+        elif cache.get('tariffs'):
+            cache.delete('tariffs')

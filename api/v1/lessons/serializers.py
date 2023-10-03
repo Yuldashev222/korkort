@@ -85,7 +85,7 @@ class LessonRetrieveSerializer(LessonListSerializer):
     text = serializers.SerializerMethodField()
     # video = serializers.SerializerMethodField()
     video = serializers.URLField(
-        default='https://files.testfile.org/Video%20MP4%2FBike%20-%20testfile.org.mp4')
+        default='https://api.lattmedkorkort.se/media/chapters/1%3A_26d7f4b6-6923-4612-9719-73a/lessons/1%3A%20193fe385-404e-4dff-a59b-7e5/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751.mp4')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
