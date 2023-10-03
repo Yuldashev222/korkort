@@ -129,8 +129,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = 'media/'
 LOGIN_REDIRECT_URL = '/api/v1/accounts/profile'
 
-# STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'static'
+#STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

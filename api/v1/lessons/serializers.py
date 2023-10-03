@@ -85,7 +85,7 @@ class LessonRetrieveSerializer(LessonListSerializer):
     text = serializers.SerializerMethodField()
     # video = serializers.SerializerMethodField()
     video = serializers.URLField(
-        default='https://offentligabeslut.se/wp-content/uploads/2023/06/Kopia-av-Namnlos-design-1.mp4')
+        default='https://files.testfile.org/Video%20MP4%2FBike%20-%20testfile.org.mp4')
     word_infos = LessonWordInfoSerializer(source='lesson.lessonwordinfo_set', many=True)
     sources = LessonSourceSerializer(source='lesson.lessonsource_set', many=True)
     lessons = serializers.SerializerMethodField()
