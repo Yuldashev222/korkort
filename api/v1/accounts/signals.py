@@ -17,7 +17,6 @@ def change_fields_pre_save(instance, *args, **kwargs):
     instance.first_name, instance.last_name = normalize_text(instance.first_name, instance.last_name)
 
     if not instance.is_staff:
-        instance.ball = instance.correct_answers * settings.TEST_BALL
         instance.bonus_money = round(instance.bonus_money, 1)
 
     if not instance.pk:

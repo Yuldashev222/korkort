@@ -32,7 +32,6 @@ class CustomUser(AbstractUser):
     level = models.PositiveSmallIntegerField(default=0)
     auth_provider = models.CharField(max_length=100, default='-')
 
-    ball = models.PositiveBigIntegerField(default=0)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)
 

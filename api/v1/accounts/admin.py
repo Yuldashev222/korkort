@@ -6,7 +6,7 @@ from .models import CustomUser
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = [
-        'email', 'first_name', 'last_name', 'tariff_expire_date', 'date_joined', 'bonus_money', 'level', 'ball'
+        'email', 'first_name', 'last_name', 'tariff_expire_date', 'date_joined', 'bonus_money', 'level'
     ]
     list_display_links = ['email', 'first_name', 'last_name']
     search_fields = ['email', 'first_name', 'last_name']
@@ -21,13 +21,12 @@ class CustomUserAdmin(admin.ModelAdmin):
         'is_verified',
         'bonus_money',
         'level',
-        'ball',
         'correct_answers',
         'completed_lessons',
         'avatar_id'
     ]
     readonly_fields = [
-        'email', 'date_joined', 'avatar_id', 'user_code', 'bonus_money', 'level', 'ball',
+        'email', 'date_joined', 'avatar_id', 'user_code', 'bonus_money', 'level',
         'completed_lessons', 'correct_answers', 'tariff_expire_date',
     ]
     search_help_text = 'email, first_name, last_name'
