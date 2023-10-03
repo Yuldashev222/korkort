@@ -22,7 +22,7 @@ def get_last_frame_number_and_duration(gif_path):
             duration = 0
             for frame in ImageSequence.Iterator(img):
                 duration += frame.info.get("duration", 0)
-            return img.n_frames - 1, duration
+            return img.n_frames - 1, int(duration)
     except Exception as e:
         print(e)
         return 0, 0

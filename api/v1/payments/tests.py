@@ -1,41 +1,108 @@
-from datetime import timedelta
+meta = {
+    'HTTP_STRIPE_SIGNATURE': 't=1695884435'
+                             ','
+                             'v1=a8461dda9a801f850a61005a6fd5caa4848a0a5c24821dc4e5dfee912ff07547'
+                             ','
+                             'v0=7b2e58c7e7ad14bfe28b7fa7b951d513bb026b857641ffe2d789e6395980826b'
+}
 
-from celery import shared_task
-from django.conf import settings
-from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.template.loader import render_to_string
-from django.utils.timezone import now
+meta2 = {
+    "id": "evt_3NvEc7Bncc8lzGmq3bTYyvM0",
+    "object": "event",
+    "api_version": "2022-11-15",
+    "data": {
+        "object": {
+            "id": "ch_3NvEc7Bncc8lzGmq3WrRHLi0",
+            "object": "charge",
+            "amount": 10000,
+            "amount_captured": 10000,
+            "amount_refunded": 0,
+            "application": "null",
+            "application_fee": "null",
+            "application_fee_amount": "null",
+            "balance_transaction": "txn_3NvEc7Bncc8lzGmq38T0Q0Mq",
+            "billing_details": {
+                "address": {
+                    "city": "null",
+                    "country": "UZ",
+                    "line1": "null",
+                    "line2": "null",
+                    "postal_code": "null",
+                    "state": "null"},
+                "email": "oybekyuldashov54@gmail.com",
+                "name": "4564654",
+                "phone": "null"},
+            "calculated_statement_descriptor": "ASD ASD ASD ASD",
+            "captured": "true",
+            "created": 1695885984,
+            "currency": "sek",
+            "customer": "null",
+            "description": "null",
+            "destination": "null",
+            "dispute": "null",
+            "disputed": "false",
+            "failure_balance_transaction": "null",
+            "failure_code": "null",
+            "failure_message": "null",
+            "fraud_details": {},
+            "invoice": "null",
+            "livemode": "false",
+            "metadata": {},
+            "on_behalf_of": "null",
+            "order": "null",
+            "outcome": {
+                "network_status": "approved_by_network",
+                "reason": "null",
+                "risk_level": "normal",
+                "risk_score": 60,
+                "seller_message": "Payment complete.",
+                "type": "authorized"},
+            "paid": "true",
+            "payment_intent": "pi_3NvEc7Bncc8lzGmq3spMJH8Z",
+            "payment_method": "pm_1NvEc7Bncc8lzGmqSMJT2nMe",
+            "payment_method_details": {
+                "card": {
+                    "amount_authorized": 10000,
+                    "brand": "visa",
+                    "checks": {
+                        "address_line1_check": "null",
+                        "address_postal_code_check": "null",
+                        "cvc_check": "pass"},
+                    "country": "US",
+                    "exp_month": 4,
+                    "exp_year": 2024,
+                    "extended_authorization": {
+                        "status": "disabled"},
+                    "fingerprint": "CaDY0ixdGwh53snc",
+                    "funding": "credit",
+                    "incremental_authorization": {
+                        "status": "unavailable"},
+                    "installments": "null",
+                    "last4": "4242",
+                    "mandate": "null",
+                    "multicapture": {
+                        "status": "unavailable"},
+                    "network": "visa",
+                    "network_token": {
+                        "used": "false"},
+                    "overcapture": {
+                        "maximum_amount_capturable": 10000,
+                        "status": "unavailable"},
+                    "three_d_secure": "null",
+                    "wallet": "null"},
+                "type": "card"},
+            "receipt_email": "null",
+            "receipt_number": "null",
+            "receipt_url": "https://pay.stripe.com/receipts/payment/CAcaFwoVYWNjdF8xTWJVOTdCbmNjOGx6R21xKKHV1KgGMgZz-_ElteY6LBbvc0t9FkpM3wo1EKQON8UwOkFzPRc9P6CHbMqh47kP0g5tdDtbPJ361ck8",
+            "refunded": "false",
+            "review": "null",
+            "shipping": "null",
+            "source": "null",
+            "source_transfer": "null",
+            "statement_descriptor": "null",
+            "statement_descriptor_suffix": "null",
+            "status": "succeeded",
+            "transfer_data": "null",
+            "transfer_group": "null"}},
 
-from .models import CustomUser
-
-
-@shared_task
-def send_confirm_link_email(username, user_id, token, domain, email_address):
-    mail_subject = 'Activate your account'
-    uid = urlsafe_base64_encode(force_bytes(user_id))
-    verify_link = f'http://{domain}/api/v1/auth/email-verify/{uid}/{token}/'
-    message = render_to_string('authentications/verification_email.html', {'user': username, 'link': verify_link})
-    send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email_address], html_message=message)  # last
-
-
-@shared_task
-def delete_not_confirmed_accounts():
-    CustomUser.objects.filter(date_joined__lt=now() - timedelta(minutes=30), is_verified=False).delete()
-
-
-@shared_task
-def send_password_reset_email(user_id, token, domain, email_address, link_type):
-    mail_subject = 'Password Reset'
-    uid = urlsafe_base64_encode(force_bytes(user_id))
-    # reset_link = f'http://{domain}/api/v1/auth/password-reset/confirm?uid={uid}&token={token}'
-    if link_type == 'mobile':
-        reset_link = settings.MOBILE_FORGOT_PASSWORD_URL
-    else:
-        reset_link = settings.DESKTOP_FORGOT_PASSWORD_URL
-    reset_link += f'?uid={uid}&token={token}&reset-password=true'
-    message = render_to_string(
-        'authentications/password_reset_email.html', {'link': reset_link}  # last
-    )
-    send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [email_address], html_message=message)
+}

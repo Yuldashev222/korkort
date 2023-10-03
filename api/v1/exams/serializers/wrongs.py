@@ -1,16 +1,15 @@
 import random
-
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import get_language
+from api.v1.questions.tests import gifs
 from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question
 from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
 from api.v1.questions.serializers.variants import VariantSerializer
-from api.v1.questions.tests import gifs
 
 
 class WrongQuestionsExamSerializer(serializers.Serializer):

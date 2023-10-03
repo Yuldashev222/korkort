@@ -40,16 +40,27 @@ class WrongQuestionsExamAPIView(ListAPIView):
         if my_questions == 'true':
             queryset = queryset.filter(student=self.request.user)
 
-        if difficulty_level in [1, 2, 3]:
+        if difficulty_level:
+            try:
+                difficulty_level = int(difficulty_level)
+            except ValueError:
+                raise ValidationError({'difficulty_level': 'not valid'})
+
+            if difficulty_level not in [1, 2, 3]:
+                raise ValidationError({'difficulty_level': 'not valid'})
+
             queryset = queryset.filter(question__difficulty_level=difficulty_level)
 
         if counts:
             try:
                 counts = int(counts)
-                if counts <= settings.MAX_QUESTIONS:
-                    queryset = queryset[:counts]
-            except (ValueError, TypeError):
+            except ValueError:
                 raise ValidationError({'counts': 'not valid'})
+
+            if counts > settings.MAX_QUESTIONS or counts < settings.MIN_QUESTIONS:
+                raise ValidationError({'counts': 'not valid'})
+
+            queryset = queryset[:counts]
         else:
-            queryset = queryset[:settings.MAX_QUESTIONS]
+            queryset = queryset[:settings.MIN_QUESTIONS]
         return queryset

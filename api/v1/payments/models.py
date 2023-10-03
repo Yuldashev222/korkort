@@ -1,8 +1,6 @@
 import string
 import secrets
-from datetime import timedelta
 from django.db import models
-from django.utils.timezone import now
 
 
 class Order(models.Model):

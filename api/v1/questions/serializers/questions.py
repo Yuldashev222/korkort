@@ -15,7 +15,7 @@ class QuestionSerializer(serializers.Serializer):
     question_text = serializers.SerializerMethodField()
     # question_gif = serializers.FileField(source='gif')
     # question_gif_last_frame_number = serializers.IntegerField(default=1302)
-    # question_gif_duration = serializers.FloatField(default=59220)
+    # question_gif_duration = serializers.IntegerField(default=59220)
     # question_image = serializers.ImageField(source='image')
     question_image = serializers.URLField(
         default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')

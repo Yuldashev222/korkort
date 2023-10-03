@@ -19,7 +19,6 @@ class StripeWebhookView(View):
         payload = request.body
         endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
         sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
-
         try:
             event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
         except ValueError:
@@ -33,7 +32,7 @@ class StripeWebhookView(View):
             session = event.data.object
             if session.mode == 'payment' and session.payment_status == 'paid':
                 try:
-                    order = Order.objects.select_related('student').get(id=session.client_reference_id)
+                    order = Order.objects.select_related('student').get(id=session.client_reference_id, is_paid=False)
                 except Order.DoesNotExist:
                     return HttpResponse(status=400)
                 order.is_paid = True
