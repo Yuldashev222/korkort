@@ -30,7 +30,7 @@ class PasswordResetSerializer(serializers.Serializer):
         attempt = cache.get(email)
         if not attempt:
             cache.set(email, 1, 60 * 60 * 24)
-        elif attempt > 3:
+        elif attempt >= 3:
             raise PermissionDenied()
         else:
             cache.set(email, attempt + 1, 60 * 60 * 24)
