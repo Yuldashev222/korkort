@@ -20,7 +20,7 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def validate_email(self, value):
         try:
-            self.user = CustomUser.objects.get(email=value)
+            self.user = CustomUser.objects.get(email=value, is_verified=True, is_staff=False, is_active=True)
         except CustomUser.DoesNotExist:
             raise ValidationError('User does not exist')
         return value
