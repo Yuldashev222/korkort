@@ -9,7 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from api.v1.accounts.models import CustomUser
 from api.v1.authentications.tasks import send_password_reset_email
@@ -24,6 +24,17 @@ class PasswordResetSerializer(serializers.Serializer):
         except CustomUser.DoesNotExist as e:
             raise ValidationError(str(e))
         return value
+
+    def validate(self, attrs):
+        email = attrs['email']
+        attempt = cache.get(email)
+        if not attempt:
+            cache.set(email, 1, 60 * 60 * 24)
+        elif attempt > 3:
+            raise PermissionDenied()
+        else:
+            cache.set(email, attempt + 1, 60 * 60 * 24)
+        return super().validate(attrs)
 
     def save(self):
         token = default_token_generator.make_token(self.user)
