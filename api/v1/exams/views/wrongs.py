@@ -37,6 +37,7 @@ class WrongQuestionsExamAPIView(ListAPIView):
         my_questions = self.request.query_params.get('my_questions')
         counts = self.request.query_params.get('counts')
         difficulty_level = self.request.query_params.get('difficulty_level')
+
         if my_questions == 'true':
             queryset = queryset.filter(student=self.request.user)
 
