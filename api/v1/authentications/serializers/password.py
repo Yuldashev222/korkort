@@ -24,11 +24,8 @@ class PasswordResetSerializer(serializers.Serializer):
         except CustomUser.DoesNotExist as e:
             raise ValidationError(str(e))
 
-        if not self.user.is_verified:
-            raise ValidationError(['this email is not verified'])
-
-        if not self.user.is_active:
-            raise ValidationError(['this email is not active'])
+        if not self.user.is_verified or not self.user.is_active:
+            raise ValidationError(['this email is not verified or active'])
         return value
 
     def validate(self, attrs):
