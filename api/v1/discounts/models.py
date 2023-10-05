@@ -24,7 +24,8 @@ class DiscountMixin(models.Model):
 
 
 class TariffDiscount(DiscountMixin):
-    image = models.ImageField(upload_to='discounts/images/', max_length=300)
+    image = models.ImageField(upload_to='discounts/images/', max_length=500)
+    name = models.CharField(max_length=50)
 
     @classmethod
     def get_tariff_discount(cls):
@@ -41,6 +42,7 @@ class TariffDiscount(DiscountMixin):
             cache.set('tariff_discount', {'is_percent': obj.is_percent,
                                           'discount_value': obj.discount_value,
                                           'title': obj.title,
+                                          'name': obj.name,
                                           'image_url': obj.image.url},
                       60 * 60 * 24 * 30
                       )

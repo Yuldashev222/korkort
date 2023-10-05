@@ -20,7 +20,7 @@ def send_password_reset_email(user_id, domain, email_address, link_type, token=N
     mail_subject = 'Password Reset'
     link = None
     if token:
-        reset_link = settings.WEB_FORGOT_PASSWORD_URL
+        reset_link = settings.WEB_FORGOT_PASSWORD_URL.replace('None', 'http://' + str(domain))
         uid = urlsafe_base64_encode(force_bytes(user_id))
         link = reset_link.format(uid, token)
 
