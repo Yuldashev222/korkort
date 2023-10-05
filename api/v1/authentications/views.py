@@ -1,14 +1,20 @@
+import jwt
+import requests
+from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.models import CustomUser
+from api.v1.authentications.serializers.apple import AppleSignInSerializer
 from api.v1.authentications.serializers.backend import AuthTokenSerializer, RegisterSerializer
 from api.v1.authentications.serializers.facebook import FacebookSignInSerializer
 from api.v1.authentications.serializers.google import GoogleSignInSerializer
@@ -98,7 +104,6 @@ def verify_email(request, uidb64, token):
     return HttpResponse('<h1>Verification Failure</h1>')
 
 
-# google auth view
 class GoogleSignInAPIView(CreateAPIView):
     permission_classes = ()
     serializer_class = GoogleSignInSerializer
@@ -109,3 +114,7 @@ class GoogleSignInAPIView(CreateAPIView):
 
 class FacebookSignInAPIView(GoogleSignInAPIView):
     serializer_class = FacebookSignInSerializer
+
+
+class AppleSignInAPIView(GoogleSignInAPIView):
+    serializer_class = AppleSignInSerializer

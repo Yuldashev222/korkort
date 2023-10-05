@@ -30,7 +30,7 @@ class StripeCheckoutAPIView(CreateAPIView):
 
         product_data = {
             'name': tariff.title,
-            'images': [default_image]  # last
+            # 'images': [default_image]  # last
         }
         if tariff.desc:
             product_data['description'] = tariff.desc
@@ -59,20 +59,20 @@ class StripeCheckoutAPIView(CreateAPIView):
         discount_amount = 0
 
         if order.tariff_discount_amount > 0:
-            discount_title += 'tariff'
+            discount_title += order.tariff_discount_name
             discount_amount += order.tariff_discount_amount
 
         if order.student_bonus_amount > 0:
             if discount_title:
                 discount_title += ', '
 
-            discount_title += 'bonus money'
+            discount_title += 'Wallet'
             discount_amount += order.student_bonus_amount
 
         elif order.student_discount_amount > 0:
             if discount_title:
                 discount_title += ', '
-            discount_title += 'student discount'
+            discount_title += 'Coupon'
             discount_amount += order.student_discount_amount
 
         if discount_amount > 0:

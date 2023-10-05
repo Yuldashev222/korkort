@@ -1,7 +1,6 @@
 from datetime import timedelta
 from django.conf import settings
 from django.dispatch import receiver
-from django.db.models import Max
 from django.utils.timezone import now
 from django.db.models.signals import post_delete, post_save, pre_save
 
@@ -31,6 +30,7 @@ def check_order(instance, *args, **kwargs):
             if tariff_discount:
                 instance.tariff_discount_value = tariff_discount['discount_value']
                 instance.tariff_discount_title = tariff_discount['title']
+                instance.tariff_discount_name = tariff_discount['name']
                 instance.tariff_discount_is_percent = tariff_discount['is_percent']
                 instance.tariff_discount_amount = tariff.tariff_discount_amount
 
@@ -67,11 +67,13 @@ def check_order(instance, *args, **kwargs):
             instance.purchased_at = now()
 
         if not instance.expire_at:
-            max_expire_at = Order.objects.filter(student=student, is_paid=True, expire_at__gte=instance.purchased_at
-                                                 ).aggregate(max_expire_at=Max('expire_at'))['max_expire_at']
+            last_order = Order.objects.filter(student=student, is_paid=True, expire_at__gte=instance.purchased_at
+                                              ).first()
 
-            max_expire_at = max_expire_at if max_expire_at else instance.purchased_at
-            instance.expire_at = max_expire_at + timedelta(days=instance.tariff_days)
+            if last_order:
+                instance.expire_at = last_order.expire_at + timedelta(days=instance.tariff_days)
+            else:
+                instance.expire_at = instance.purchased_at
 
         if not instance.called_student_bonus_added and instance.called_student:
             instance.called_student.bonus_money += round(instance.student_discount_amount, 1)

@@ -31,6 +31,7 @@ class Order(models.Model):
     tariff_days = models.PositiveSmallIntegerField()
 
     tariff_discount_title = models.CharField(max_length=200, default='-')
+    tariff_discount_name = models.CharField(max_length=50, default='-')
     tariff_discount_amount = models.FloatField(default=0)
     tariff_discount_value = models.PositiveIntegerField(default=0)
     tariff_discount_is_percent = models.BooleanField(default=True)

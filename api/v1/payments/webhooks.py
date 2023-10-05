@@ -1,13 +1,13 @@
+import json
 import stripe
+from config import settings
+from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
+ 
 
 from api.v1.payments.models import Order
-from config import settings
-
-import json
-from django.http import HttpResponse
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 endpoint_secret = 'whsec_e9092e9da384c906358bb1684aee480f059eba910ba30f13c11d4f97604994b0'
