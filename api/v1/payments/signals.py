@@ -70,10 +70,8 @@ def check_order(instance, *args, **kwargs):
             last_order = Order.objects.filter(student=student, is_paid=True, expire_at__gte=instance.purchased_at
                                               ).first()
 
-            if last_order:
-                instance.expire_at = last_order.expire_at + timedelta(days=instance.tariff_days)
-            else:
-                instance.expire_at = instance.purchased_at
+            instance.expire_at = last_order.expire_at if last_order else instance.purchased_at
+            instance.expire_at += timedelta(days=instance.tariff_days)
 
         if not instance.called_student_bonus_added and instance.called_student:
             instance.called_student.bonus_money += round(instance.student_discount_amount, 1)

@@ -30,8 +30,8 @@ class MinBonusMoney(models.Model):
     def set_redis(cls):
         obj = cls.objects.first()
         if obj:
-            cache.set('min_bonus_money', obj.money, 60 * 60 * 24 * 30)
-        elif cache.get('min_bonus_money'):
+            cache.set('min_bonus_money', obj.money)
+        else:
             cache.delete('min_bonus_money')
 
 

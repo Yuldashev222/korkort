@@ -18,19 +18,8 @@ class ChapterStudentAPIView(ReadOnlyModelViewSet):
     serializer_class = ChapterStudentSerializer
     permission_classes = (IsAuthenticated, IsStudent)
 
-    def get_serializer_context(self):
-        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
-            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self,
-            'student_saved_question_ids': student_saved_question_ids
-        }
-
     def get_queryset(self):
-        student = self.request.user
-        return ChapterStudent.objects.filter(student=student).select_related('chapter')
+        return ChapterStudent.objects.filter(student=self.request.user).select_related('chapter')
 
     def get_object(self):
         student = self.request.user

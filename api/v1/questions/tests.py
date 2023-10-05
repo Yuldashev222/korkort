@@ -1,102 +1,30 @@
-gifs = [
-    ['https://media3.giphy.com/media/nSaLufdGitemzs6v4S/giphy.gif?cid=6d7fd251q2bbg3ishu7j3pyfruhmvksrgc39r670u6xqu02d&ep=v1_gifs_random&rid=giphy.gif&ct=g', 32, 2190],
-    ['https://media4.giphy.com/media/3oGRFKhwAmd94V8HUQ/giphy.gif?cid=6d7fd2516qu1267y453aql7pnb15igo0wc6rk0pfinwhmnbs&ep=v1_gifs_random&rid=giphy.gif&ct=g', 21, 2200],
-    ['https://media0.giphy.com/media/eJj15D0Kjh1skkW8pr/giphy.gif?cid=6d7fd2516swo2i3bsci8hggybqr34aq2abj0gy9nl9mm028r&ep=v1_gifs_random&rid=giphy.gif&ct=g', 46, 1880],
-    ['https://media3.giphy.com/media/GD9WBS5XuL3h1fCSyG/giphy.gif?cid=6d7fd251i58cyrk32t4eqak76a78ptdcdzkmiw7osmehw3g9&ep=v1_gifs_random&rid=giphy.gif&ct=g', 6, 790],
-    ['https://media1.giphy.com/media/3CHYTf6AOZI55W9qgC/giphy.gif?cid=6d7fd251a9bhgpq092ha8gdcgge821odtawqfyrhxrabfnto&ep=v1_gifs_random&rid=giphy.gif&ct=g', 45, 3990],
-    ['https://media1.giphy.com/media/3b7yuXsGgeEkVftT75/giphy.gif?cid=6d7fd251cu8vyhzcvdnf4bmacs2ytjpge52yk1ht1kc2sh3h&ep=v1_gifs_random&rid=giphy.gif&ct=g', 201, 8080],
-    ['https://media2.giphy.com/media/QwsDfOKzO1ZInXXS2q/giphy.gif?cid=6d7fd251i0ltsrjng6dizp952swsz0562r5vkllzsm1p901c&ep=v1_gifs_random&rid=giphy.gif&ct=g', 180, 13990],
-    ['https://media2.giphy.com/media/aXbwsR1GF09nRID0FQ/giphy.gif?cid=6d7fd251z150ki79pze36qohh3454v7uj3fvrmzfe85uyj75&ep=v1_gifs_random&rid=giphy.gif&ct=g', 15, 1070],
-    ['https://media2.giphy.com/media/UtKfCyc9fAzvcJc1Ie/giphy.gif?cid=6d7fd251zh33pq1eun3hxg7uzx7o3x41fhsuk26l4o9xnrp7&ep=v1_gifs_random&rid=giphy.gif&ct=g', 55, 2240],
-    ['https://media3.giphy.com/media/xUPJPnTxSWU5GVYYus/giphy.gif?cid=6d7fd2512hhidbb9xpj446loduzywhy7lhn6qj5bavbrpurs&ep=v1_gifs_random&rid=giphy.gif&ct=g', 28, 1940],
-    ['https://media1.giphy.com/media/3ofT5NBQsyn1TLj1Ek/giphy.gif?cid=6d7fd251gb4oo1zq9yhmtxtpyokb8ct5ln0e8ykj2228n1yw&ep=v1_gifs_random&rid=giphy.gif&ct=g', 31, 2140],
-    ['https://media4.giphy.com/media/sDEnfhZWPfx6zByn4B/giphy.gif?cid=6d7fd251731m1tyrtoaetu9yiir6uv4iztarnwb18widzh7e&ep=v1_gifs_random&rid=giphy.gif&ct=g', 3, 840],
-    ['https://media4.giphy.com/media/2AlxBZjK0SZ0Y/giphy.gif?cid=6d7fd251jrsq9qvktkyrrilj0bmn28hb7g6xmf25as0lhhs7&ep=v1_gifs_random&rid=giphy.gif&ct=g', 66, 5040],
-    ['https://media3.giphy.com/media/X3e2CmBKifpJkTFKz6/giphy.gif?cid=6d7fd251va6780mougpzag6kwfaztvbmx6399t3tsx6qkyv1&ep=v1_gifs_random&rid=giphy.gif&ct=g', 8, 1000],
-    ['https://media4.giphy.com/media/xUySTJXBbGU5ueHw64/giphy.gif?cid=6d7fd251jj5x9lgxomyiwn5b5gro5q4c3ef2fv9z8h5sgwi0&ep=v1_gifs_random&rid=giphy.gif&ct=g', 77, 5190],
-    ['https://media4.giphy.com/media/3oEjHD8hE0ld7wURxe/giphy.gif?cid=6d7fd251pl8q4r5oq8o6zef9er5esgt8ktermg79e0809hbt&ep=v1_gifs_random&rid=giphy.gif&ct=g', 78, 13480],
-    ['https://media0.giphy.com/media/fr2jWdEy1VET5vDSnZ/giphy.gif?cid=6d7fd2514bhlhplelf4b226tr466pixqewnsd8bl3p3puwzu&ep=v1_gifs_random&rid=giphy.gif&ct=g', 57, 3870],
-    ['https://media3.giphy.com/media/nvfF6gfYreBKzplUo4/giphy.gif?cid=6d7fd251itofomqnai9e9k7udb3bxp4i4okw5xw7xt6hb2p2&ep=v1_gifs_random&rid=giphy.gif&ct=g', 139, 8820],
-    ['https://media4.giphy.com/media/2aPgmkwDrlVStpnLhZ/giphy.gif?cid=6d7fd251jsqz0319p6vynj571waodhp9otr9rzridvd3f3z9&ep=v1_gifs_random&rid=giphy.gif&ct=g', 107, 3610],
-    ['https://media2.giphy.com/media/xUPGcqeQjKzeWRxX8s/giphy.gif?cid=6d7fd251w9yces5jjh8mjmb0nmw2erqkcexe5wv4jotegbcg&ep=v1_gifs_random&rid=giphy.gif&ct=g', 33, 4080],
-    ['https://media1.giphy.com/media/FZtu5PetxjM5AFU8S2/giphy.gif?cid=6d7fd251tud2sv8darxwsxy9itsgpidm2fnl2rnk9gw1iyt0&ep=v1_gifs_random&rid=giphy.gif&ct=g', 52, 5300],
-    ['https://media4.giphy.com/media/YrlpLGc9MHjg1m1jwZ/giphy.gif?cid=6d7fd251et1oy6ktt4vv0g7zb6cgxwfuy7srz6lungduz7x3&ep=v1_gifs_random&rid=giphy.gif&ct=g', 41, 4200],
-    ['https://media4.giphy.com/media/7DTAFrXseKg3a2UHT3/giphy.gif?cid=6d7fd251f0pl3nqkjn0ypbkhzr59dam47c39ncd92i8yjwax&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 1610],
-    ['https://media2.giphy.com/media/qWNJzSD884yXe/giphy.gif?cid=6d7fd251s3kj1o6nu0wyv4g2o3fsk8n4wvl5gwqiifdowyxj&ep=v1_gifs_random&rid=giphy.gif&ct=g', 6, 560],
-    ['https://media2.giphy.com/media/3o6gb1NKBVMKWzJS8M/giphy.gif?cid=6d7fd251gsy9jxuyfwowlsuk6xof1hyqsqpe3xjc3qs81k8a&ep=v1_gifs_random&rid=giphy.gif&ct=g', 35, 1210],
-    ['https://media4.giphy.com/media/Xhku8W6CYYPy4CPzzS/giphy.gif?cid=6d7fd251dn0kom8tie2kxuni1j7isruyvebu721zegnu4ksp&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media4.giphy.com/media/egQyrFJe48nHW/giphy.gif?cid=6d7fd251qmbsrh6ylgqu5vih37dsglkk5ypj63286kitah17&ep=v1_gifs_random&rid=giphy.gif&ct=g', 49, 3500],
-    ['https://media2.giphy.com/media/UI6VRLxGrhecU/giphy.gif?cid=6d7fd251atx5deec9iahsmalwqwzx7ek31xu7ndd8821jdrf&ep=v1_gifs_random&rid=giphy.gif&ct=g', 5, 660],
-    ['https://media2.giphy.com/media/iBjX4zP1wgDUngU4IB/giphy.gif?cid=6d7fd251vhr6smuqv9vnf09kivjeizd94so7cpy02l6dj1sr&ep=v1_gifs_random&rid=giphy.gif&ct=g', 109, 4400],
-    ['https://media1.giphy.com/media/rnTg6RJeploqn62TYC/giphy.gif?cid=6d7fd251hkfc1w5xucr3701g7ruubq19wfdepdu30njlfly6&ep=v1_gifs_random&rid=giphy.gif&ct=g', 8, 670],
-    ['https://media4.giphy.com/media/37Ra0ejA04uYu7oVOV/giphy.gif?cid=6d7fd251hgiqrfv8by9ctdymwmf7y6ek0zj2upsycrmr05v3&ep=v1_gifs_random&rid=giphy.gif&ct=g', 60, 4270],
-    ['https://media3.giphy.com/media/W62iX7hlbMrN5IXXHt/giphy.gif?cid=6d7fd251e7rqbfex2u203yeti9gc5i3y3ffuh3t59mop5ahl&ep=v1_gifs_random&rid=giphy.gif&ct=g', 28, 2030],
-    ['https://media2.giphy.com/media/Y474M30eFa1Qm4eN5o/giphy.gif?cid=6d7fd251ze57ijf6qfj7dedf0xz8ojpokb4p1cctnfd44pey&ep=v1_gifs_random&rid=giphy.gif&ct=g', 18, 1470],
-    ['https://media3.giphy.com/media/hSA4DW2iD28pQKuMQ1/giphy.gif?cid=6d7fd25189i8mdlz2zjbqsnbjjt8o4rt9bl2efv89n2uykya&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 1540],
-    ['https://media2.giphy.com/media/dqErJXRqrbCQqLdZIu/giphy.gif?cid=6d7fd251lmift8os8rvg9xifvsdtwstw8it18qtgsopcrevl&ep=v1_gifs_random&rid=giphy.gif&ct=g', 129, 5280],
-    ['https://media3.giphy.com/media/Z5bs4NU0YuhbglIWtW/giphy.gif?cid=6d7fd251n46k1pe1dn1tnylabyvlfqztahvt8hcco3255tfe&ep=v1_gifs_random&rid=giphy.gif&ct=g', 31, 2140],
-    ['https://media2.giphy.com/media/FOL5mK0tXUmXe/giphy.gif?cid=6d7fd251m0x88undcy91w5eehmb83pyx9vlogumhre9mmog2&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 2300],
-    ['https://media3.giphy.com/media/JUFqC5Q5DZKOaAYxwx/giphy.gif?cid=6d7fd251djb1cfb0rsf3ecpdg3unj9jmwo027he3owxvokre&ep=v1_gifs_random&rid=giphy.gif&ct=g', 2, 1050],
-    ['https://media2.giphy.com/media/MlCphaT8VOidVMsC8x/giphy.gif?cid=6d7fd251sracvianwe90ub740bzds6t15kfzait4p05i5pbh&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 920],
-    ['https://media2.giphy.com/media/1xkczfQYZHlkGfOMY8/giphy.gif?cid=6d7fd2511up1fuenni2pz39s1x5x70z2cw3hhklabv8po33f&ep=v1_gifs_random&rid=giphy.gif&ct=g', 18, 1270],
-    ['https://media1.giphy.com/media/b0uRxv5ph5Lq46n32o/giphy.gif?cid=6d7fd251145ocwnaptrpog9nqutr0pejawksdwomnud4k1h8&ep=v1_gifs_random&rid=giphy.gif&ct=g', 28, 1940],
-    ['https://media4.giphy.com/media/KbwGA1i55fWx8WCHE0/giphy.gif?cid=6d7fd2510063dtvxhu14944ki9vex33vmr77qgzic3f7tx8j&ep=v1_gifs_random&rid=giphy.gif&ct=g', 3, 420],
-    ['https://media4.giphy.com/media/qlWH1J25BA4PznFzC5/giphy.gif?cid=6d7fd251lbcj3er77nfde3y702dv2avh0qysohq8lzgez6zu&ep=v1_gifs_random&rid=giphy.gif&ct=g', 70, 5440],
-    ['https://media3.giphy.com/media/8DluAKfTAfHyehBN73/giphy.gif?cid=6d7fd251c97ttfsk2j8b1m9n79u0135nuxx5494t2h6m82ey&ep=v1_gifs_random&rid=giphy.gif&ct=g', 90, 12000],
-    ['https://media3.giphy.com/media/E6XK8uITblBh3ri1rG/giphy.gif?cid=6d7fd2518i09489z5whnxdgbuu0an2cxktec5kz87ebzv88h&ep=v1_gifs_random&rid=giphy.gif&ct=g', 158, 7520],
-    ['https://media4.giphy.com/media/SsBgM0Qzwz75UVCrE8/giphy.gif?cid=6d7fd25112xq2kh461pgqsy30sjfgw3lvoi3v5d9iwpdz3z1&ep=v1_gifs_random&rid=giphy.gif&ct=g', 64, 4340],
-    ['https://media3.giphy.com/media/SqyU2BweHSQFo4nQMd/giphy.gif?cid=6d7fd251bhu7dbqc3osd8wshu3uyer1ii0w8c2n819l1egg4&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media4.giphy.com/media/whT1TIJ7YYI8WfIcPd/giphy.gif?cid=6d7fd251xq2mm3d2soh9tyavrx4sneetp49dxi2vwxc411tz&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media2.giphy.com/media/7vAeS8PTNGN5O75z14/giphy.gif?cid=6d7fd251ciaadpi4d7p9n3y2avniyyskn7dzkacwxv6nwg22&ep=v1_gifs_random&rid=giphy.gif&ct=g', 23, 1590],
-    ['https://media2.giphy.com/media/3o6ZtpfB5tuutbBbyM/giphy.gif?cid=6d7fd2519j9xbui1ffnysilara3lqapp8vsvz9tkhlp05hrv&ep=v1_gifs_random&rid=giphy.gif&ct=g', 25, 2340],
-    ['https://media0.giphy.com/media/mGqyyvCwLweOONszK2/giphy.gif?cid=6d7fd251lrsxa61snxmsk2x0bughwg7u452enymphdoansqe&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media1.giphy.com/media/b0uRxv5ph5Lq46n32o/giphy.gif?cid=6d7fd251fkzibs7rzjwtcmw0zziqhfjb8mewsaciale9u88n&ep=v1_gifs_random&rid=giphy.gif&ct=g', 28, 1940],
-    ['https://media2.giphy.com/media/xUPGcDbwcogZI6rGta/giphy.gif?cid=6d7fd2511niixzgtedk5yfk1a2onptwnc8uwgu57dd72jksp&ep=v1_gifs_random&rid=giphy.gif&ct=g', 91, 5440],
-    ['https://media0.giphy.com/media/UtQ0EN1ZkDMcIz0XAI/giphy.gif?cid=6d7fd2510j32n3e2y9ixfl3wfqtwym6lnuji5pwskfnf61oc&ep=v1_gifs_random&rid=giphy.gif&ct=g', 42, 2870],
-    ['https://media3.giphy.com/media/3o6nV4XOM4wViW58Tm/giphy.gif?cid=6d7fd2518xrmf4j1r6uywrmdms2ukc7acsx24ux6iawvreys&ep=v1_gifs_random&rid=giphy.gif&ct=g', 61, 4140],
-    ['https://media0.giphy.com/media/fqEvoT92g3Kb6BZGqb/giphy.gif?cid=6d7fd251czrz5x79pyvl74ws6842ctz9kcmcplvgnhw5l2ly&ep=v1_gifs_random&rid=giphy.gif&ct=g', 17, 1190],
-    ['https://media2.giphy.com/media/5UtgjoLvcJXqdazFpn/giphy.gif?cid=6d7fd251lduov78uml8fuv0a4s6vctd2foow5gnalw18unst&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media3.giphy.com/media/pUQ3D075e3hCrpQbOX/giphy.gif?cid=6d7fd251okswhqb0c6z6dp1ksl0tczvo55xwbbu0bm8a71q8&ep=v1_gifs_random&rid=giphy.gif&ct=g', 38, 2590],
-    ['https://media0.giphy.com/media/9Vww7sbjm1jB6/giphy.gif?cid=6d7fd251yu3vfdwk30ukxzyffn23xkkb93fkxo3omzvagih0&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 2300],
-    ['https://media4.giphy.com/media/h2CCzb2ymkzMiswrtz/giphy.gif?cid=6d7fd25157yonje15qqdh682glrcwn1xw86yupwouywldy0z&ep=v1_gifs_random&rid=giphy.gif&ct=g', 370, 14840],
-    ['https://media1.giphy.com/media/mLQsOMeeRGxrJ8mhIp/giphy.gif?cid=6d7fd251jajcns94c6dnerjja87fk0tf33tmwfbiuo4hdk8u&ep=v1_gifs_random&rid=giphy.gif&ct=g', 12, 1690],
-    ['https://media0.giphy.com/media/rnUPBUH8nHpbq/giphy.gif?cid=6d7fd251ex6ob6ezmrv6tuv6fjkrjkool2n0k6cqbvti70se&ep=v1_gifs_random&rid=giphy.gif&ct=g', 36, 3330],
-    ['https://media1.giphy.com/media/EHCNlAWDPcOME/giphy.gif?cid=6d7fd251qcg0iawfst9sh9mz2erqo4p1a7l9kmzm0h6542w5&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 1840],
-    ['https://media2.giphy.com/media/xUPGcqeQjKzeWRxX8s/giphy.gif?cid=6d7fd251tsf2bhe8vd30sb8ihakdfq2izcb1r3rgxxv4jkkm&ep=v1_gifs_random&rid=giphy.gif&ct=g', 33, 4080],
-    ['https://media0.giphy.com/media/5HSYaZTcRpYnS/giphy.gif?cid=6d7fd251trbuvhjp9wft6u53ymolknaouqgsk0ebycq607t9&ep=v1_gifs_random&rid=giphy.gif&ct=g', 5, 600],
-    ['https://media4.giphy.com/media/TG2tsHtKorrxf2LHF8/giphy.gif?cid=6d7fd251ogdcer563njpiippnsxioxdn5gzojwitf8tm9z6q&ep=v1_gifs_random&rid=giphy.gif&ct=g', 1, 200],
-    ['https://media0.giphy.com/media/CgO6C9AIa4EbXqAPvn/giphy.gif?cid=6d7fd25175arv5piusd6kz8pu5itookn4ez1jm1zdeukwuie&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media4.giphy.com/media/4AEnOLZ2u5744I2RXG/giphy.gif?cid=6d7fd251k280y4adw1341pblkonv27a1c77j1ngfb2855196&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 1840],
-    ['https://media3.giphy.com/media/RjlMgYU2dZeSzZu0oe/giphy.gif?cid=6d7fd251y9yx05sv94h9ohjf7j7eh9zmztm7u87l4dx2ed5g&ep=v1_gifs_random&rid=giphy.gif&ct=g', 33, 2830],
-    ['https://media2.giphy.com/media/26Ff2OyRsG2dqiOGs/giphy.gif?cid=6d7fd251z2hus9b1m9mo2fmwcvygjozlfnv9y0428appsork&ep=v1_gifs_random&rid=giphy.gif&ct=g', 58, 3940],
-    ['https://media0.giphy.com/media/jz1ctABiuBjRC/giphy.gif?cid=6d7fd251b89hf4a1vu7i1vqwwmzevwi638ovyqfacnphqho2&ep=v1_gifs_random&rid=giphy.gif&ct=g', 22, 2300],
-    ['https://media3.giphy.com/media/iiDAJ1q178Y4SzFuW4/giphy.gif?cid=6d7fd251yfgh28gp67ojq6dwiqwd3azpvzxh7mvrpe12l8on&ep=v1_gifs_random&rid=giphy.gif&ct=g', 7, 2750],
-    ['https://media4.giphy.com/media/QHYjXpBdNQZwn6yZLy/giphy.gif?cid=6d7fd2512j8ldn25laej3v5j9v9vfeahq5yxtots9fwwxuq3&ep=v1_gifs_random&rid=giphy.gif&ct=g', 58, 4930],
-    ['https://media4.giphy.com/media/o8dKuIU25zNg2OU83t/giphy.gif?cid=6d7fd251140zwnqrwizbn5ur83bd1jv806h26gavcknti3qe&ep=v1_gifs_random&rid=giphy.gif&ct=g', 16, 1140],
-    ['https://media3.giphy.com/media/ZESqBpSGJUEojwzzSy/giphy.gif?cid=6d7fd251xk0tqzbarv1f15b197w5xuu8beksssttn4xwyw6q&ep=v1_gifs_random&rid=giphy.gif&ct=g', 26, 1620],
-    ['https://media4.giphy.com/media/xUySTJXBbGU5ueHw64/giphy.gif?cid=6d7fd251ncuxt00q74tghwe1ttf5fuqczfkftkpqqcz8ebfv&ep=v1_gifs_random&rid=giphy.gif&ct=g', 77, 5190],
-    ['https://media0.giphy.com/media/xUPGcqrLWnKi8nTylG/giphy.gif?cid=6d7fd251fn75mclkg2s3143p8dxj8p4jg8fq97iprqqvmqwf&ep=v1_gifs_random&rid=giphy.gif&ct=g', 148, 4960],
-    ['https://media2.giphy.com/media/QOoh2aIYXCo6g7vb7R/giphy.gif?cid=6d7fd251f4axw83exd1h80ss2rhk2w6rdqamrhpurozl63c1&ep=v1_gifs_random&rid=giphy.gif&ct=g', 74, 4990],
-    ['https://media1.giphy.com/media/NhgDPX6gbdCxpZywsC/giphy.gif?cid=6d7fd251ub3p0i7c78p9vi3oaw9w41dbwpac2h4537menpyg&ep=v1_gifs_random&rid=giphy.gif&ct=g', 26, 1080],
-    ['https://media1.giphy.com/media/S6NwbIXDoijJ5CU6qH/giphy.gif?cid=6d7fd2513l1wvft7zfy0rmjbolya0wlyt41kxb9fir7egqrt&ep=v1_gifs_random&rid=giphy.gif&ct=g', 76, 5140],
-    ['https://media1.giphy.com/media/yqBTuAR4vI5QcRrV7B/giphy.gif?cid=6d7fd251id1hjxmxifuam2d1f66ky8oysxzzz7rcz5mc1mbz&ep=v1_gifs_random&rid=giphy.gif&ct=g', 87, 8800],
-    ['https://media3.giphy.com/media/2ysW1pzDWv3SlxFUE3/giphy.gif?cid=6d7fd25135vnyi46si258u0zcsfvkbe41xp5bhom07blf099&ep=v1_gifs_random&rid=giphy.gif&ct=g', 33, 2270],
-    ['https://media0.giphy.com/media/SU7xx4L3ppIldwPoIA/giphy.gif?cid=6d7fd251v8phvq0ru8shixjaedjgugefgze6phyt9ch8kdkh&ep=v1_gifs_random&rid=giphy.gif&ct=g', 57, 4640],
-    ['https://media2.giphy.com/media/J3QTB0TwDDLzhMCFEV/giphy.gif?cid=6d7fd251501s6pz429yvg39sve7vtazwlzqd9z7kh1olvq1n&ep=v1_gifs_random&rid=giphy.gif&ct=g', 117, 3930],
-    ['https://media1.giphy.com/media/LrXw53TqozHHBCgs6v/giphy.gif?cid=6d7fd251pffb7m392d2iwndnct1pqsvf4cyj675c3b9d5bqs&ep=v1_gifs_random&rid=giphy.gif&ct=g', 8, 1120],
-    ['https://media4.giphy.com/media/iRm15JzfIkcX6/giphy.gif?cid=6d7fd251nvhypo1jcdm84chcy3sz9p9tzvuhi8szdlxe8u3x&ep=v1_gifs_random&rid=giphy.gif&ct=g', 122, 9840],
-    ['https://media3.giphy.com/media/gjuQZC8nxmUYo/giphy.gif?cid=6d7fd25193kgmpeu8rlfvijmxiox0omq0zk3bt28mordem0b&ep=v1_gifs_random&rid=giphy.gif&ct=g', 12, 1560],
-    ['https://media3.giphy.com/media/xUPOqAsHytDPAaFwuA/giphy.gif?cid=6d7fd2513g2j71y4hadwq53laotpwm6iuook61g45ogfd3kt&ep=v1_gifs_random&rid=giphy.gif&ct=g', 34, 2340],
-    ['https://media3.giphy.com/media/XBKw0pTbC9jUbzYAb9/giphy.gif?cid=6d7fd251u1wcsrc6uzz55xhcoroc0iu5cnlwap5ot7maz79x&ep=v1_gifs_random&rid=giphy.gif&ct=g', 14, 990],
-    ['https://media2.giphy.com/media/Opis8nWMyfI9zZ8juH/giphy.gif?cid=6d7fd2518deasldw7hyrt31p9gityjgtdjbi5auv1qpgq8h1&ep=v1_gifs_random&rid=giphy.gif&ct=g', 29, 1990],
-    ['https://media4.giphy.com/media/xUySTSVBJclZJiJ2pi/giphy.gif?cid=6d7fd251r20grd3tofgoa2f7vhk86iwjlbtkaiwafkvf5xrd&ep=v1_gifs_random&rid=giphy.gif&ct=g', 37, 2540],
-    ['https://media3.giphy.com/media/nW7R0UdJ90VwI/giphy.gif?cid=6d7fd2513ltrnhbiwhp2bin9v5rjdfia7x7vjrw06r2x0efz&ep=v1_gifs_random&rid=giphy.gif&ct=g', 26, 4860],
-    ['https://media4.giphy.com/media/Tj45DJrPvlnCQ0c0A1/giphy.gif?cid=6d7fd251haax9p3w7plbc65dqz4zsjyl9dnoa7ok1pgud7s3&ep=v1_gifs_random&rid=giphy.gif&ct=g', 4, 1800],
-    ['https://media1.giphy.com/media/FZtu5PetxjM5AFU8S2/giphy.gif?cid=6d7fd251qb4wfl7tv4o3xdbdlj8gcm9psw3x9gjjqmwa87fy&ep=v1_gifs_random&rid=giphy.gif&ct=g', 52, 5300],
-    ['https://media4.giphy.com/media/2aPgmkwDrlVStpnLhZ/giphy.gif?cid=6d7fd251z7x68t9lwpebsc8jne74w426s6sldw30k1xuaw1d&ep=v1_gifs_random&rid=giphy.gif&ct=g', 107, 3610],
-    ['https://media3.giphy.com/media/l2YWwLw4VdDsTL0yc/giphy.gif?cid=6d7fd251upofgmtbkfvsxmm2m3pej7xjrcysovzymx5ikgtx&ep=v1_gifs_random&rid=giphy.gif&ct=g', 65, 4390],
-    ['https://media1.giphy.com/media/R5NWsmqGecVAY8fg1G/giphy.gif?cid=6d7fd251we2oli9kxb2cyp6ft8e9yqfvlbaqvtivqkowew5s&ep=v1_gifs_random&rid=giphy.gif&ct=g', 11, 1500],
-    ['https://media3.giphy.com/media/FsUrQyABCKSoXGfNEV/giphy.gif?cid=6d7fd251b8xj3j3dgdot541yhku1ewgd5cntxyq7zs266ekn&ep=v1_gifs_random&rid=giphy.gif&ct=g', 164, 7560],
-    ['https://media3.giphy.com/media/11AHcwqGzRqsow/giphy.gif?cid=6d7fd251cmzxe0mwqjocfxeorv3ystfa6xtc0pdp2xavyo9f&ep=v1_gifs_random&rid=giphy.gif&ct=g', 79, 0],
-    ['https://media0.giphy.com/media/SvRmHsg7Eezxpolxkz/giphy.gif?cid=6d7fd2513vj8ndcm6booifb0ws1e0r0btuo0qglz84gvd8yz&ep=v1_gifs_random&rid=giphy.gif&ct=g', 58, 4720]
-]
+import stripe
+
+stripe.api_key = "sk_test_..."
+endpoint_secret = 'whsec_e9092e9da384c906358bb1684aee480f059eba910ba30f13c11d4f97604994b0'
+
+
+def webhook():
+    event = None
+    payload = request.data
+    sig_header = request.headers['STRIPE_SIGNATURE']
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        raise e
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        raise e
+
+    # Handle the event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+    # ... handle other event types
+    else:
+        print('Unhandled event type {}'.format(event['type']))
+
+    return jsonify(success=True)

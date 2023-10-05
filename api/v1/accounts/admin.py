@@ -27,7 +27,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     ]
     readonly_fields = [
         'email', 'date_joined', 'avatar_id', 'user_code', 'bonus_money', 'level',
-        'completed_lessons', 'correct_answers', 'tariff_expire_date',
+        'completed_lessons', 'correct_answers', 'tariff_expire_date', 'is_verified'
     ]
     search_help_text = 'email, first_name, last_name'
 

@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('register/', views.RegisterAPIView.as_view(), name='register'),
+    path('email-verify/resend/', views.ResendEmailVerifyLinkAPIView.as_view(), name='resend-verify_email'),
     path('email-verify/<str:uidb64>/<str:token>/', views.verify_email, name='verify_email'),
 
     path('backend-signin/', views.AuthTokenAPIView.as_view(), name='auth-token'),

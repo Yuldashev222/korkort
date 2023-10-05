@@ -46,8 +46,7 @@ class TariffDiscount(DiscountMixin):
                                           'image_url': obj.image.url},
                       60 * 60 * 24 * 30
                       )
-
-        elif cache.get('tariff_discount'):
+        else:
             cache.delete('tariff_discount')
 
     def clean(self):
@@ -78,6 +77,5 @@ class StudentDiscount(DiscountMixin):
             cache.set('student_discount', {'is_percent': obj.is_percent,
                                            'discount_value': obj.discount_value},
                       60 * 60 * 24 * 30)
-
-        elif cache.get('student_discount'):
+        else:
             cache.delete('student_discount')

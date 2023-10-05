@@ -8,8 +8,7 @@ from api.v1.payments.models import Order
 @shared_task
 def change_student_tariff_expire_date(student_id):
     student = CustomUser.objects.get(id=student_id)
-    last_order = Order.objects.filter(student=student, is_paid=True, expire_at__gt=student.tariff_expire_date
-                                      ).first()
+    last_order = Order.objects.filter(student=student, is_paid=True, expire_at__gt=student.tariff_expire_date).first()
 
     student.tariff_expire_date = last_order.expire_at if last_order else now()
     student.save()

@@ -5,7 +5,6 @@ from django.http import HttpResponse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
- 
 
 from api.v1.payments.models import Order
 
@@ -37,7 +36,7 @@ def stripe_webhook_view(request):
 
             student = order.student
             message = render_to_string('payments/checkout.html')
-            send_mail('Hello Everyone', message, settings.DEFAULT_FROM_EMAIL, recipient_list=[student.email],
+            send_mail(subject='Hello Everyone', message=message, from_email=None, recipient_list=[student.email],
                       html_message=message)
 
     return HttpResponse(status=200)
