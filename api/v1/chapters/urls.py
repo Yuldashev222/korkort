@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .models import ChapterStudent
 from .views import ChapterStudentAPIView
 
 urlpatterns = [

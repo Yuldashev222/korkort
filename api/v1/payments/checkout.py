@@ -11,9 +11,6 @@ from api.v1.payments.serializers import StripeCheckoutSerializer
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-default_image = 'https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1675775481/Croma%20Assets/' \
-                'Small%20Appliances/Home%20Safety%20Security/Images/268787_mf0dot.png?tr=w-640'
-
 
 class StripeCheckoutAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated, IsStudent]
@@ -28,10 +25,8 @@ class StripeCheckoutAPIView(CreateAPIView):
         if order.is_paid:
             return Response({'checkout_url': None, 'is_paid': True}, status=status.HTTP_200_OK)
 
-        product_data = {
-            'name': tariff.title,
-            # 'images': [default_image]  # last
-        }
+        product_data = {'name': tariff.title}
+
         if tariff.desc:
             product_data['description'] = tariff.desc
 
@@ -46,14 +41,16 @@ class StripeCheckoutAPIView(CreateAPIView):
             'line_items': []
         }
 
-        session_data['line_items'].append({
-            'price_data': {
-                'currency': settings.STRIPE_CHECKOUT_CURRENCY,
-                'unit_amount': order.tariff_price * 100,
-                'product_data': product_data
-            },
-            'quantity': 1
-        })
+        session_data['line_items'].append(
+            {
+                'quantity': 1,
+                'price_data': {
+                    'currency': settings.STRIPE_CHECKOUT_CURRENCY,
+                    'unit_amount': order.tariff_price * 100,
+                    'product_data': product_data
+                }
+            }
+        )
 
         discount_title = ''
         discount_amount = 0
@@ -93,7 +90,4 @@ class StripeCheckoutAPIView(CreateAPIView):
             return Response({'checkout_url': checkout_session.url, 'is_paid': False}, status=status.HTTP_200_OK)
         except Exception as e:
             order.delete()
-            return Response(
-                {'msg': 'something went wrong while creating stripe session', 'error': str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

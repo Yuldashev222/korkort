@@ -1,5 +1,4 @@
 from django.dispatch import receiver
-from django.core.cache import cache
 from django.db.models.signals import pre_save, post_save
 
 from .models import Tariff
@@ -10,15 +9,11 @@ from api.v1.discounts.models import TariffDiscount, StudentDiscount
 def update_discounts(instance, *args, **kwargs):
     for field in ['tariff_discount', 'student_discount']:
         if getattr(instance, field):
-            discount = cache.get(field)
-            if not discount:
-                if field == 'tariff_discount':
-                    TariffDiscount.set_redis()
-                else:
-                    StudentDiscount.set_redis()
-                discount = cache.get(field)
+            if field == 'tariff_discount':
+                discount = TariffDiscount.get_tariff_discount()
+            else:
+                discount = StudentDiscount.get_student_discount()
 
-            # if not discount or discount.get('valid_to') and discount['valid_to'] <= now().date():
             if not discount:
                 setattr(instance, field + '_amount', 0)
                 setattr(instance, field, False)

@@ -30,13 +30,13 @@ class PasswordResetSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         email = attrs['email']
-        attempt = cache.get(email)
+        attempt = cache.get(f'{email}_password_reset')
         if not attempt:
-            cache.set(email, 1, 60 * 60 * 24)
+            cache.set(f'{email}_password_reset', 1, 60 * 60 * 24)
         elif attempt >= 3:
             raise PermissionDenied()
         else:
-            cache.set(email, attempt + 1, 60 * 60 * 24)
+            cache.incr(f'{email}_password_reset')
         return super().validate(attrs)
 
     def save(self):
@@ -113,6 +113,5 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
 
             user.set_password(new_password)
             user.save()
-            if cache.get(f'{user.email}_reset_password'):
-                cache.delete(f'{user.email}_reset_password')
+            cache.delete(f'{user.email}_reset_password')
         return attrs

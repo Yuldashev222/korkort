@@ -39,20 +39,15 @@ class Lesson(models.Model):
     def get_all_lessons_count(cls):
         all_lessons_count = cache.get('all_lessons_count')
         if not all_lessons_count:
-            try:
-                cls.set_redis()
-            except OperationalError:
-                return 0
+            cls.set_redis()
             all_lessons_count = cache.get('all_lessons_count')
         return all_lessons_count
 
     @classmethod
     def set_redis(cls):
-        cnt = cls.objects.count()
-        cache.set('all_lessons_count', cnt, 60 * 60 * 24 * 30)
+        cache.set('all_lessons_count', cls.objects.count())
 
     def save(self, *args, **kwargs):
-        # self.lesson_time = get_video_duration(self.video_swe.path)
         self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.title_swe,
                                                                          self.title_en, self.title_e_swe)
         super().save(*args, **kwargs)

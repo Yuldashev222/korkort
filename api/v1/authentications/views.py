@@ -1,21 +1,17 @@
-import jwt
-import requests
-from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
-from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.accounts.models import CustomUser
 from api.v1.authentications.serializers.apple import AppleSignInSerializer
-from api.v1.authentications.serializers.backend import AuthTokenSerializer, RegisterSerializer
+from api.v1.authentications.serializers.backend import AuthTokenSerializer, RegisterSerializer, \
+    ResendEmailVerifyLinkSerializer
 from api.v1.authentications.serializers.facebook import FacebookSignInSerializer
 from api.v1.authentications.serializers.google import GoogleSignInSerializer
 from api.v1.authentications.serializers.password import (PasswordResetSerializer, PasswordResetCodeSerializer,
@@ -23,7 +19,6 @@ from api.v1.authentications.serializers.password import (PasswordResetSerializer
                                                          CodePasswordResetConfirmSerializer)
 
 
-# login view
 class AuthTokenAPIView(GenericAPIView):
     throttle_classes = ()
     permission_classes = ()
@@ -35,19 +30,22 @@ class AuthTokenAPIView(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# register view
 class RegisterAPIView(CreateAPIView):
     permission_classes = (~IsAuthenticated,)
     serializer_class = RegisterSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        super().create(request, *args, **kwargs)
         return Response('A confirmation link has been sent to your email')
 
 
-# password reset view
+class ResendEmailVerifyLinkAPIView(RegisterAPIView):
+    serializer_class = ResendEmailVerifyLinkSerializer
+
+    def perform_create(self, serializer):
+        pass
+
+
 class LinkPasswordResetView(CreateAPIView):
     permission_classes = ()
     serializer_class = PasswordResetSerializer
@@ -59,7 +57,6 @@ class LinkPasswordResetView(CreateAPIView):
         return Response('The password reset link has been sent to the email', status=status.HTTP_200_OK)
 
 
-# password reset view
 class CodePasswordResetView(CreateAPIView):
     permission_classes = ()
     serializer_class = PasswordResetCodeSerializer
@@ -71,7 +68,6 @@ class CodePasswordResetView(CreateAPIView):
         return Response('The password reset code has been sent to the email', status=status.HTTP_200_OK)
 
 
-# password reset confirm view
 class LinkPasswordResetConfirmView(CreateAPIView):
     permission_classes = ()
     serializer_class = PasswordResetConfirmSerializer
@@ -82,16 +78,14 @@ class LinkPasswordResetConfirmView(CreateAPIView):
         return Response('Your password has been successfully reset', status=status.HTTP_200_OK)
 
 
-# password reset confirm view
 class CodePasswordResetConfirmView(LinkPasswordResetConfirmView):
     serializer_class = CodePasswordResetConfirmSerializer
 
 
-# verify email view
 def verify_email(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
-        user = CustomUser.objects.get(pk=uid)
+        user = CustomUser.objects.get(pk=uid, is_staff=False, is_verified=False, is_active=True)
     except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
         user = None
 
