@@ -1,4 +1,3 @@
-import json
 import stripe
 from config import settings
 from django.http import HttpResponse
@@ -12,7 +11,7 @@ endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 def stripe_webhook_view(request):
     event = None
     payload = request.body
-    sig_header = request.headers['STRIPE_SIGNATURE']
+    sig_header = request.headers['HTTP_STRIPE_SIGNATURE']
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
