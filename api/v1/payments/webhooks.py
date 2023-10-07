@@ -11,7 +11,7 @@ endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 @csrf_exempt
 def stripe_webhook_view(request):
     event = None
-    payload = request.data
+    payload = request.body
     sig_header = request.headers['STRIPE_SIGNATURE']
 
     try:
