@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from api.v1.payments.models import Order
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
-endpoint_secret = 'whsec_e9092e9da384c906358bb1684aee480f059eba910ba30f13c11d4f97604994b0'
+endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
 
 # Using Django
@@ -29,7 +29,7 @@ def stripe_webhook_view(request):
             try:
                 order = Order.objects.select_related('student').get(id=session.client_reference_id, is_paid=False)
             except Order.DoesNotExist as e:
-                return HttpResponse(content=str(e), status=400)
+                return HttpResponse(content=str(e), status=404)
             order.is_paid = True
             order.stripe_id = session.payment_intent
             order.save()
