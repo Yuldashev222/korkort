@@ -2,6 +2,7 @@ from django.db import transaction
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
 from api.v1.general.utils import get_language
@@ -170,12 +171,21 @@ class CategoryExamCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'category_id', 'questions', 'difficulty_level']
 
 
+class ListCategoryMixExamSerializer(serializers.Serializer):
+    pk = serializers.IntegerField()
+
+    def validate(self, attrs):
+        get_object_or_404(Category, pk=attrs['pk'])
+        return attrs
+
+
 class CategoryMixExamCreateSerializer(CategoryExamCreateSerializer):
     category_id = None
+    category_ids = ListCategoryMixExamSerializer(many=True, required=False)
 
     def create(self, validated_data):
         return None
 
     class Meta:
         model = CategoryExamStudent
-        fields = ['id', 'questions', 'difficulty_level']
+        fields = ['id', 'questions', 'difficulty_level', 'category_ids']
