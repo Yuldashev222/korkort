@@ -6,6 +6,7 @@ from django.utils.translation import get_language
 from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.status import HTTP_201_CREATED
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics, Lesson
@@ -18,8 +19,19 @@ from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.questions import QuestionSerializer
 
 
-class LessonAnswerAPIView(ExamAnswerAPIView):
+class LessonAnswerAPIView(GenericAPIView):
+    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompletedForQuestions, IsOpenOrPurchased)
     serializer_class = LessonAnswerSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            obj = get_object_or_404(Lesson, pk=request.data['lesson_id'])
+            self.check_object_permissions(self.request, obj)
+        except KeyError:
+            pass
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(status=HTTP_201_CREATED)
 
 
 class LessonStudentAPIView(RetrieveAPIView):
@@ -85,8 +97,9 @@ class LessonQuestionAPIView(GenericAPIView):
             'question_id')
         category_name_list = CategoryDetail.objects.filter(language=get_language()).values('category', 'name').order_by(
             'category_id')
-        variant_list = Variant.objects.filter(language=get_language(), question__lesson_id=self.kwargs[self.lookup_field]
-                                          ).values('question', 'text', 'is_correct')
+        variant_list = Variant.objects.filter(language=get_language(),
+                                              question__lesson_id=self.kwargs[self.lookup_field]
+                                              ).values('question', 'text', 'is_correct')
         return {
             'request': self.request,
             'format': self.format_kwarg,

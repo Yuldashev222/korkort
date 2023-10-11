@@ -47,15 +47,13 @@ class ChapterAPIView(ReadOnlyModelViewSet):
                 return lesson
 
             if student.tariff_expire_date < now():
-                return None
-
-            lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
-                                                          lesson__is_open=True,
-                                                          is_completed=True).select_related('lesson').last()
-
-            if not lesson_student and chapter.ordering_number == 1:
                 lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
-                                                              lesson__is_open=True).select_related('lesson').last()
+                                                              lesson__is_open=True,
+                                                              is_completed=True).select_related('lesson').last()
+
+                if not lesson_student and chapter.ordering_number == 1:
+                    lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
+                                                                  lesson__is_open=True).select_related('lesson').last()
 
         else:
             lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
