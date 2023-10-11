@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from api.v1.exams.models import CategoryExamStudentResult
 from api.v1.exams.serializers.categories import CategoryExamStudentResultSerializer
-from api.v1.questions.models import StudentWrongAnswer, CategoryDetail
+from api.v1.questions.models import StudentWrongAnswer, CategoryDetail, StudentSavedQuestion
 from api.v1.accounts.permissions import IsStudent
 
 
@@ -38,7 +38,10 @@ class ExamStudentResult(GenericAPIView):
         serializer = self.get_serializer(self.get_queryset(), many=True)
 
         data = {
+            'all_wrong_answers_count': StudentWrongAnswer.objects.count(),
             'wrong_answers_count': StudentWrongAnswer.objects.filter(student=self.request.user).count(),
+            'saved_answers_count': StudentSavedQuestion.objects.filter(student=self.request.user).count(),
+            'all_saved_answers_count': StudentSavedQuestion.objects.count(),
             'category_exams': serializer.data
         }
         return Response(data)
