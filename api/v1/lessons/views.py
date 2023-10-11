@@ -1,22 +1,20 @@
 from datetime import timedelta
-
 from django.db.models import Count
 from django.utils.timezone import now
-from django.utils.translation import get_language
+from rest_framework.status import HTTP_201_CREATED
 from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
+from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_201_CREATED
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics, Lesson
-from api.v1.exams.views.general import ExamAnswerAPIView
-from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
-from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
-                                        LessonAnswerSerializer)
+from api.v1.lessons.models import StudentLessonViewStatistics, Lesson
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail, CategoryDetail, Variant
+from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.questions import QuestionSerializer
+from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
+                                        LessonAnswerSerializer)
 
 
 class LessonAnswerAPIView(GenericAPIView):

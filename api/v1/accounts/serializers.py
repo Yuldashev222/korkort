@@ -9,7 +9,7 @@ from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    gt_correct_count = 0
+    gt_correct_count = 1
     last_exams_result = 0
     all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
     all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())

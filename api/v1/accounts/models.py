@@ -60,8 +60,8 @@ class CustomUser(AbstractUser):
 
         for idx, cnt in enumerate(level_correct_counts):
             if self.correct_answers < cnt:
-                return LevelDetail.objects.filter(language=get_language())[idx - 1], level_correct_counts[idx]
-        return LevelDetail.objects.filter(language=get_language())[-1], self.correct_answers
+                return LevelDetail.objects.filter(language=get_language())[idx - 1].name, level_correct_counts[idx]
+        return LevelDetail.objects.filter(language=get_language())[-1].name, self.correct_answers
 
     def __str__(self):
         return self.get_full_name()[:30]
