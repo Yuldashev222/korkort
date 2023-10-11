@@ -47,17 +47,17 @@ class CustomUser(AbstractUser):
         level_correct_counts = Level.get_level_correct_counts()
 
         if not level_correct_counts:
-            return '-', 0
+            return '-', 1
 
         if self.correct_answers <= level_correct_counts[0]:
             level = LevelDetail.objects.filter(language=get_language()).first()
             if not level:
-                return '-', level_correct_counts[0]
+                return '-', 1
 
             try:
                 return level.name, level_correct_counts[1]
             except IndexError:
-                return level.name, level_correct_counts[0]
+                return level.name, 1
 
         for idx, cnt in enumerate(level_correct_counts):
             if self.correct_answers < cnt:
