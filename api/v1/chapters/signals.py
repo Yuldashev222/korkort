@@ -23,9 +23,10 @@ def delete_image(instance, *args, **kwargs):
 @receiver(post_save, sender=ChapterStudent)
 def update_student_completed_lessons(instance, *args, **kwargs):
     student = instance.student
-    if student and instance.chapter:
+    if student:
         completed_lessons = ChapterStudent.objects.filter(student=student).aggregate(amount=Sum('completed_lessons')
                                                                                      )['amount']
+        print(student.completed_lessons != completed_lessons)
         if student.completed_lessons != completed_lessons:
             student.completed_lessons = completed_lessons
             student.save()

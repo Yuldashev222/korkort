@@ -31,7 +31,7 @@ class ExamStudentResult(GenericAPIView):
         ctx = super().get_serializer_context()
 
         ctx['category_name_list'] = CategoryDetail.objects.filter(language=get_language()
-                                                                  ).values('category', 'name').order_by('category')
+                                                                  ).values('category', 'name').order_by('category_id')
         return ctx
 
     def get(self, request, *args, **kwargs):
