@@ -148,10 +148,7 @@ REST_FRAMEWORK = {
         'api.v1.authentications.authentication.CustomTokenAuthentication'
     ],
 
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-        'api.v1.accounts.permissions.IsStudent'
-    ],
+    'DEFAULT_PERMISSION_CLASSES': [],
     'DEFAULT_THROTTLE_CLASSES': [],
     'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'rest_framework.negotiation.DefaultContentNegotiation',
 

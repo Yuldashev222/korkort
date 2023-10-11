@@ -132,7 +132,7 @@ class LessonAnswerSerializer(serializers.Serializer):
         student = self.context['request'].user
 
         try:
-            lesson_student = LessonStudent.objects.select_related('lesson').get(id=lesson_id, student=student)
+            lesson_student = LessonStudent.objects.select_related('lesson').get(lesson_id=lesson_id, student=student)
             lesson = lesson_student.lesson
         except LessonStudent.DoesNotExist:
             raise ValidationError({'lesson_id': 'not found.'})
