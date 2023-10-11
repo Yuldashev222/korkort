@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete
@@ -16,6 +17,7 @@ def change_fields_pre_save(instance, *args, **kwargs):
     instance.first_name, instance.last_name = normalize_text(instance.first_name, instance.last_name)
 
     if not instance.is_staff:
+        instance.ball = instance.correct_answers * settings.TEST_BALL + instance.completed_lessons * settings.LESSON_BALL
         instance.bonus_money = round(instance.bonus_money, 1)
 
     if not instance.pk:

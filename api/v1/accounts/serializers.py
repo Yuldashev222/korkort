@@ -20,7 +20,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         ret['level_percent'] = int(ret['correct_answers'] / self.gt_correct_count * 100)
         ret['last_exams_result'] = self.last_exams_result
-        ret['ball'] = ret['correct_answers'] * settings.TEST_BALL + ret['completed_lessons'] * settings.LESSON_BALL
         return ret
 
     def get_level(self, instance):
@@ -42,7 +41,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            'first_name', 'last_name', 'email', 'avatar_id', 'user_code', 'bonus_money',
+            'first_name', 'last_name', 'ball', 'email', 'avatar_id', 'user_code', 'bonus_money',
             'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers',
             'level', 'tariff_expire_date', 'last_exams'
         ]
