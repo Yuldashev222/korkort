@@ -23,39 +23,24 @@ class VariantInline(admin.TabularInline):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = [
-        'ordering_number', 'category', 'text_swe', 'text_en', 'text_e_swe', 'difficulty_level'
-    ]
-    list_display_links = ['text_swe', 'text_en', 'text_e_swe']
+    list_display = ['ordering_number', 'category', 'difficulty_level']
     list_filter = ['ordering_number', 'category', 'lesson', 'difficulty_level']
-    search_fields = ['text_swe', 'text_en', 'text_e_swe', 'answer']
+    # search_fields = ['text_swe', 'text_en', 'text_e_swe', 'answer']
     inlines = (VariantInline,)
 
-    fields = [
-        'ordering_number',
-        'category',
-        'difficulty_level',
-        'lesson',
-        'text_swe',
-        'text_en',
-        'text_e_swe',
-        'answer',
-        'image',
-        'gif',
-    ]
+    fields = ['ordering_number', 'category', 'difficulty_level', 'lesson', 'image', 'gif']
 
 
 @admin.register(Category)
 class QuestionCategoryAdmin(admin.ModelAdmin):
-    list_display = ['img', 'name_swe', 'name_en', 'name_e_swe']
-    list_display_links = ['name_swe', 'name_en', 'name_e_swe']
-    search_fields = ['name_swe', 'name_en', 'name_e_swe']
+    list_display = ['id', 'img']
+
+    # search_fields = ['name_swe', 'name_en', 'name_e_swe']
 
     def img(self, obj):
         if obj.image:
             return format_html(f"<a href='{obj.image.url}'><img width=80 height=45 src='{obj.image.url}'></a>")
         return '-'
-
 
 # @admin.register(StudentWrongAnswer)
 # class StudentWrongAnswerAdmin(admin.ModelAdmin):

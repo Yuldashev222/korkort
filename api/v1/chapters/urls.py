@@ -1,9 +1,8 @@
 from django.urls import path
 
-from .models import ChapterStudent
-from .views import ChapterStudentAPIView
+from .views import ChapterAPIView
 
 urlpatterns = [
-    path('', ChapterStudentAPIView.as_view({'get': 'list'})),
-    path('<int:pk>/', ChapterStudentAPIView.as_view({'get': 'retrieve'})),
+    path('', ChapterAPIView.as_view({'get': 'list'})),
+    path('<int:pk>/', ChapterAPIView.as_view({'get': 'retrieve'})),
 ]

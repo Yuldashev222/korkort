@@ -8,37 +8,42 @@ from api.v1.questions.services import (category_image_location, question_image_l
 
 
 class Category(models.Model):
-    name_swe = models.CharField(max_length=300)
-    name_en = models.CharField(max_length=300, blank=True)
-    name_e_swe = models.CharField(max_length=300, blank=True)
     image = models.ImageField(upload_to=category_image_location, max_length=300)
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
 
     class Meta:
+        ordering = ['ordering_number']
         verbose_name_plural = 'Categories'
 
     def __str__(self):
-        return self.name_swe[:30]
+        return f'Category No {self.ordering_number}'
+
+
+class CategoryDetail(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    name = models.CharField(max_length=300)
+
+    class Meta:
+        unique_together = ['category', 'language']
+
+    def __str__(self):
+        return self.name
 
 
 class Question(models.Model):
     DIFFICULTY_LEVEL = [[1, 'easy'], [2, 'normal'], [3, 'hard']]
 
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, blank=True, null=True)  # last
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], blank=True, null=True)
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], default=100000)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
-    answer = models.CharField(max_length=500, blank=True)
-
-    text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish')
-    text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
-
+    image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
     gif = models.FileField(upload_to=question_gif_location, blank=True, null=True, max_length=300,
                            validators=[FileExtensionValidator(allowed_extensions=['gif'])])
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
     gif_duration = models.FloatField(default=0)
-    image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
 
     @classmethod
     def is_correct_question_id(cls, question_id, question_ids=None):
@@ -81,19 +86,15 @@ class Question(models.Model):
         return all_questions_count
 
     def __str__(self):
-        return f'{self.id}: {self.text_swe}'[:30]
+        if self.lesson:
+            return f'Question No {self.ordering_number}'
+        return f'Question No {self.id}'
 
     class Meta:
         ordering = ['ordering_number']
-        unique_together = ['lesson', 'ordering_number']
+        unique_together = ['lesson', 'ordering_number']  # last
 
     def save(self, *args, **kwargs):
-        self.text_swe, self.text_en, self.text_e_swe, self.answer = normalize_text(self.text_swe, self.text_en,
-                                                                                   self.text_e_swe, self.answer)
-
-        if not self.lesson:
-            self.ordering_number = 100000
-
         if self.gif:
             self.gif_last_frame_number, self.gif_duration = get_last_frame_number_and_duration(self.gif.path)
         else:
@@ -108,22 +109,33 @@ class Question(models.Model):
         cache.set('question_ids', question_ids)
 
 
-class Variant(models.Model):
+class QuestionDetail(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    text = models.CharField(max_length=300)
+    answer = models.CharField(max_length=500)
 
-    is_correct = models.BooleanField(default=False)
-
-    text_swe = models.CharField(max_length=300, verbose_name='Swedish')
-    text_en = models.CharField(max_length=300, verbose_name='English', blank=True)
-    text_e_swe = models.CharField(max_length=300, verbose_name='Easy Swedish', blank=True)
+    class Meta:
+        unique_together = ['question', 'language']
 
     def save(self, *args, **kwargs):
-        self.text_swe, self.text_en, self.text_e_swe = normalize_text(self.text_swe, self.text_en, self.text_e_swe)
+        self.text, self.answer = normalize_text(self.text, self.answer)
+        super().save(*args, **kwargs)
+
+
+class Variant(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    text = models.CharField(max_length=300)
+    is_correct = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        self.text = normalize_text(self.text)[0]
         super().save(*args, **kwargs)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['question'], condition=models.Q(is_correct=True),
+            models.UniqueConstraint(fields=['question', 'language'], condition=models.Q(is_correct=True),
                                     name="Each question must have exactly one correct option.")
         ]
 

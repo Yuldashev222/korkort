@@ -15,6 +15,11 @@ class Order(models.Model):
     student_discount_value = models.PositiveIntegerField(default=0)
     student_discount_is_percent = models.BooleanField(default=False)
 
+    tariff_discount_name = models.CharField(max_length=50, default='-')
+    tariff_discount_amount = models.FloatField(default=0)
+    tariff_discount_value = models.PositiveIntegerField(default=0)
+    tariff_discount_is_percent = models.BooleanField(default=True)
+
     expire_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     purchased_at = models.DateTimeField(blank=True, null=True)
@@ -26,15 +31,8 @@ class Order(models.Model):
     stripe_url = models.URLField(blank=True)
 
     tariff = models.ForeignKey('tariffs.Tariff', on_delete=models.SET_NULL, null=True)
-    tariff_title = models.CharField(max_length=100)
     tariff_price = models.PositiveIntegerField()
     tariff_days = models.PositiveSmallIntegerField()
-
-    tariff_discount_title = models.CharField(max_length=200, default='-')
-    tariff_discount_name = models.CharField(max_length=50, default='-')
-    tariff_discount_amount = models.FloatField(default=0)
-    tariff_discount_value = models.PositiveIntegerField(default=0)
-    tariff_discount_is_percent = models.BooleanField(default=True)
 
     called_student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     called_student_code = models.CharField(max_length=6, default='-')

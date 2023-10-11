@@ -2,17 +2,18 @@ from datetime import timedelta
 
 from django.db.models import Count
 from django.utils.timezone import now
-from rest_framework.generics import GenericAPIView, RetrieveAPIView
+from django.utils.translation import get_language
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
+from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics, Lesson
 from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer)
-from api.v1.questions.models import StudentSavedQuestion, Question
+from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail, CategoryDetail, Variant
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.questions import QuestionSerializer
 
@@ -24,14 +25,12 @@ class LessonAnswerAPIView(ExamAnswerAPIView):
 class LessonStudentAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted, IsOpenOrPurchased)
     serializer_class = LessonRetrieveSerializer
-
-    def get_queryset(self):
-        return LessonStudent.objects.filter(student=self.request.user).select_related('student')
+    queryset = Lesson.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         student = self.request.user
-        change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.lesson_id)
+        change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.id)
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
@@ -72,23 +71,28 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
 class LessonQuestionAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated, IsStudent, OldLessonCompletedForQuestions, IsOpenOrPurchased)
     serializer_class = QuestionSerializer
-
-    def get_queryset(self):
-        return LessonStudent.objects.filter(student=self.request.user)
+    queryset = Lesson.objects.all()
 
     def get(self, request, *args, **kwargs):
-        questions = Question.objects.filter(lesson_id=self.get_object().lesson_id
-                                            ).select_related('category').prefetch_related('variant_set')
-
+        questions = Question.objects.filter(lesson_id=self.kwargs[self.lookup_field])
         serializer = self.get_serializer(questions, many=True)
         return Response(serializer.data)
 
     def get_serializer_context(self):
-        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
-            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
+        student_saved_question_list = StudentSavedQuestion.objects.filter(student=self.request.user).values(
+            'question').order_by('question_id')
+        question_text_list = QuestionDetail.objects.filter(language=get_language()).values('question', 'text').order_by(
+            'question_id')
+        category_name_list = CategoryDetail.objects.filter(language=get_language()).values('category', 'name').order_by(
+            'category_id')
+        variant_list = Variant.objects.filter(language=get_language(), question__lesson_id=self.kwargs[self.lookup_field]
+                                          ).values('question', 'text', 'is_correct')
         return {
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'student_saved_question_ids': student_saved_question_ids
+            'student_saved_question_list': student_saved_question_list,
+            'question_text_list': question_text_list,
+            'category_name_list': category_name_list,
+            'variant_list': variant_list
         }

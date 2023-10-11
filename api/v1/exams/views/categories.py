@@ -1,9 +1,10 @@
+from django.utils.translation import get_language
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.questions.models import Question, StudentSavedQuestion
+from api.v1.questions.models import Question, StudentSavedQuestion, CategoryDetail, QuestionDetail, Variant
 from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.accounts.permissions import IsStudent
 from api.v1.exams.serializers.general import QuestionExamSerializer
@@ -23,16 +24,6 @@ class CategoryExamAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
     serializer_class = CategoryExamCreateSerializer
 
-    def get_serializer_context(self):
-        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
-            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self,
-            'student_saved_question_ids': student_saved_question_ids
-        }
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -44,16 +35,31 @@ class CategoryExamAPIView(GenericAPIView):
         if difficulty_level:
             filter_data['difficulty_level'] = int(difficulty_level)
 
-        questions_queryset = Question.objects.filter(
-            **filter_data).select_related('category').prefetch_related('variant_set').order_by('?')[:obj.questions]
+        questions_queryset = list(Question.objects.filter(**filter_data).order_by('?')[:obj.questions])
 
-        questions = QuestionExamSerializer(questions_queryset, many=True, context=self.get_serializer_context()).data
+        question_text_list = QuestionDetail.objects.filter(question__in=questions_queryset,
+                                                           language=get_language()).values('question', 'text', 'answer'
+                                                                                           ).order_by('question_id')
+
+        variant_list = Variant.objects.filter(language=get_language(), question__in=questions_queryset
+                                              ).values('question', 'text', 'is_correct')
+
+        student_saved_question_list = StudentSavedQuestion.objects.filter(
+            student=self.request.user, question__in=questions_queryset).values('question').order_by('question_id')
+
+        ctx = self.get_serializer_context()
+        ctx['student_saved_question_list'] = student_saved_question_list
+        ctx['category_name_list'] = []
+        ctx['question_text_list'] = question_text_list
+        ctx['variant_list'] = variant_list
+
+        questions = QuestionExamSerializer(questions_queryset, many=True, context=ctx).data
         return Response({'exam_id': obj.id, 'questions': questions}, status=HTTP_201_CREATED)
 
 
 class CategoryMixExamAPIView(CategoryExamAPIView):
     serializer_class = CategoryMixExamCreateSerializer
-    queryset = Question.objects.select_related('category').prefetch_related('variant_set')
+    queryset = Question.objects.all()
 
     def post(self, request, *args, **kwargs):
         queryset = self.queryset
@@ -70,7 +76,26 @@ class CategoryMixExamAPIView(CategoryExamAPIView):
         if difficulty_level:
             queryset = queryset.filter(difficulty_level=difficulty_level)
 
-        queryset = queryset.order_by('?')[:questions]
+        queryset = list(queryset.order_by('?')[:questions])
 
-        questions = QuestionExamSerializer(queryset, many=True, context=self.get_serializer_context()).data
+        question_text_list = QuestionDetail.objects.filter(question__in=queryset, language=get_language()
+                                                           ).values('question', 'text', 'answer'
+                                                                    ).order_by('question_id')
+
+        variant_list = Variant.objects.filter(language=get_language(), question__in=queryset
+                                              ).values('question', 'text', 'is_correct')
+
+        student_saved_question_list = StudentSavedQuestion.objects.filter(
+            student=self.request.user, question__in=queryset).values('question').order_by('question_id')
+
+        category_name_list = CategoryDetail.objects.filter(
+            language=get_language(), category__question__in=queryset).values('category', 'name').order_by('category_id')
+
+        ctx = self.get_serializer_context()
+        ctx['question_text_list'] = question_text_list
+        ctx['variant_list'] = variant_list
+        ctx['student_saved_question_list'] = student_saved_question_list
+        ctx['category_name_list'] = category_name_list
+
+        questions = QuestionExamSerializer(queryset, many=True, context=ctx).data
         return Response(questions, status=HTTP_200_OK)

@@ -1,47 +1,11 @@
-import random
 from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import StudentLastExamResult
-from api.v1.general.utils import get_language
-from api.v1.questions.tests import gifs
 from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question
 from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
-from api.v1.questions.serializers.variants import VariantSerializer
-
-
-class WrongQuestionsExamSerializer(serializers.Serializer):
-    id = serializers.IntegerField(source='question_id')
-    category = serializers.SerializerMethodField()
-    category_id = serializers.IntegerField(source='question.category_id')
-    question_text = serializers.SerializerMethodField()
-    # question_gif = serializers.FileField(source='question.gif')
-    # question_gif = serializers.URLField(source='question.get_random_gif')
-    # question_gif_last_frame_number = serializers.IntegerField(source='question.gif_last_frame_number')
-    # question_gif_last_frame_number = serializers.IntegerField(source=1302)
-    # question_gif_duration = serializers.FloatField(default=59220)
-    question_image = serializers.ImageField(source='question.image')
-    answer = serializers.CharField(source='question.answer')
-    is_saved = serializers.SerializerMethodField()
-
-    variant_set = VariantSerializer(source='question.variant_set', many=True)
-
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret['question_gif'], ret['question_gif_last_frame_number'], ret['question_gif_duration'] = random.choice(gifs)
-        return ret
-
-    def get_category(self, instance):
-        return getattr(instance.question.category, 'name_' + get_language())
-
-    def get_is_saved(self, instance):
-        return Question.is_correct_question_id(question_ids=self.context['student_saved_question_ids'],
-                                               question_id=instance.question.id)
-
-    def get_question_text(self, instance):
-        return getattr(instance.question, 'text_' + get_language())
 
 
 class WrongQuestionsExamAnswerSerializer(CategoryExamAnswerSerializer):

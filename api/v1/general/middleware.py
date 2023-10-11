@@ -1,5 +1,6 @@
 from django.utils.translation import activate
-from django.conf import settings
+
+from api.v1.languages.models import Language
 
 
 class LanguageMiddleware:
@@ -8,11 +9,11 @@ class LanguageMiddleware:
 
     def __call__(self, request):
         language = request.GET.get('language')
-
-        if language and language in settings.CUSTOM_LANGUAGES:
+        languages = Language.get_languages()
+        if language and language in languages:
             activate(language)
         else:
-            activate(settings.CUSTOM_LANGUAGES[0])
+            activate(languages[0])
 
         response = self.get_response(request)
         return response

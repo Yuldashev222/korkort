@@ -1,4 +1,4 @@
-from django.db import models, OperationalError
+from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
@@ -13,23 +13,8 @@ class Lesson(models.Model):
     lesson_time = models.FloatField(help_text='in minute')
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
-    title_en = models.CharField(verbose_name='Title English', max_length=300, blank=True)
-    title_swe = models.CharField(verbose_name='Title Swedish', max_length=300)
-    title_e_swe = models.CharField(verbose_name='Title Easy Swedish', max_length=300, blank=True)
-
-    text_en = models.CharField(verbose_name='Text English', blank=True, max_length=700)
-    text_swe = models.CharField(verbose_name='Text Swedish', blank=True, max_length=700)
-    text_e_swe = models.CharField(verbose_name='Text Easy Swedish', blank=True, max_length=700)
-
-    video_en = models.FileField(blank=True, null=True, upload_to=lesson_video_location, max_length=300,
-                                validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    video_swe = models.FileField(upload_to=lesson_video_location, max_length=300,
-                                 validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    video_e_swe = models.FileField(blank=True, null=True, upload_to=lesson_video_location, max_length=300,
-                                   validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-
     def __str__(self):
-        return f'{self.ordering_number}: {self.title_swe}'[:30]
+        return f'{self.chapter}: Lesson No {self.ordering_number}'
 
     class Meta:
         ordering = ['ordering_number']
@@ -47,44 +32,50 @@ class Lesson(models.Model):
     def set_redis(cls):
         cache.set('all_lessons_count', cls.objects.count())
 
+
+class LessonDetail(models.Model):
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    title = models.CharField(max_length=300)
+    text = models.CharField(max_length=700, blank=True)
+    video = models.FileField(max_length=300, upload_to=lesson_video_location,
+                             validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['lesson__ordering_number']
+        unique_together = ['lesson', 'language']
+
     def save(self, *args, **kwargs):
-        self.title_swe, self.title_en, self.title_e_swe = normalize_text(self.title_swe,
-                                                                         self.title_en, self.title_e_swe)
+        self.title = normalize_text(self.title)[0]
         super().save(*args, **kwargs)
 
 
 class LessonWordInfo(models.Model):
-    text_swe = models.CharField(max_length=300)
-    text_en = models.CharField(max_length=300, blank=True)
-    text_e_swe = models.CharField(max_length=300, blank=True)
-
-    info_swe = models.CharField(max_length=500)
-    info_en = models.CharField(max_length=500, blank=True)
-    info_e_swe = models.CharField(max_length=500, blank=True)
-
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)  # last
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    word = models.CharField(max_length=300)
+    info = models.CharField(max_length=500)
 
     class Meta:
         verbose_name = 'Word Info'
         verbose_name_plural = 'Word Infos'
 
     def save(self, *args, **kwargs):
-        self.text_swe, self.text_en, self.text_e_swe, self.info_swe, self.info_en, self.info_e_swe = normalize_text(
-            self.text_swe, self.text_en, self.text_e_swe, self.info_swe, self.info_en, self.info_e_swe)
+        self.word, self.info = normalize_text(self.word, self.info)
         super().save(*args, **kwargs)
 
 
 class LessonSource(models.Model):
-    text_swe = models.CharField(max_length=500)
-    text_en = models.CharField(max_length=500, blank=True)
-    text_e_swe = models.CharField(max_length=500, blank=True)
-
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    text = models.CharField(max_length=500)
     link = models.URLField()
 
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-
     def save(self, *args, **kwargs):
-        self.text_swe, self.text_en, self.text_e_swe = normalize_text(self.text_swe, self.text_en, self.text_e_swe)
+        self.text = normalize_text(self.text)[0]
         super().save(*args, **kwargs)
 
     class Meta:

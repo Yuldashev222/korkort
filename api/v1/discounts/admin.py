@@ -6,8 +6,7 @@ from .models import StudentDiscount, TariffDiscount
 
 @admin.register(StudentDiscount)
 class StudentDiscountAdmin(admin.ModelAdmin):
-    list_display = ['title', 'discount_value', 'is_percent']
-    list_display_links = ['title']
+    list_display = ['discount_value', 'is_percent']
 
     def has_add_permission(self, request):
         return not StudentDiscount.objects.exists()
@@ -15,8 +14,7 @@ class StudentDiscountAdmin(admin.ModelAdmin):
 
 @admin.register(TariffDiscount)
 class TariffDiscountAdmin(admin.ModelAdmin):
-    list_display = ['img', 'title', 'discount_value', 'is_percent']
-    list_display_links = ['title']
+    list_display = ['img', 'discount_value', 'is_percent']
 
     def has_add_permission(self, request):
         return not TariffDiscount.objects.exists()

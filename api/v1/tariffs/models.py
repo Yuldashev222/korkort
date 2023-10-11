@@ -7,8 +7,6 @@ from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 
 class Tariff(models.Model):
-    title = models.CharField(max_length=300)
-    desc = models.CharField(max_length=500, blank=True)
     days = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     price = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
@@ -44,3 +42,28 @@ class Tariff(models.Model):
     @classmethod
     def set_redis(cls):
         cache.set('tariffs', cls.objects.all())
+
+
+class TariffDetail(models.Model):
+    tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    title = models.CharField(max_length=300)
+    desc = models.CharField(max_length=500, blank=True)
+
+    class Meta:
+        unique_together = ['tariff', 'language']
+
+    @classmethod
+    def get_tariff_details(cls):
+        tariff_details = cache.get('tariff_details')
+        if not tariff_details:
+            cls.set_redis()
+            tariff_details = cache.get('tariff_details')
+        return tariff_details
+
+    @classmethod
+    def set_redis(cls):
+        cache.set('tariff_details', cls.objects.values())
+
+    def str(self):
+        return self.title

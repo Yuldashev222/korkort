@@ -4,10 +4,11 @@ import secrets
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, get_language
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
+from api.v1.levels.models import Level, LevelDetail
 from api.v1.questions.models import Question
 from api.v1.accounts.managers import CustomUserManager
 
@@ -42,15 +43,26 @@ class CustomUser(AbstractUser):
         verbose_name_plural = 'Students'
         ordering = ['-date_joined']
 
-    def get_level_and_gt_correct_count(self, language='en'):
-        correct_answers = self.correct_answers
-        if correct_answers <= settings.LEVEL_CORRECT_COUNTS[0]:
-            return settings.LEVEL_NAMES[language][0], settings.LEVEL_CORRECT_COUNTS[1]
+    def get_level_and_gt_correct_count(self):
+        level_correct_counts = Level.get_level_correct_counts()
 
-        for idx, cnt in enumerate(settings.LEVEL_CORRECT_COUNTS):
-            if correct_answers < cnt:
-                return settings.LEVEL_NAMES[language][idx - 1], settings.LEVEL_CORRECT_COUNTS[idx]
-        return settings.LEVEL_NAMES[language][-1], correct_answers
+        if not level_correct_counts:
+            return '-'
+
+        if self.correct_answers <= level_correct_counts[0]:
+            level = LevelDetail.objects.filter(language=get_language()).first()
+            if not level:
+                return '-', level_correct_counts[0]
+
+            try:
+                return level.name, level_correct_counts[1]
+            except IndexError:
+                return level.name, level_correct_counts[0]
+
+        for idx, cnt in enumerate(level_correct_counts):
+            if self.correct_answers < cnt:
+                return LevelDetail.objects.filter(language=get_language())[idx - 1], level_correct_counts[idx]
+        return LevelDetail.objects.filter(language=get_language())[-1], self.correct_answers
 
     def __str__(self):
         return self.get_full_name()[:30]

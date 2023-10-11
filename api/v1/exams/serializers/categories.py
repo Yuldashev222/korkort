@@ -1,11 +1,12 @@
 from django.db import transaction
 from django.conf import settings
+from django.utils.translation import get_language
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
-from api.v1.general.utils import get_language
+from api.v1.general.utils import bubble_search
 from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question, Category
 from api.v1.questions.serializers.questions import QuestionAnswerSerializer
@@ -18,19 +19,17 @@ class CategoryExamStudentSerializer(serializers.ModelSerializer):
 
 
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
-    percent = 0
     # image = serializers.SerializerMethodField()
     image = serializers.URLField(
         default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     name = serializers.SerializerMethodField()
-    detail = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['percent'] = self.percent
+        ret['detail'], ret['percent'] = self.get_detail_and_percent(instance)
         return ret
 
-    def get_detail(self, instance):
+    def get_detail_and_percent(self, instance):
         last_exams = instance.categoryexamstudent_set.all()[:10]
         data = CategoryExamStudentSerializer(last_exams, many=True).data
         len_data = len(data)
@@ -39,15 +38,18 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
             data.extend([obj] * (10 - len_data))
         data.reverse()
         temp = list(map(lambda el: el['percent'], data))
-        self.percent = int(sum(temp) / len(temp))
-        return data
+        return data, int(sum(temp) / len(temp))
 
     class Meta:
         model = CategoryExamStudentResult
         exclude = ['student']
 
     def get_name(self, instance):
-        return getattr(instance.category, 'name_' + get_language())
+        sort_list = self.context['category_name_list']
+        obj = bubble_search(instance.id, 'category', sort_list)
+        if obj is not None:
+            return obj['name']
+        return '-'
 
     # def get_image(self, instance):
     #     return self.context['request'].build_absolute_uri(instance.category.image.url)

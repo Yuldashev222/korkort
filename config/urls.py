@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('admin/', admin.site.urls),
+    path('api/v1/languages/', include('api.v1.languages.urls')),
     path('api/v1/payments/', include('api.v1.payments.urls')),
     path('api/v1/auth/', include('api.v1.authentications.urls')),
     path('api/v1/tariffs/', include('api.v1.tariffs.urls')),

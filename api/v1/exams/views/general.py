@@ -1,3 +1,4 @@
+from django.utils.translation import get_language
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
@@ -5,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from api.v1.exams.models import CategoryExamStudentResult
 from api.v1.exams.serializers.categories import CategoryExamStudentResultSerializer
-from api.v1.questions.models import StudentWrongAnswer
+from api.v1.questions.models import StudentWrongAnswer, CategoryDetail
 from api.v1.accounts.permissions import IsStudent
 
 
@@ -20,16 +21,24 @@ class ExamAnswerAPIView(GenericAPIView):
 
 class ExamStudentResult(GenericAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = CategoryExamStudentResultSerializer
+
+    def get_queryset(self):
+        return CategoryExamStudentResult.objects.filter(
+            student=self.request.user).select_related('category').prefetch_related('categoryexamstudent_set')
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+
+        ctx['category_name_list'] = CategoryDetail.objects.filter(language=get_language()
+                                                                  ).values('category', 'name').order_by('category')
+        return ctx
 
     def get(self, request, *args, **kwargs):
-        student = self.request.user
-        category_exam_query = CategoryExamStudentResult.objects.filter(
-            student=student).select_related('category').prefetch_related('categoryexamstudent_set')
+        serializer = self.get_serializer(self.get_queryset(), many=True)
 
-        category_exams = CategoryExamStudentResultSerializer(category_exam_query, many=True,
-                                                             context={'request': request}).data
         data = {
-            'wrong_answers_count': StudentWrongAnswer.objects.filter(student=student).count(),
-            'category_exams': category_exams
+            'wrong_answers_count': StudentWrongAnswer.objects.filter(student=self.request.user).count(),
+            'category_exams': serializer.data
         }
         return Response(data)

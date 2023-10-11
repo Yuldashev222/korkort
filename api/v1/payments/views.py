@@ -3,15 +3,15 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.pagination import PageNumberPagination
 
 from api.v1.payments.models import Order
+from api.v1.general.paginations import CustomPageNumberPagination
 from api.v1.accounts.permissions import IsStudent
 from api.v1.payments.serializers import OrderSerializer, CheckCouponSerializer
 
 
 class OrderAPIView(ReadOnlyModelViewSet):
-    pagination_class = PageNumberPagination
+    pagination_class = CustomPageNumberPagination
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated, IsStudent)
 

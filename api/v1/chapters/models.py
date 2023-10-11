@@ -1,18 +1,11 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
+from api.v1.general.services import normalize_text
 from api.v1.chapters.services import chapter_image_location
 
 
 class Chapter(models.Model):
-    title_en = models.CharField(verbose_name='title English', max_length=300, blank=True)
-    title_swe = models.CharField(verbose_name='title Swedish', max_length=300)
-    title_e_swe = models.CharField(verbose_name='title Easy Swedish', max_length=300, blank=True)
-
-    desc_en = models.CharField(verbose_name='desc English', blank=True, max_length=700)
-    desc_swe = models.CharField(verbose_name='desc Swedish', blank=True, max_length=700)
-    desc_e_swe = models.CharField(verbose_name='desc Easy Swedish', blank=True, max_length=700)
-
     image = models.ImageField(upload_to=chapter_image_location, max_length=300)
 
     lessons = models.PositiveSmallIntegerField(default=0)
@@ -25,7 +18,24 @@ class Chapter(models.Model):
         ordering = ['ordering_number']
 
     def __str__(self):
-        return f'{self.ordering_number}: {self.title_swe}'[:30]
+        return f'Chapter No {self.ordering_number}'
+
+
+class ChapterDetail(models.Model):
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    title = models.CharField(max_length=300)
+    desc = models.CharField(max_length=700, blank=True)
+
+    class Meta:
+        unique_together = ['chapter', 'language']
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        self.title, self.desc = normalize_text(self.title, self.desc)
+        super().save(*args, **kwargs)
 
 
 class ChapterStudent(models.Model):

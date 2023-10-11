@@ -19,16 +19,16 @@ class StripeCheckoutAPIView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        tariff = serializer.validated_data['tariff']
+        tariff_detail = serializer.validated_data['tariff_detail']
         order = serializer.validated_data['order']
 
         if order.is_paid:
             return Response({'checkout_url': None, 'is_paid': True}, status=status.HTTP_200_OK)
 
-        product_data = {'name': tariff.title}
+        product_data = {'name': tariff_detail.title}
 
-        if tariff.desc:
-            product_data['description'] = tariff.desc
+        if tariff_detail.desc:
+            product_data['description'] = tariff_detail.desc
 
         session_data = {
             'mode': 'payment',

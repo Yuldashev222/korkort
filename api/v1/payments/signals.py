@@ -19,7 +19,6 @@ def check_order(instance, *args, **kwargs):
         instance.order_id = instance.generate_unique_order_id
         instance.student_email = student.email
 
-        instance.tariff_title = tariff.title
         instance.tariff_price = tariff.price
         instance.tariff_days = tariff.days
 
@@ -29,7 +28,6 @@ def check_order(instance, *args, **kwargs):
 
             if tariff_discount:
                 instance.tariff_discount_value = tariff_discount['discount_value']
-                instance.tariff_discount_title = tariff_discount['title']
                 instance.tariff_discount_name = tariff_discount['name']
                 instance.tariff_discount_is_percent = tariff_discount['is_percent']
                 instance.tariff_discount_amount = tariff.tariff_discount_amount

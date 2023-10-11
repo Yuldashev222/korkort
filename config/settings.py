@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'api.v1.lessons.apps.LessonsConfig',
     'api.v1.questions.apps.QuestionsConfig',
     'api.v1.exams.apps.ExamsConfig',
-    'api.v1.swish.apps.SwishConfig'
+    'api.v1.swish.apps.SwishConfig',
+    'api.v1.languages.apps.LanguagesConfig',
+    'api.v1.levels.apps.LevelsConfig'
 ]
 
 MIDDLEWARE = [
@@ -154,7 +156,7 @@ REST_FRAMEWORK = {
     'DEFAULT_CONTENT_NEGOTIATION_CLASS': 'rest_framework.negotiation.DefaultContentNegotiation',
 
     'DEFAULT_PAGINATION_CLASS': None,
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': None,
 
     'DEFAULT_FILTER_BACKENDS': [],
 
@@ -207,48 +209,9 @@ FAILURE_PAYMENT_URL = 'https://youtube.com'
 TEST_BALL = 1
 LESSON_BALL = 10
 MAX_QUESTIONS = 65
+FINAL_QUESTIONS = 65
 MAX_WRONG_QUESTIONS = 20
 MIN_QUESTIONS = 5
-CUSTOM_LANGUAGES = ['swe', 'en', 'e_swe']
-LEVEL_CORRECT_COUNTS = [0, 50, 150, 300, 500, 750, 1150, 1650, 2350, 3200]
-LEVEL_NAMES = {
-    'en': [
-        'Nyckelknippe',
-        'Startmotorn',
-        'Asfaltsrookie',
-        'Kopplingskung',
-        'Vägkapten',
-        'Kurvmästare',
-        'Gasguru',
-        'Fartfantast',
-        'Bilboss',
-        'Körkortskung'
-    ],
-    'e_swe': [
-        'Nyckelknippe',
-        'Startmotorn',
-        'Asfaltsrookie',
-        'Kopplingskung',
-        'Vägkapten',
-        'Kurvmästare',
-        'Gasguru',
-        'Fartfantast',
-        'Bilboss',
-        'Körkortskung'
-    ],
-    'swe': [
-        'Nyckelknippe',
-        'Startmotorn',
-        'Asfaltsrookie',
-        'Kopplingskung',
-        'Vägkapten',
-        'Kurvmästare',
-        'Gasguru',
-        'Fartfantast',
-        'Bilboss',
-        'Körkortskung',
-    ]
-}
 
 # smtp configs
 EMAIL_USE_TLS = True

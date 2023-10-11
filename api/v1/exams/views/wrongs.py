@@ -1,37 +1,59 @@
 from django.conf import settings
-from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView
+from django.utils.translation import get_language
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
-from api.v1.exams.filters import WrongQuestionsExamFilter
-from api.v1.questions.models import StudentWrongAnswer, StudentSavedQuestion
+from api.v1.exams.filters import QuestionFilter
+from api.v1.exams.serializers.general import QuestionExamSerializer
+from api.v1.questions.models import CategoryDetail, Question, QuestionDetail, Variant, StudentSavedQuestion
 from api.v1.exams.views.general import ExamAnswerAPIView
 from api.v1.accounts.permissions import IsStudent
-from api.v1.exams.serializers.wrongs import WrongQuestionsExamSerializer, WrongQuestionsExamAnswerSerializer
+from api.v1.exams.serializers.wrongs import WrongQuestionsExamAnswerSerializer
 
 
 class WrongQuestionsExamAnswerAPIView(ExamAnswerAPIView):
     serializer_class = WrongQuestionsExamAnswerSerializer
 
 
-class WrongQuestionsExamAPIView(ListAPIView):
+class WrongQuestionsExamAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
-    serializer_class = WrongQuestionsExamSerializer
+    serializer_class = QuestionExamSerializer
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = WrongQuestionsExamFilter
+    filterset_class = QuestionFilter
 
-    queryset = StudentWrongAnswer.objects.select_related('question__category').order_by('?')
+    queryset = Question.objects.filter(studentwronganswer__isnull=False).order_by('?')
 
-    def get_serializer_context(self):
-        student_saved_question_ids = list(StudentSavedQuestion.objects.filter(
-            student=self.request.user).values_list('question_id', flat=True).order_by('question_id'))
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self,
-            'student_saved_question_ids': student_saved_question_ids
-        }
+    def get(self, request, *args, **kwargs):
+        questions_queryset = list(self.filter_queryset(self.get_queryset()))
+
+        category_name_list = CategoryDetail.objects.filter(category__question__in=questions_queryset,
+                                                           language=get_language()).values('category', 'name').order_by(
+            'category_id')
+
+        question_text_list = QuestionDetail.objects.filter(question__in=questions_queryset,
+                                                           language=get_language()).values('question', 'text', 'answer'
+                                                                                           ).order_by('question_id')
+
+        variant_list = Variant.objects.filter(language=get_language(), question__in=questions_queryset
+                                              ).values('question', 'text', 'is_correct')
+
+        student_saved_question_list = StudentSavedQuestion.objects.filter(
+            student=self.request.user, question__in=questions_queryset).values('question').order_by('question_id')
+
+        category_name_list = CategoryDetail.objects.filter(
+            language=get_language(), category__question__in=questions_queryset).values('category', 'name'
+                                                                                       ).order_by('category_id')
+
+        ctx = self.get_serializer_context()
+        ctx['student_saved_question_list'] = student_saved_question_list
+        ctx['category_name_list'] = category_name_list
+        ctx['question_text_list'] = question_text_list
+        ctx['variant_list'] = variant_list
+        serializer = self.get_serializer(questions_queryset, many=True, context=ctx)
+        return Response(serializer.data)
 
     def filter_queryset(self, queryset):
         my_questions = self.request.query_params.get('my_questions')

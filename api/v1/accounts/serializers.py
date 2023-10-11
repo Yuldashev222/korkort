@@ -1,8 +1,8 @@
 from django.conf import settings
+from django.utils.translation import get_language
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
-from api.v1.general.utils import get_language
 from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question
@@ -20,13 +20,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['level_percent'] = int(ret['correct_answers'] / self.gt_correct_count * 100)
-        ret['level_id'] = settings.LEVEL_NAMES[get_language()].index(ret['level'])
         ret['last_exams_result'] = self.last_exams_result
         ret['ball'] = ret['correct_answers'] * settings.TEST_BALL + ret['completed_lessons'] * settings.LESSON_BALL
         return ret
 
     def get_level(self, instance):
-        level, self.gt_correct_count = instance.get_level_and_gt_correct_count(language=get_language())
+        level, self.gt_correct_count = instance.get_level_and_gt_correct_count()
         return level
 
     def get_last_exams(self, instance):

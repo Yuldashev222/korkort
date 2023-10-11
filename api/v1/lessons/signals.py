@@ -56,9 +56,12 @@ def add_to_student_on_create(instance, created, *args, **kwargs):
 
 @receiver(post_save, sender=LessonStudent)
 def update_student_ball(instance, *args, **kwargs):
-    if instance.student:
-        completed_lessons = LessonStudent.objects.filter(student=instance.student, is_completed=True,
-                                                         lesson__chapter=instance.lesson.chapter).count()
-        obj, _ = ChapterStudent.objects.get_or_create(chapter=instance.lesson.chapter, student=instance.student)
-        obj.completed_lessons = completed_lessons
-        obj.save()
+    student = instance.student
+    chapter = instance.lesson.chapter
+    if instance.student and instance.is_completed:
+        completed_lessons = LessonStudent.objects.filter(student=student, is_completed=True, lesson__chapter=chapter
+                                                         ).count()
+        obj, _ = ChapterStudent.objects.get_or_create(chapter=chapter, student=student)
+        if obj.completed_lessons != completed_lessons:
+            obj.completed_lessons = completed_lessons
+            obj.save()

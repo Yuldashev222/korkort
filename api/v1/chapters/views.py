@@ -1,61 +1,78 @@
-from django.http import Http404
 from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from django.utils.translation import get_language
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.lessons.models import LessonStudent
-from api.v1.chapters.models import ChapterStudent
-from api.v1.questions.models import StudentSavedQuestion
+from api.v1.lessons.models import LessonStudent, LessonDetail
+from api.v1.chapters.models import Chapter, ChapterDetail, ChapterStudent
 from api.v1.lessons.serializers import LessonRetrieveSerializer
 from api.v1.accounts.permissions import IsStudent
-from api.v1.chapters.serializers import ChapterStudentSerializer
+from api.v1.chapters.serializers import ChapterSerializer
 
 
-class ChapterStudentAPIView(ReadOnlyModelViewSet):
-    serializer_class = ChapterStudentSerializer
+class ChapterAPIView(ReadOnlyModelViewSet):
+    lesson_student = None
+    serializer_class = ChapterSerializer
     permission_classes = (IsAuthenticated, IsStudent)
+    queryset = Chapter.objects.all()
 
-    def get_queryset(self):
-        return ChapterStudent.objects.filter(student=self.request.user).select_related('chapter')
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+
+        ctx['details'] = ChapterDetail.objects.filter(
+            language=get_language()).values('chapter', 'title', 'desc').order_by('chapter')
+
+        ctx['chapter_student_list'] = ChapterStudent.objects.filter(
+            student=self.request.user).values('chapter', 'completed_lessons').order_by('chapter')
+        return ctx
 
     def get_object(self):
         student = self.request.user
-        try:
-            chapter_student = ChapterStudent.objects.select_related('chapter').get(pk=self.kwargs[self.lookup_field])
-            chapter = chapter_student.chapter
-        except ChapterStudent.DoesNotExist:
-            raise Http404({'detail': 'not found'})
+        chapter = super().get_object()
 
-        obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=False
-                                           ).select_related('lesson').first()
+        lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=False
+                                                      ).select_related('lesson').first()
 
-        if obj:
-            if chapter.ordering_number != 1 and obj.lesson.ordering_number == 1:
+        if lesson_student:
+            lesson = lesson_student.lesson
+
+            if chapter.ordering_number != 1 and lesson.ordering_number == 1:
                 return None
 
-            if obj.lesson.is_open:
-                return obj
+            if lesson.is_open:
+                self.lesson_student = lesson_student
+                return lesson
 
-            elif student.tariff_expire_date <= now():
-                obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, lesson__is_open=True,
-                                                   is_completed=True).last()
-                if not obj and chapter.ordering_number == 1:
-                    obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
-                                                       lesson__is_open=True).last()
+            if student.tariff_expire_date < now():
+                return None
+
+            lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
+                                                          lesson__is_open=True,
+                                                          is_completed=True).select_related('lesson').last()
+
+            if not lesson_student and chapter.ordering_number == 1:
+                lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
+                                                              lesson__is_open=True).select_related('lesson').last()
 
         else:
-            obj = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=True).last()
+            lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student,
+                                                          is_completed=True
+                                                          ).select_related('lesson').last()
 
-        return obj
+        if lesson_student:
+            self.lesson_student = lesson_student
+            return lesson_student.lesson
+        return None
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         if not instance:
             raise PermissionDenied()
+
         student = self.request.user
-        change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.lesson_id)
-        serializer = LessonRetrieveSerializer(instance, context=self.get_serializer_context())
+        change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.id)
+        serializer = LessonRetrieveSerializer(instance, context={'request': request})
         return Response(serializer.data)
