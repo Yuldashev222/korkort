@@ -46,7 +46,7 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
 
     def get_name(self, instance):
         sort_list = self.context['category_name_list']
-        obj = bubble_search(instance.id, 'category', sort_list)
+        obj = bubble_search(instance.category.id, 'category', sort_list)
         if obj is not None:
             return obj['name']
         return '-'
