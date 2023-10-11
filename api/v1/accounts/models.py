@@ -47,7 +47,7 @@ class CustomUser(AbstractUser):
         level_correct_counts = Level.get_level_correct_counts()
 
         if not level_correct_counts:
-            return '-'
+            return '-', '-'
 
         if self.correct_answers <= level_correct_counts[0]:
             level = LevelDetail.objects.filter(language=get_language()).first()
