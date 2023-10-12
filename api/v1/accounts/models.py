@@ -65,7 +65,7 @@ class CustomUser(AbstractUser):
                 return level.name, level.level.ordering_number, level_correct_counts[idx]
 
         level = LevelDetail.objects.filter(language=get_language()).select_related('level')[-1]
-        return level.level.ordering_number, self.correct_answers
+        return level.name, level.level.ordering_number, self.correct_answers
 
     def __str__(self):
         return self.get_full_name()[:30]
