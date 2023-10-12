@@ -8,7 +8,7 @@ from api.v1.questions.models import Category, Question, Variant, CategoryDetail,
 
 
 def create_categories():
-    for i in range(40):
+    for i in range(10):
         obj = Category.objects.create(image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png',
                                       ordering_number=i + 1)
         for language in Language.objects.all():

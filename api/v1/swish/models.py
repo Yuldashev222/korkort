@@ -36,7 +36,7 @@ class MinBonusMoney(models.Model):
 
 
 class SwishCard(models.Model):
-    number = models.PositiveSmallIntegerField(verbose_name='Swish Account')
+    number = models.CharField(max_length=50, verbose_name='Swish Account')
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(blank=True, null=True)

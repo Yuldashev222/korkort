@@ -9,3 +9,6 @@ class SwishCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwishCard
         fields = ['number', 'student']
+        extra_kwargs = {
+            'number': {'min_length': 5}
+        }

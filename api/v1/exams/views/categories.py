@@ -69,9 +69,8 @@ class CategoryMixExamAPIView(CategoryExamAPIView):
         difficulty_level = serializer.validated_data['difficulty_level']
         category_ids = serializer.validated_data.get('category_ids')
 
-        if category_ids:
-            category_ids = list(map(lambda obj: obj['pk'], category_ids))
-            queryset = queryset.filter(category_id__in=category_ids)
+        if category_ids and isinstance(category_ids, list):
+            queryset = queryset.filter(category_id__in=[i for i in category_ids if isinstance(i, int)])
 
         if difficulty_level:
             queryset = queryset.filter(difficulty_level=difficulty_level)

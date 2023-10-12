@@ -183,11 +183,10 @@ class ListCategoryMixExamSerializer(serializers.Serializer):
 
 class CategoryMixExamCreateSerializer(CategoryExamCreateSerializer):
     category_id = None
-    category_ids = ListCategoryMixExamSerializer(many=True, required=False)
 
     def create(self, validated_data):
         return None
 
     class Meta:
         model = CategoryExamStudent
-        fields = ['id', 'questions', 'difficulty_level', 'category_ids']
+        fields = ['id', 'questions', 'difficulty_level']
