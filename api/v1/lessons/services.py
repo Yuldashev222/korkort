@@ -3,4 +3,4 @@ def lesson_image_location(instance, image):
 
 
 def lesson_video_location(instance, video):
-    return f'chapters/{str(instance.chapter).replace(" ", "_")}/lessons/{str(instance)}/videos/{video}'
+    return f'chapters/{str(instance.lesson.chapter).replace(" ", "_")}/lessons/{str(instance)}/videos/{video}'
