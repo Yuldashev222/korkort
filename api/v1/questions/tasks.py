@@ -13,8 +13,10 @@ def update_student_correct_answers(student, correct_question_ids, wrong_question
     StudentCorrectAnswer.objects.filter(question_id__in=wrong_question_ids + correct_question_ids, student=student
                                         ).delete()
     bulk_create_answers(StudentCorrectAnswer, correct_question_ids, student.id)
-    student.correct_answers = StudentCorrectAnswer.objects.filter(student=student).count()
-    student.save()
+    correct_answers = StudentCorrectAnswer.objects.filter(student=student).count()
+    if student.correct_answers != correct_answers:
+        student.correct_answers = correct_answers
+        student.save()
 
 
 @shared_task
