@@ -11,10 +11,9 @@ class ChapterSerializer(serializers.ModelSerializer):
     old_obj_chapter_lessons = None
     old_obj_completed_lessons = None
 
-    # image = serializers.ImageField(source='chapter.image', max_length=300)
-    image = serializers.URLField(
-        default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png'
-    )
+    # image = serializers.ImageField()
+    image = 'https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png'
+
     lessons = serializers.IntegerField()
     chapter_hour = serializers.IntegerField()
     chapter_minute = serializers.IntegerField()
@@ -56,10 +55,9 @@ class ChapterSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['title'], ret['desc'] = self.get_title_and_desc(instance)
+        ret['image'] = self.image
         return ret
 
     class Meta:
         model = Chapter
-        fields = [
-            'id', 'image', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open'
-        ]
+        fields = ['id', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open']

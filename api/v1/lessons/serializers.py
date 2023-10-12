@@ -71,12 +71,12 @@ class StudentLessonViewStatisticsSerializer(serializers.Serializer):
 
 
 class LessonRetrieveSerializer(serializers.Serializer):
+    video = 'https://api.lattmedkorkort.se/media/chapters/1%3A_26d7f4b6-6923-4612-9719-73a/lessons/1%3A%20193fe385-404e-4dff-a59b-7e5/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751.mp4'
     id = serializers.IntegerField()
     lesson_time = serializers.FloatField()
 
     # image = serializers.FileField(source='lesson.image')
-    image = serializers.URLField(default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4'
-                                         '/images/Rectangle_625.png')
+    image = 'https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png'
 
     lessons = serializers.SerializerMethodField()
     word_infos = serializers.SerializerMethodField()
@@ -104,16 +104,15 @@ class LessonRetrieveSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
+        ret['image'] = self.image
         obj = LessonDetail.objects.get(lesson=instance, language=get_language())
         if obj:
             ret['text'] = obj.text
             ret['title'] = obj.title
-            if obj.video:
-                ret['video'] = self.context['request'].build_absolute_uri(obj.video)
-            else:  # last
-                ret['video'] = ('https://api.lattmedkorkort.se/media/chapters/1%3A_26d7f4b6-6923-4612-9719-73a/lessons'
-                                '/1%3A%20193fe385-404e-4dff-a59b-7e5/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%'
-                                'A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751.mp4')
+            # if obj.video:
+            #     ret['video'] = self.context['request'].build_absolute_uri(obj.video)
+            # else:  # last
+            ret['video'] = self.video
 
         else:
             ret['text'] = ''
