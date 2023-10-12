@@ -9,6 +9,7 @@ from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    level_id = 1
     gt_correct_count = 1
     last_exams_result = 0
     all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
@@ -19,11 +20,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['level_percent'] = int(ret['correct_answers'] / self.gt_correct_count * 100)
+        ret['level_id'] = self.level_id
         ret['last_exams_result'] = self.last_exams_result
         return ret
 
     def get_level(self, instance):
-        level, self.gt_correct_count = instance.get_level_and_gt_correct_count()
+        level, self.level_id, self.gt_correct_count = instance.get_level_and_level_id_and_gt_correct_count()
         return level
 
     def get_last_exams(self, instance):

@@ -26,7 +26,6 @@ def update_student_completed_lessons(instance, *args, **kwargs):
     if student:
         completed_lessons = ChapterStudent.objects.filter(student=student).aggregate(amount=Sum('completed_lessons')
                                                                                      )['amount']
-        print(student.completed_lessons != completed_lessons)
         if student.completed_lessons != completed_lessons:
             student.completed_lessons = completed_lessons
             student.save()

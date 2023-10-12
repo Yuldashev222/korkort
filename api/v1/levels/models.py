@@ -10,6 +10,9 @@ class Level(models.Model):
     correct_answers = models.PositiveSmallIntegerField(unique=True)
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
 
+    def __str__(self):
+        return str(self.ordering_number)
+
     class Meta:
         ordering = ['ordering_number']
 
