@@ -54,7 +54,7 @@ class CustomUser(AbstractUser):
                 return '-', 1, 1
 
             try:
-                return level.name, level_correct_counts[1]
+                return level.name, level.level.ordering_number, level_correct_counts[1]
             except IndexError:
                 return level.name, level.level.ordering_number,  1
 
