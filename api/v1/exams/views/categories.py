@@ -69,7 +69,7 @@ class CategoryMixExamAPIView(CategoryExamAPIView):
         difficulty_level = serializer.validated_data['difficulty_level']
         category_ids = serializer.validated_data.get('category_ids')
 
-        if category_ids and isinstance(category_ids, list):
+        if category_ids and isinstance(category_ids, list) and len(category_ids) < 50:
             queryset = queryset.filter(category_id__in=[i for i in category_ids if isinstance(i, int)])
 
         if difficulty_level:

@@ -19,14 +19,14 @@ class CategoryExamStudentSerializer(serializers.ModelSerializer):
 
 
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
+    image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
     # image = serializers.SerializerMethodField()
-    image = serializers.URLField(
-        default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     name = serializers.SerializerMethodField()
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['detail'], ret['percent'] = self.get_detail_and_percent(instance)
+        ret['image'] = self.image
         return ret
 
     def get_detail_and_percent(self, instance):

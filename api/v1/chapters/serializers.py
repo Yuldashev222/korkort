@@ -12,7 +12,7 @@ class ChapterSerializer(serializers.ModelSerializer):
     old_obj_completed_lessons = None
 
     # image = serializers.ImageField()
-    image = 'https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png'
+    image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
 
     lessons = serializers.IntegerField()
     chapter_hour = serializers.IntegerField()

@@ -71,12 +71,12 @@ class StudentLessonViewStatisticsSerializer(serializers.Serializer):
 
 
 class LessonRetrieveSerializer(serializers.Serializer):
-    video = 'https://api.lattmedkorkort.se/media/chapters/1%3A_26d7f4b6-6923-4612-9719-73a/lessons/1%3A%20193fe385-404e-4dff-a59b-7e5/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751.mp4'
+    video = 'https://api.lattmedkorkort.se/media/chapters/Chapter_No_1/lessons/V%C3%A4gen%20till%20k%C3%B6rkort%20f%C3%B6r%20personbil/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751_7tb8yAl.mp4'
     id = serializers.IntegerField()
     lesson_time = serializers.FloatField()
 
     # image = serializers.FileField(source='lesson.image')
-    image = 'https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png'
+    image = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRClGlxrlqY7RlZZ_8PqNU0NfQOlqHUvPg9S80O8H1luMigslACzs8Aqggw1irL3tMIg1Y&usqp=CAU'
 
     lessons = serializers.SerializerMethodField()
     word_infos = serializers.SerializerMethodField()
@@ -118,6 +118,7 @@ class LessonRetrieveSerializer(serializers.Serializer):
             ret['text'] = ''
             ret['title'] = ''
             ret['video'] = None
+        ret['video'] = self.video
         return ret
 
 
