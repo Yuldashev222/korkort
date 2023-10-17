@@ -35,7 +35,6 @@ class ChapterAPIView(ReadOnlyModelViewSet):
 
         lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.id, student=student, is_completed=False
                                                       ).select_related('lesson').first()
-
         if lesson_student:
             lesson = lesson_student.lesson
 

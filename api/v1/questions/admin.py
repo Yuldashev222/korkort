@@ -2,7 +2,9 @@ from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 
-from api.v1.questions.models import Category, Variant, Question, StudentWrongAnswer, StudentSavedQuestion
+from api.v1.general.admin import AbstractTabularInline
+from api.v1.questions.models import Category, Variant, Question, StudentWrongAnswer, StudentSavedQuestion, \
+    QuestionDetail
 
 
 class VariantInlineFormset(forms.models.BaseInlineFormSet):
@@ -21,12 +23,15 @@ class VariantInline(admin.TabularInline):
     max_num = 6
 
 
+class QuestionDetailInline(AbstractTabularInline):
+    model = QuestionDetail
+
+
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ['ordering_number', 'category', 'difficulty_level']
     list_filter = ['ordering_number', 'category', 'lesson', 'difficulty_level']
-    # search_fields = ['text_swe', 'text_en', 'text_e_swe', 'answer']
-    inlines = (VariantInline,)
+    inlines = (VariantInline, QuestionDetailInline)
 
     fields = ['ordering_number', 'category', 'difficulty_level', 'lesson', 'image', 'gif']
 

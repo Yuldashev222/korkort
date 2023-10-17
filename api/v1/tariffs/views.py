@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.utils.decorators import method_decorator
-from django.utils.translation import get_language
-from django.views.decorators.cache import cache_page
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.utils.translation import get_language
+from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.cache import cache_page
 
 from .models import Tariff, TariffDetail
 from .serializers import TariffSerializer
@@ -21,7 +22,7 @@ class TariffAPIView(GenericAPIView):
         ctx['details'] = TariffDetail.objects.filter(language=get_language()).values('tariff', 'title', 'desc')
         return ctx
 
-    @method_decorator(cache_page(60 * 5))  # last
+    @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_queryset(), many=True)
 

@@ -1,5 +1,6 @@
-from django.utils.decorators import method_decorator
+from django.conf import settings
 from rest_framework.generics import ListAPIView
+from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
 from api.v1.languages.models import Language
@@ -11,6 +12,6 @@ class LanguageAPIView(ListAPIView):
     queryset = Language.objects.filter(is_active=True)
     serializer_class = LanguageSerializer
 
-    @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

@@ -1,3 +1,4 @@
+from ckeditor.fields import RichTextField
 from django.db import models, OperationalError
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
@@ -111,8 +112,8 @@ class Question(models.Model):
 class QuestionDetail(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    text = models.CharField(max_length=300)
-    answer = models.CharField(max_length=500)
+    text = RichTextField(verbose_name='question text', max_length=300)
+    answer = RichTextField(max_length=500)
 
     class Meta:
         unique_together = ['question', 'language']

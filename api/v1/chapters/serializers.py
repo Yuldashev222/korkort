@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.utils.timezone import now
 
-from api.v1.chapters.models import Chapter
 from api.v1.general.utils import bubble_search
+from api.v1.chapters.models import Chapter
 from api.v1.lessons.serializers import LessonListSerializer
 
 
