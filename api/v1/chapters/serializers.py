@@ -13,7 +13,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     # image = serializers.ImageField()
     image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
-
+    title = serializers.SerializerMethodField()
     lessons = serializers.IntegerField()
     chapter_hour = serializers.IntegerField()
     chapter_minute = serializers.IntegerField()
@@ -45,19 +45,18 @@ class ChapterSerializer(serializers.ModelSerializer):
             return obj['completed_lessons']
         return 0
 
-    def get_title_and_desc(self, instance):
+    def get_title(self, instance):
         sort_list = self.context['details']
         obj = bubble_search(instance.id, 'chapter', sort_list)
         if obj is not None:
-            return obj['title'], obj['desc']
-        return '-', '-'
+            return obj['title']
+        return '-'
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['title'], ret['desc'] = self.get_title_and_desc(instance)
         ret['image'] = self.image
         return ret
 
     class Meta:
         model = Chapter
-        fields = ['id', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open']
+        fields = ['id', 'title', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open']

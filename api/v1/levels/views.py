@@ -15,7 +15,7 @@ class LevelAPIView(ListAPIView):
     queryset = Level.objects.all()
     serializer_class = LevelSerializer
 
-    @method_decorator(cache_page(settings.CA))
+    @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
