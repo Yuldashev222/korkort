@@ -34,7 +34,6 @@ class AppleSignInSerializer(serializers.Serializer):
         except JWTDecodeError:
             raise ValidationError({'token': 'Invalid token.'})
 
-        print(decoded_token)
         # user_id = decoded_token['sub']
         # email = decoded_token['email']
         # user = CustomUser.objects.get_or_create(apple_id=user_id, email=email)

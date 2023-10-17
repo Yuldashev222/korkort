@@ -29,7 +29,7 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
 
-    auth_provider = models.CharField(max_length=100, default='-')
+    auth_provider = models.CharField(max_length=100, default='backend')
 
     completed_lessons = models.PositiveSmallIntegerField(default=0)
     correct_answers = models.PositiveIntegerField(default=0)

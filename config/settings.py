@@ -130,6 +130,7 @@ MEDIA_URL = 'media/'
 LOGIN_REDIRECT_URL = '/api/v1/accounts/profile'
 
 STATIC_ROOT = BASE_DIR / 'static'
+# STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -231,9 +232,9 @@ if DEBUG:
     INTERNAL_IPS += ALLOWED_HOSTS
 
 JAZZMIN_SETTINGS = {
-    "site_header": 'test header',
-    "site_brand": 'test brand',
-    "site_logo": 'logos/site-logo.png',
+    "site_header": 'lattmedkorkort',
+    "site_brand": 'lattmedkorkort',
+    "site_logo": 'logos/logo.png',
     "copyright": 'test copyright',
 }
 
@@ -246,3 +247,11 @@ JAZZMIN_SETTINGS = {
 #         }
 #     }
 # }
+# settings.py
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'height': 200,
+        'width': 570,
+    },
+}

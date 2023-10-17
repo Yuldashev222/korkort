@@ -2,17 +2,16 @@ from django.db import models
 from django.core.validators import MinValueValidator
 
 from api.v1.general.services import normalize_text
-from api.v1.chapters.services import chapter_image_location
 
 
 class Chapter(models.Model):
-    image = models.ImageField(upload_to=chapter_image_location, max_length=300)
+    image = models.ImageField(upload_to='chapters/images/', max_length=300)
 
     lessons = models.PositiveSmallIntegerField(default=0)
     ordering_number = models.PositiveSmallIntegerField(verbose_name='ordering', validators=[MinValueValidator(1)],
                                                        unique=True)
-    chapter_hour = models.PositiveSmallIntegerField(default=0, editable=False)
-    chapter_minute = models.PositiveSmallIntegerField(default=0, editable=False)
+    chapter_hour = models.PositiveSmallIntegerField(verbose_name='hour', default=0, editable=False)
+    chapter_minute = models.PositiveSmallIntegerField(verbose_name='minute', default=0, editable=False)
 
     class Meta:
         ordering = ['ordering_number']
@@ -25,9 +24,9 @@ class ChapterDetail(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     title = models.CharField(max_length=300)
-    desc = models.CharField(max_length=700, blank=True)
 
     class Meta:
+        ordering = ['chapter__ordering_number']
         unique_together = ['chapter', 'language']
 
     def __str__(self):

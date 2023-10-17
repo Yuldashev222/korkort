@@ -8,7 +8,6 @@ from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 @receiver(post_delete, sender=TariffDiscount)
 def delete_image(instance, *args, **kwargs):
-    TariffDiscount.set_redis()
     for tariff in Tariff.objects.filter(tariff_discount=True):
         tariff.save()
     delete_object_file_post_delete(instance, 'image')
@@ -16,7 +15,6 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(post_save, sender=TariffDiscount)
 def update_tariff_discount(*args, **kwargs):
-    TariffDiscount.set_redis()
     for tariff in Tariff.objects.filter(tariff_discount=True):
         tariff.save()
 
@@ -31,6 +29,5 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver([post_save, post_delete], sender=StudentDiscount)
 def update_tariff_discount(*args, **kwargs):
-    StudentDiscount.set_redis()
     for tariff in Tariff.objects.filter(student_discount=True):
         tariff.save()

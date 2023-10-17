@@ -1,13 +1,13 @@
+from ckeditor.fields import RichTextField
 from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
-from api.v1.lessons.services import lesson_image_location, lesson_video_location
 
 
 class Lesson(models.Model):
-    image = models.ImageField(upload_to=lesson_image_location)
+    image = models.ImageField(upload_to='lessons/images/')
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
     lesson_time = models.FloatField(help_text='in minute')
@@ -36,10 +36,10 @@ class Lesson(models.Model):
 class LessonDetail(models.Model):
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    title = models.CharField(max_length=300)
-    text = models.CharField(max_length=700, blank=True)
-    video = models.FileField(max_length=300, upload_to=lesson_video_location,
+    text = RichTextField(max_length=700, blank=True)
+    video = models.FileField(max_length=300, upload_to='lessons/videos/',
                              validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
+    title = models.CharField(max_length=300)
 
     def __str__(self):
         return self.title

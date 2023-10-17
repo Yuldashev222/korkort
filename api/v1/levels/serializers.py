@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from api.v1.general.utils import bubble_search
 from api.v1.levels.models import Level
+from api.v1.general.utils import bubble_search
 
 
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = '__all__'
+        exclude = ['id']
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

@@ -20,7 +20,6 @@ class FacebookSignInSerializer(serializers.Serializer):
             raise ValidationError({'access_token': 'Invalid'})
 
         facebook_data = facebook_response.json()
-        print(facebook_data)
         # user, created = CustomUser.objects.get_or_create(username=facebook_id)
         # if created:
         #     # user.first_name = id_info['given_name']

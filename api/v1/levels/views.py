@@ -4,8 +4,8 @@ from django.views.decorators.cache import cache_page
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.accounts.permissions import IsStudent
 from api.v1.levels.models import Level, LevelDetail
+from api.v1.accounts.permissions import IsStudent
 from api.v1.levels.serializers import LevelSerializer
 
 

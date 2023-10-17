@@ -6,7 +6,7 @@ from django.core.validators import MinValueValidator
 
 
 class DiscountMixin(models.Model):
-    discount_value = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    discount_value = models.PositiveIntegerField(verbose_name='discount amount', validators=[MinValueValidator(1)])
     is_percent = models.BooleanField(default=True)
 
     def __str__(self):
@@ -25,10 +25,12 @@ class TariffDiscount(DiscountMixin):
     name = models.CharField(max_length=50)
 
     def clean(self):
+        super().clean()
         if not self.pk and TariffDiscount.objects.exists():
             raise ValidationError('old discount object exists')
 
     class Meta:
+        verbose_name_plural = 'Tariff Discount'
         constraints = [models.UniqueConstraint(fields=['discount_value', 'is_percent'], name='unique discounts')]
 
 
@@ -43,5 +45,10 @@ class TariffDiscountDetail(models.Model):
 
 class StudentDiscount(DiscountMixin):
     def clean(self):
+        super().clean()
         if not self.pk and StudentDiscount.objects.exists():
             raise ValidationError('old student discount object exists')
+
+    class Meta:
+        verbose_name = 'User Code Discount'
+        verbose_name_plural = 'User Code Discount'

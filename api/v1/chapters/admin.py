@@ -1,17 +1,22 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from api.v1.chapters.models import Chapter
+from api.v1.chapters.models import Chapter, ChapterDetail
+from api.v1.general.admin import AbstractTabularInline
+from api.v1.languages.models import Language
+
+
+class ChapterDetailInline(AbstractTabularInline):
+    model = ChapterDetail
 
 
 @admin.register(Chapter)
 class ChapterAdmin(admin.ModelAdmin):
-    list_display = ['ordering_number', 'img', 'lessons']
+    list_display = ['ordering_number', 'img', 'lessons', 'chapter_hour', 'chapter_minute']
+    list_display_links = ['ordering_number', 'lessons', 'chapter_hour', 'chapter_minute']
     fields = ['ordering_number', 'image', 'lessons']
     readonly_fields = ['lessons']
-
-    # list_display_links = ['title_en', 'title_swe', 'title_e_swe']
-    # search_fields = ['title_en', 'title_swe', 'title_e_swe']
+    inlines = [ChapterDetailInline]
 
     def img(self, obj):
         if obj.image:

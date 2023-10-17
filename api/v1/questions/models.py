@@ -3,12 +3,11 @@ from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
-from api.v1.questions.services import (category_image_location, question_image_location, question_gif_location,
-                                       get_last_frame_number_and_duration)
+from api.v1.questions.services import get_last_frame_number_and_duration
 
 
 class Category(models.Model):
-    image = models.ImageField(upload_to=category_image_location, max_length=300)
+    image = models.ImageField(upload_to='categories/images/', max_length=300)
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
 
     class Meta:
@@ -39,8 +38,8 @@ class Question(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
-    image = models.ImageField(upload_to=question_image_location, blank=True, null=True, max_length=300)
-    gif = models.FileField(upload_to=question_gif_location, blank=True, null=True, max_length=300,
+    image = models.ImageField(upload_to='questions/images/', blank=True, null=True, max_length=300)
+    gif = models.FileField(upload_to='questions/gifs/', blank=True, null=True, max_length=300,
                            validators=[FileExtensionValidator(allowed_extensions=['gif'])])
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
     gif_duration = models.FloatField(default=0)

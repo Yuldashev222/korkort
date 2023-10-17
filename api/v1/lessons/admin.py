@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import Lesson, LessonWordInfo, LessonSource, LessonDetail
+from api.v1.general.admin import AbstractTabularInline
 
 
 class LessonWordInfoInline(admin.TabularInline):
@@ -12,7 +13,7 @@ class LessonSourceInline(admin.TabularInline):
     model = LessonSource
 
 
-class LessonDetailInline(admin.TabularInline):
+class LessonDetailInline(AbstractTabularInline):
     model = LessonDetail
 
 
@@ -34,24 +35,22 @@ class LessonAdmin(admin.ModelAdmin):
     )
 
 
-# @admin.register(LessonStudent)
-# class LessonStudentAdmin(admin.ModelAdmin):
-#     list_display = ['lesson', 'student', 'is_completed', 'ball']
-#     list_display_links = ['lesson', 'student']
-#     list_filter = ['lesson', 'student', 'is_completed']
-#
-#     def has_change_permission(self, request, obj=None):
-#         return False
-#
-#     def has_add_permission(self, request, obj=None):
-#         return False
-#
-#     def has_delete_permission(self, request, obj=None):
-#         return False
-#
-#     def get_queryset(self, request):
-#         return LessonStudent.objects.select_related('student', 'lesson')
-#
+@admin.register(LessonDetail)
+class LessonDetailAdmin(admin.ModelAdmin):
+    list_display = ['lesson', 'language', 'title', 'video']
+    list_display_links = ['lesson', 'language', 'title']
+    search_fields = ['title', 'text']
+    list_filter = ['lesson__chapter', 'language']
+    list_select_related = ('lesson__chapter', 'language')
+    readonly_fields = ['lesson']
+    fields = (
+        'language',
+        'lesson',
+        'title',
+        'video',
+        'text'
+    )
+
 
 @admin.register(LessonWordInfo)
 class LessonWordInfoAdmin(admin.ModelAdmin):

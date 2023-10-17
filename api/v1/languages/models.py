@@ -1,7 +1,7 @@
+from django.db import models
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
-from django.db import models
 
 
 class Language(models.Model):
