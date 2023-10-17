@@ -22,8 +22,8 @@ class ChapterAPIView(ReadOnlyModelViewSet):
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
 
-        ctx['details'] = ChapterDetail.objects.filter(
-            language=get_language()).values('chapter', 'title', 'desc').order_by('chapter')
+        ctx['details'] = ChapterDetail.objects.filter(language=get_language()).values('chapter', 'title'
+                                                                                      ).order_by('chapter')
 
         ctx['chapter_student_list'] = ChapterStudent.objects.filter(
             student=self.request.user).values('chapter', 'completed_lessons').order_by('chapter')

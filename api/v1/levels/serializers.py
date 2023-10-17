@@ -9,7 +9,7 @@ class LevelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Level
-        exclude = ['id']
+        exclude = ['id', 'correct_answers']
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

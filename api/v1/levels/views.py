@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.v1.levels.models import Level, LevelDetail
 from api.v1.accounts.permissions import IsStudent
 from api.v1.levels.serializers import LevelSerializer
+from config import settings
 
 
 class LevelAPIView(ListAPIView):
@@ -14,7 +15,7 @@ class LevelAPIView(ListAPIView):
     queryset = Level.objects.all()
     serializer_class = LevelSerializer
 
-    @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(settings.CA))
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
