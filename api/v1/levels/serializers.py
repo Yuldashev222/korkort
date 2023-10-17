@@ -5,6 +5,8 @@ from api.v1.general.utils import bubble_search
 
 
 class LevelSerializer(serializers.ModelSerializer):
+    ball = serializers.IntegerField(source='correct_answers')
+
     class Meta:
         model = Level
         exclude = ['id']
