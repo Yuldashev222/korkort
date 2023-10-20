@@ -9,3 +9,7 @@ class AbstractTabularInline(admin.TabularInline):
     extra = len(Language.get_languages()) - 1
     verbose_name = 'detail'
     verbose_name_plural = 'details'
+
+
+class AbstractStackedInline(AbstractTabularInline):
+    template = "admin/edit_inline/stacked.html"

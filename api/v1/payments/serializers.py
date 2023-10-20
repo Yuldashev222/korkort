@@ -2,7 +2,7 @@ from django.utils.translation import get_language
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
-from api.v1.tariffs.models import Tariff, TariffDetail
+from api.v1.tariffs.models import Tariff
 from api.v1.payments.models import Order
 from api.v1.accounts.models import CustomUser
 
@@ -42,7 +42,6 @@ class StripeCheckoutSerializer(serializers.Serializer):
                                      use_bonus_money=use_bonus_money)
 
         attrs['order'] = order
-        attrs['tariff_detail'] = TariffDetail.objects.get(tariff=tariff, language=get_language())
         return attrs
 
 

@@ -21,6 +21,7 @@ urlpatterns = [
     path('api/v1/exams/', include('api.v1.exams.urls')),
     path('api/v1/swish/', include('api.v1.swish.urls')),
     path('api/v1/levels/', include('api.v1.levels.urls')),
+    path('api/v1/books/', include('api.v1.books.urls')),
 
     path("__debug__/", include("debug_toolbar.urls"))
 

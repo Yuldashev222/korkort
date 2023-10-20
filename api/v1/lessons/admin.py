@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import Lesson, LessonWordInfo, LessonSource, LessonDetail
-from api.v1.general.admin import AbstractTabularInline
+from api.v1.general.admin import AbstractTabularInline, AbstractStackedInline
 
 
 class LessonWordInfoInline(admin.TabularInline):
@@ -13,7 +13,7 @@ class LessonSourceInline(admin.TabularInline):
     model = LessonSource
 
 
-class LessonDetailInline(AbstractTabularInline):
+class LessonDetailInline(AbstractStackedInline):
     model = LessonDetail
 
 

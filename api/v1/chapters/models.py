@@ -15,6 +15,8 @@ class Chapter(models.Model):
 
     class Meta:
         ordering = ['ordering_number']
+        verbose_name = 'Lesson Chapter'
+        verbose_name_plural = 'Lesson Chapters'
 
     def __str__(self):
         return f'Chapter No {self.ordering_number}'
@@ -33,7 +35,7 @@ class ChapterDetail(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.title, self.desc = normalize_text(self.title, self.desc)
+        self.title = normalize_text(self.title)
         super().save(*args, **kwargs)
 
 

@@ -115,6 +115,9 @@ class QuestionDetail(models.Model):
     text = RichTextField(verbose_name='question text', max_length=300)
     answer = RichTextField(max_length=500)
 
+    def __str__(self):
+        return f'{self.language}: {self.question}'.title()
+
     class Meta:
         unique_together = ['question', 'language']
 

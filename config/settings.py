@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'api.v1.exams.apps.ExamsConfig',
     'api.v1.swish.apps.SwishConfig',
     'api.v1.languages.apps.LanguagesConfig',
-    'api.v1.levels.apps.LevelsConfig'
+    'api.v1.levels.apps.LevelsConfig',
+    'api.v1.books.apps.BooksConfig',
+    'api.v1.caches.apps.CachesConfig'
 ]
 
 MIDDLEWARE = [

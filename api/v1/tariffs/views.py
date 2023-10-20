@@ -6,7 +6,7 @@ from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.cache import cache_page
 
-from .models import Tariff, TariffDetail
+from .models import Tariff
 from .serializers import TariffSerializer
 from api.v1.discounts.models import StudentDiscount, TariffDiscount, TariffDiscountDetail
 from api.v1.accounts.permissions import IsStudent
@@ -16,11 +16,6 @@ class TariffAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = TariffSerializer
     queryset = Tariff.objects.all()
-
-    def get_serializer_context(self):
-        ctx = super().get_serializer_context()
-        ctx['details'] = TariffDetail.objects.filter(language=get_language()).values('tariff', 'title', 'desc')
-        return ctx
 
     @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
     def get(self, request, *args, **kwargs):

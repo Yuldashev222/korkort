@@ -24,7 +24,7 @@ def check_order(instance, *args, **kwargs):
 
         if tariff.tariff_discount:
 
-            tariff_discount = TariffDiscount.get_tariff_discount()
+            tariff_discount = TariffDiscount.objects.first()
 
             if tariff_discount:
                 instance.tariff_discount_value = tariff_discount['discount_value']

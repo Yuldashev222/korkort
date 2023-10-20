@@ -1,12 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from api.v1.general.admin import AbstractTabularInline
+from api.v1.general.admin import AbstractTabularInline, AbstractStackedInline
 from api.v1.discounts.models import StudentDiscount, TariffDiscount, TariffDiscountDetail
-
-
-class TariffDiscountDetailInline(AbstractTabularInline):
-    model = TariffDiscountDetail
 
 
 @admin.register(StudentDiscount)
@@ -15,6 +11,10 @@ class StudentDiscountAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not StudentDiscount.objects.exists()
+
+
+class TariffDiscountDetailInline(AbstractStackedInline):
+    model = TariffDiscountDetail
 
 
 @admin.register(TariffDiscount)
