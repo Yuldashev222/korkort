@@ -6,9 +6,11 @@ from api.v1.books.models import BookDetail, Book, BookChapterDetail, BookChapter
 from api.v1.books.serializers import BookListSerializer, BookDetailSerializer, BookChapterStudentSerializer
 
 from api.v1.accounts.permissions import IsStudent
+from api.v1.general.paginations import CustomPageNumberPagination
 
 
 class BookListAPIView(ListAPIView):
+    pagination_class = CustomPageNumberPagination
     permission_classes = (IsAuthenticated, IsStudent)  # last
     serializer_class = BookListSerializer
     queryset = Book.objects.filter(is_active=True).order_by('ordering_number')
