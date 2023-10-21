@@ -24,14 +24,17 @@ class WrongQuestionsExamAPIView(GenericAPIView):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = QuestionFilter
 
-    queryset = Question.objects.filter(studentwronganswer__isnull=False).order_by('?')
+    def get_queryset(self):
+        queryset = Question.objects.filter(studentwronganswer__isnull=False).order_by('?')
+        my_questions = self.request.query_params.get('my_questions')
+
+        if my_questions == 'true':
+            queryset = queryset.filter(studentwronganswer__student_id=self.request.user.id)
+
+        return queryset
 
     def get(self, request, *args, **kwargs):
         questions_queryset = list(self.filter_queryset(self.get_queryset()))
-
-        category_name_list = CategoryDetail.objects.filter(category__question__in=questions_queryset,
-                                                           language=get_language()).values('category', 'name').order_by(
-            'category_id')
 
         question_text_list = QuestionDetail.objects.filter(question__in=questions_queryset,
                                                            language=get_language()).values('question', 'text', 'answer'
@@ -56,12 +59,8 @@ class WrongQuestionsExamAPIView(GenericAPIView):
         return Response(serializer.data)
 
     def filter_queryset(self, queryset):
-        my_questions = self.request.query_params.get('my_questions')
         counts = self.request.query_params.get('counts')
         difficulty_level = self.request.query_params.get('difficulty_level')
-
-        if my_questions == 'true':
-            queryset = queryset.filter(student=self.request.user)
 
         if difficulty_level:
             try:
@@ -72,7 +71,7 @@ class WrongQuestionsExamAPIView(GenericAPIView):
             if difficulty_level not in [1, 2, 3]:
                 raise ValidationError({'difficulty_level': 'not valid'})
 
-            queryset = queryset.filter(question__difficulty_level=difficulty_level)
+            queryset = queryset.filter(difficulty_level=difficulty_level)
 
         if counts:
             try:
