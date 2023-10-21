@@ -5,8 +5,9 @@ from rest_framework.permissions import IsAuthenticated
 from api.v1.books.models import BookDetail, Book, BookChapterDetail, BookChapterStudent, BookChapter
 from api.v1.books.serializers import BookListSerializer, BookDetailSerializer, BookChapterStudentSerializer
 
-from api.v1.accounts.permissions import IsStudent
+from api.v1.lessons.permissions import IsOpenOrPurchased
 from api.v1.general.paginations import CustomPageNumberPagination
+from api.v1.accounts.permissions import IsStudent
 
 
 class BookPagination(CustomPageNumberPagination):
@@ -27,7 +28,10 @@ class BookListAPIView(ListAPIView):
                                                                     ).order_by('book__ordering_number')
 
         ctx['chapters'] = BookChapterDetail.objects.filter(chapter__is_active=True, language_id=get_language()
-                                                           ).values('chapter_id', 'chapter__book_id', 'title'
+                                                           ).values('title',
+                                                                    'chapter_id',
+                                                                    'chapter__is_open',
+                                                                    'chapter__book_id',
                                                                     ).order_by('chapter__ordering_number')
 
         ctx['student_chapter_list'] = BookChapterStudent.objects.filter(student_id=self.request.user.id
@@ -37,7 +41,7 @@ class BookListAPIView(ListAPIView):
 
 
 class BookDetailAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)  # last
+    permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased)
     queryset = BookChapter.objects.filter(is_active=True)
     serializer_class = BookDetailSerializer
 
@@ -49,6 +53,7 @@ class BookDetailAPIView(RetrieveAPIView):
             obj.is_completed = chapter_student.is_completed
         except BookChapterStudent.DoesNotExist:
             obj.is_completed = False
+        obj.is_open = chapter.is_open
         return obj
 
 

@@ -26,7 +26,7 @@ class BookChapterAdmin(admin.ModelAdmin):
     inlines = (BookChapterDetailInline,)
 
 
-class BookChapterDetailPartInline(AbstractStackedInline):
+class BookPartInline(AbstractStackedInline):
     model = BookPart
     min_num = 1
     max_num = None
@@ -40,4 +40,4 @@ class BookChapterDetailAdmin(admin.ModelAdmin):
     list_display = ['chapter', 'title', 'language', 'audio']
     list_display_links = ['chapter', 'title', 'language']
     list_filter = ['chapter', 'language']
-    inlines = (BookChapterDetailPartInline,)
+    inlines = (BookPartInline,)

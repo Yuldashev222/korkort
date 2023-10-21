@@ -5,6 +5,7 @@ from api.v1.general.utils import bubble_search
 
 
 class BookChapterSerializer(serializers.Serializer):
+    is_open = serializers.BooleanField(source='chapter__is_open')
     id = serializers.IntegerField(source='chapter_id')
     title = serializers.CharField()
     is_completed = serializers.SerializerMethodField()

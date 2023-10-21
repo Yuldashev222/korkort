@@ -81,15 +81,6 @@ class BookPart(models.Model):
         super().save(*args, **kwargs)
 
 
-class BookPartOption(models.Model):
-    book_part = models.ForeignKey(BookPart, on_delete=models.CASCADE)
-    option = models.CharField(max_length=500)
-
-    def save(self, *args, **kwargs):
-        self.option = normalize_text(self.option)[0]
-        super().save(*args, **kwargs)
-
-
 class BookChapterStudent(models.Model):
     chapter = models.ForeignKey(BookChapter, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
