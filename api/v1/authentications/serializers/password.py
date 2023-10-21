@@ -24,8 +24,8 @@ class PasswordResetSerializer(serializers.Serializer):
         except CustomUser.DoesNotExist as e:
             raise ValidationError(str(e))
 
-        if not self.user.is_verified or not self.user.is_active:
-            raise ValidationError(['this email is not verified or active'])
+        if not self.user.is_active:
+            raise ValidationError(['this email is not active'])
         return value
 
     def validate(self, attrs):
@@ -71,7 +71,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
         try:
             uid = force_str(urlsafe_base64_decode(uid))
-            user = CustomUser.objects.get(pk=uid)
+            user = CustomUser.objects.get(pk=uid, is_active=True)
         except (TypeError, ValueError, OverflowError, AttributeError, CustomUser.DoesNotExist):
             raise ValidationError('Invalid password reset link')
 
@@ -83,6 +83,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             raise ValidationError('Invalid password reset link')
 
         user.set_password(new_password)
+        user.is_verified = True
         user.save()
         return attrs
 
@@ -99,7 +100,7 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
         email = attrs['email']
 
         try:
-            user = CustomUser.objects.get(email=email)
+            user = CustomUser.objects.get(email=email, is_active=True)
         except CustomUser.DoesNotExist:
             raise ValidationError({'email': 'not found'})
 
@@ -112,6 +113,7 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
                 raise ValidationError(form.errors)
 
             user.set_password(new_password)
+            user.is_verified = True
             user.save()
             cache.delete(f'{user.email}_reset_password')
         return attrs
