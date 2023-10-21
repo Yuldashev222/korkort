@@ -9,7 +9,7 @@ from api.v1.accounts.permissions import IsStudent
 
 
 class TodoListAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)  # last
+    permission_classes = (IsAuthenticated, IsStudent)
     pagination_class = CustomPageNumberPagination
     queryset = Todo.objects.order_by('ordering_number')
     serializer_class = TodoListSerializer

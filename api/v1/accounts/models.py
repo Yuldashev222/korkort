@@ -1,9 +1,8 @@
 import string
 import secrets
-
 from django.db import models
 from django.utils.timezone import now
-from django.utils.translation import gettext_lazy as _, get_language
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
 
@@ -28,7 +27,8 @@ class CustomUser(AbstractUser):
     bonus_money = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
-
+    level_id = models.PositiveSmallIntegerField(default=1)
+    level_percent = models.PositiveSmallIntegerField(default=0)
     auth_provider = models.CharField(max_length=100, default='backend')
 
     completed_lessons = models.PositiveSmallIntegerField(default=0)
@@ -41,31 +41,6 @@ class CustomUser(AbstractUser):
         verbose_name = 'Student'
         verbose_name_plural = 'Students'
         ordering = ['-date_joined']
-
-    def get_level_and_level_id_and_gt_correct_count(self):
-        level_correct_counts = Level.get_level_correct_counts()
-
-        if not level_correct_counts:
-            return '-', 1, 1
-
-        if self.correct_answers <= level_correct_counts[0]:
-            level = LevelDetail.objects.filter(language=get_language()).select_related('level').first()
-            if not level:
-                return '-', 1, 1
-
-            try:
-                return level.name, level.level.ordering_number, level_correct_counts[1]
-            except IndexError:
-                return level.name, level.level.ordering_number,  1
-
-        for idx, cnt in enumerate(level_correct_counts):
-
-            if self.correct_answers < cnt:
-                level = LevelDetail.objects.filter(language=get_language()).select_related('level')[idx - 1]
-                return level.name, level.level.ordering_number, level_correct_counts[idx]
-
-        level = LevelDetail.objects.filter(language=get_language()).select_related('level')[-1]
-        return level.name, level.level.ordering_number, self.correct_answers
 
     def __str__(self):
         return self.get_full_name()[:30]

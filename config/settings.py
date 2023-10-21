@@ -240,26 +240,9 @@ JAZZMIN_SETTINGS = {
     "copyright": 'test copyright',
 }
 
-# LOGGING = {
-#     'loggers': {
-#         'gunicorn.access': {
-#             'level': 'DEBUG',
-#             'handlers': ['console'],
-#             'propagate': False
-#         }
-#     }
-# }
-# settings.py
-
 CKEDITOR_CONFIGS = {
     'default': {
         'height': 200,
         'width': 570,
     },
 }
-
-SOCIAL_SIGN_IN_IDS = [
-    '850996223699-mcmdis7a02v526r7qoq1r2cmka8r9v4q.apps.googleusercontent.com',
-    '850996223699-v573584r8neb2mnog1on6bjoc3s4j57l.apps.googleusercontent.com',
-    '850996223699-ucfjpm8kk2dliuec5k6nj032r11aiser.apps.googleusercontent.com'
-]

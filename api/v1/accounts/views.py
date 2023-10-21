@@ -7,10 +7,8 @@ from api.v1.accounts.permissions import IsStudent
 from api.v1.accounts.serializers import ProfileSerializer, ProfileUpdateSerializer
 
 
-class ProfileAPIView(mixins.ListModelMixin,
-                     mixins.UpdateModelMixin,
-                     GenericAPIView):
-    permission_classes = [IsAuthenticated, IsStudent]
+class ProfileAPIView(mixins.ListModelMixin, mixins.UpdateModelMixin, GenericAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
     serializer_class = ProfileUpdateSerializer
 
     def get_object(self):

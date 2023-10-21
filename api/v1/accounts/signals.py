@@ -1,9 +1,10 @@
-from django.conf import settings
 from django.db import transaction
+from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save, pre_delete
 
 from api.v1.exams.models import CategoryExamStudentResult, CategoryExamStudent, StudentLastExamResult
+from api.v1.levels.models import Level
 from api.v1.accounts.tasks import create_objects_for_student
 from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
 from api.v1.accounts.models import CustomUser
@@ -18,6 +19,12 @@ def change_fields_pre_save(instance, *args, **kwargs):
     if not instance.is_staff:
         instance.ball = instance.correct_answers * settings.TEST_BALL + instance.completed_lessons * settings.LESSON_BALL
         instance.bonus_money = round(instance.bonus_money, 1)
+
+        level = Level.objects.filter(correct_answers__lte=instance.ball).order_by('ordering_number').last()
+        gt_level = Level.objects.filter(correct_answers__gt=instance.ball).order_by('ordering_number').first()
+
+        instance.level_id = level.ordering_number
+        instance.level_percent = int(instance.ball / gt_level.correct_answers) if gt_level else 100
 
     if not instance.pk:
         if instance.is_staff:

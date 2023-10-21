@@ -22,17 +22,16 @@ class Level(models.Model):
             raise ValidationError({'correct_answers': 'error'})
 
     @classmethod
-    def get_level_correct_counts(cls):
-        level_correct_counts = cache.get('level_correct_counts')
-        if not level_correct_counts:
+    def get_levels(cls):
+        levels = cache.get('levels')
+        if not levels:
             cls.set_redis()
-            level_correct_counts = cache.get('level_correct_counts')
-        return level_correct_counts
+            levels = cache.get('levels')
+        return levels
 
     @classmethod
     def set_redis(cls):
-        counts = list(cls.objects.values_list('correct_answers', flat=True).order_by('correct_answers'))
-        cache.set('level_correct_counts', counts)
+        cache.set('levels', cls.objects.values().order_by('ordering_number'))
 
 
 class LevelDetail(models.Model):
@@ -45,7 +44,6 @@ class LevelDetail(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['level__ordering_number']
         unique_together = ['level', 'language']
 
     def save(self, *args, **kwargs):

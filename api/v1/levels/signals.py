@@ -5,5 +5,5 @@ from api.v1.levels.models import Level
 
 
 @receiver([post_save, post_delete], sender=Level)
-def update_cache(instance, *args, **kwargs):
+def update_cache(*args, **kwargs):
     Level.set_redis()
