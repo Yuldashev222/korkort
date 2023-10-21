@@ -28,5 +28,4 @@ class TodoListAPIView(ListAPIView):
 
 
 class TodoStudentAPIView(CreateAPIView):
-    queryset = TodoStudent.objects.all()
     serializer_class = TodoStudentSerializer

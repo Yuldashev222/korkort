@@ -60,13 +60,17 @@ class BookDetailSerializer(serializers.Serializer):
         return BookPartSerializer(parts, many=True, context=self.context).data
 
 
-class BookChapterStudentSerializer(serializers.Serializer):
-    chapter_id = serializers.IntegerField()
-    is_completed = serializers.BooleanField()
+class BookChapterStudentSerializer(serializers.ModelSerializer):
+    student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = BookChapterStudent
+        fields = ['chapter', 'student', 'is_completed']
 
     def create(self, validated_data):
-        student_id = self.context['request'].user.id
-        obj, created = BookChapterStudent.objects.get_or_create(student_id=student_id, **validated_data)
-        if not created:
-            obj.delete()
+        is_completed = validated_data.pop('is_completed')
+        obj, _ = BookChapterStudent.objects.get_or_create(**validated_data)
+        if obj.is_completed != is_completed:
+            obj.is_completed = is_completed
+            obj.save()
         return obj
