@@ -9,8 +9,12 @@ from api.v1.accounts.permissions import IsStudent
 from api.v1.general.paginations import CustomPageNumberPagination
 
 
+class BookPagination(CustomPageNumberPagination):
+    page_size = 5
+
+
 class BookListAPIView(ListAPIView):
-    pagination_class = CustomPageNumberPagination
+    pagination_class = BookPagination
     permission_classes = (IsAuthenticated, IsStudent)  # last
     serializer_class = BookListSerializer
     queryset = Book.objects.filter(is_active=True).order_by('ordering_number')

@@ -2,10 +2,10 @@ from rest_framework.generics import ListAPIView, CreateAPIView
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.accounts.permissions import IsStudent
-from api.v1.general.paginations import CustomPageNumberPagination
 from api.v1.todos.models import Todo, TodoDetail, TodoStudent
 from api.v1.todos.serializers import TodoListSerializer, TodoStudentSerializer
+from api.v1.general.paginations import CustomPageNumberPagination
+from api.v1.accounts.permissions import IsStudent
 
 
 class TodoListAPIView(ListAPIView):
