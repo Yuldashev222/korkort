@@ -1,10 +1,10 @@
 import stripe
-from django.utils.decorators import method_decorator
-from django.views import View
-
-from config import settings
+from django.conf import settings
 from django.http import HttpResponse
+from django.views import View
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 endpoint_secret = settings.STRIPE_WEBHOOK_SECRET

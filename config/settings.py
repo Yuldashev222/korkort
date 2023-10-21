@@ -44,8 +44,7 @@ INSTALLED_APPS = [
     'api.v1.languages.apps.LanguagesConfig',
     'api.v1.levels.apps.LevelsConfig',
     'api.v1.books.apps.BooksConfig',
-    'api.v1.todos.apps.TodosConfig',
-    'api.v1.caches.apps.CachesConfig'
+    'api.v1.todos.apps.TodosConfig'
 ]
 
 MIDDLEWARE = [
@@ -258,3 +257,9 @@ CKEDITOR_CONFIGS = {
         'width': 570,
     },
 }
+
+SOCIAL_SIGN_IN_IDS = [
+    '850996223699-mcmdis7a02v526r7qoq1r2cmka8r9v4q.apps.googleusercontent.com',
+    '850996223699-v573584r8neb2mnog1on6bjoc3s4j57l.apps.googleusercontent.com',
+    '850996223699-ucfjpm8kk2dliuec5k6nj032r11aiser.apps.googleusercontent.com'
+]

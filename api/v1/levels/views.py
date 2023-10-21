@@ -1,13 +1,13 @@
+from django.conf import settings
+from rest_framework.generics import ListAPIView
 from django.utils.decorators import method_decorator
 from django.utils.translation import get_language
-from django.views.decorators.cache import cache_page
-from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.cache import cache_page
 
 from api.v1.levels.models import Level, LevelDetail
-from api.v1.accounts.permissions import IsStudent
 from api.v1.levels.serializers import LevelSerializer
-from config import settings
+from api.v1.accounts.permissions import IsStudent
 
 
 class LevelAPIView(ListAPIView):
