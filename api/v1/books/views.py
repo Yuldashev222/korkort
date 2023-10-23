@@ -1,9 +1,8 @@
-from django.conf import settings
-from django.utils.decorators import method_decorator
+from django.core.cache import cache
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404, CreateAPIView
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
-from django.views.decorators.cache import cache_page
+from rest_framework.response import Response
 
 from api.v1.books.models import BookDetail, Book, BookChapterDetail, BookChapterStudent, BookChapter
 from api.v1.books.serializers import BookListSerializer, BookDetailSerializer, BookChapterStudentSerializer
@@ -48,9 +47,22 @@ class BookDetailAPIView(RetrieveAPIView):
     queryset = BookChapter.objects.filter(is_active=True)
     serializer_class = BookDetailSerializer
 
-    @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
     def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
+        page = str(request.build_absolute_uri())
+        page_cache = cache.get(page)
+        if page_cache:
+            try:
+                chapter_student = BookChapterStudent.objects.get(chapter_id=self.kwargs[self.lookup_field],
+                                                                 student_id=self.request.user.id)
+                page_cache['is_completed'] = chapter_student.is_completed
+            except BookChapterStudent.DoesNotExist:
+                pass
+            return Response(page_cache)
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        cache.set(page, serializer.data)
+        return Response(serializer.data)
 
     def get_object(self):
         chapter = super().get_object()

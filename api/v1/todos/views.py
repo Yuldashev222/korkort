@@ -1,11 +1,8 @@
-from django.conf import settings
 from django.core.cache import cache
-from django.utils.decorators import method_decorator
 from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.response import Response
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
-from django.views.decorators.cache import cache_page
-from rest_framework.response import Response
 
 from api.v1.general.utils import bubble_search
 from api.v1.todos.models import Todo, TodoDetail, TodoStudent
