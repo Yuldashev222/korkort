@@ -24,5 +24,3 @@ class Command(BaseCommand):
             for language in Language.objects.all():
                 LevelDetail.objects.create(level=level, language=language,
                                            name=f'{language.language_id}_{LEVEL_NAMES_SWE[idx]}')
-
-        Level.set_redis()

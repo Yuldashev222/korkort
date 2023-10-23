@@ -35,7 +35,7 @@ class ChapterDetail(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.title = normalize_text(self.title)
+        self.title = normalize_text(self.title)[0]
         super().save(*args, **kwargs)
 
 

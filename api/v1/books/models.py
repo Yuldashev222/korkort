@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
@@ -8,58 +7,35 @@ from api.v1.general.services import normalize_text
 
 
 class Book(models.Model):
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ['ordering_number']
-
-    def __str__(self):
-        return f'Book {self.ordering_number}'
-
-
-class BookDetail(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     title = models.CharField(max_length=300)
 
     class Meta:
-        unique_together = ['book', 'language']
+        unique_together = ['ordering_number', 'language']
 
     def __str__(self):
-        return self.title
+        return f'{self.language}: Book No {self.ordering_number}'
 
 
 class BookChapter(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     is_open = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    title = models.CharField(max_length=300)
+    audio = models.FileField(upload_to='books/chapters/audios/', blank=True, null=True,
+                             validators=[FileExtensionValidator(allowed_extensions=['mp3'])])
 
     class Meta:
         ordering = ['ordering_number']
         unique_together = ['book', 'ordering_number']
 
     def __str__(self):
-        return f'{self.book} Chapter {self.ordering_number}'
-
-
-class BookChapterDetail(models.Model):
-    chapter = models.ForeignKey(BookChapter, on_delete=models.CASCADE)
-    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    title = models.CharField(max_length=300)
-    audio = models.FileField(upload_to='books/chapters/audios/', blank=True, null=True,
-                             validators=[FileExtensionValidator(allowed_extensions=['mp3'])])
-
-    class Meta:
-        unique_together = ['chapter', 'language']
-
-    def __str__(self):
-        return self.title
+        return f'{self.book} Chapter No {self.ordering_number}'
 
 
 class BookPart(models.Model):
-    book_chapter = models.ForeignKey(BookChapterDetail, on_delete=models.CASCADE)
+    book_chapter = models.ForeignKey(BookChapter, on_delete=models.CASCADE)
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     title = models.CharField(max_length=300, blank=True)
@@ -69,7 +45,11 @@ class BookPart(models.Model):
     yellow_text = RichTextField(max_length=1000, blank=True)
     red_text = RichTextField(max_length=1000, blank=True)
 
+    def __str__(self):
+        return f'{self.book_chapter} Part No {self.ordering_number}'
+
     class Meta:
+        ordering = ['ordering_number']
         unique_together = ['book_chapter', 'ordering_number']
 
     def clean(self):

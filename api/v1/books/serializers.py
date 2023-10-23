@@ -5,35 +5,22 @@ from api.v1.general.utils import bubble_search
 
 
 class BookChapterSerializer(serializers.Serializer):
-    is_open = serializers.BooleanField(source='chapter__is_open')
-    id = serializers.IntegerField(source='chapter_id')
+    id = serializers.IntegerField()
     title = serializers.CharField()
+    is_open = serializers.BooleanField()
     is_completed = serializers.SerializerMethodField()
 
     def get_is_completed(self, instance):
         sort_list = self.context['student_chapter_list']
-        obj = bubble_search(instance['chapter_id'], 'chapter_id', sort_list)
+        obj = bubble_search(instance.id, 'chapter_id', sort_list)
         if obj is not None:
             return obj['is_completed']
         return False
 
 
 class BookListSerializer(serializers.Serializer):
-    title = serializers.SerializerMethodField()
-    chapters = serializers.SerializerMethodField()
-
-    def get_title(self, instance):
-        sort_list = self.context['book_title_list']
-        obj = bubble_search(instance.id, 'book_id', sort_list)
-        if obj is not None:
-            return obj['title']
-        return '-'
-
-    def get_chapters(self, instance):
-        chapters = [i for i in self.context['chapters'] if i['chapter__book_id'] == instance.id]
-        context = {'student_chapter_list': self.context['student_chapter_list']}
-        serializer = BookChapterSerializer(chapters, many=True, context=context)
-        return serializer.data
+    title = serializers.CharField()
+    chapters = BookChapterSerializer(source='bookchapter_set', many=True)
 
 
 class BookPartSerializer(serializers.ModelSerializer):
@@ -50,15 +37,16 @@ class BookPartSerializer(serializers.ModelSerializer):
 
 
 class BookDetailSerializer(serializers.Serializer):
-    id = serializers.IntegerField(source='chapter_id')
+    id = serializers.IntegerField()
     title = serializers.CharField()
-    is_completed = serializers.BooleanField()
     audio = serializers.FileField()
-    parts = serializers.SerializerMethodField()
+    is_completed = serializers.SerializerMethodField()
+    parts = BookPartSerializer(source='bookpart_set', many=True)
 
-    def get_parts(self, instance):
-        parts = BookPart.objects.filter(book_chapter_id=instance.id).order_by('ordering_number')
-        return BookPartSerializer(parts, many=True, context=self.context).data
+    def get_is_completed(self, instance):
+        obj, _ = BookChapterStudent.objects.get_or_create(chapter_id=instance.id,
+                                                          student_id=self.context['request'].user.id)
+        return obj.is_completed
 
 
 class BookChapterStudentSerializer(serializers.ModelSerializer):

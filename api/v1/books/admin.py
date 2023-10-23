@@ -1,43 +1,25 @@
 from django.contrib import admin
-from api.v1.books.models import Book, BookDetail, BookChapter, BookChapterDetail, BookPart
-from api.v1.general.admin import AbstractTabularInline, AbstractStackedInline
-
-
-class BookDetailInline(AbstractTabularInline):
-    model = BookDetail
-    verbose_name = 'Title'
-    verbose_name_plural = 'Titles'
+from api.v1.books.models import Book, BookChapter, BookPart
 
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ['ordering_number', 'is_active']
-    inlines = (BookDetailInline,)
-
-
-class BookChapterDetailInline(AbstractTabularInline):
-    model = BookChapterDetail
+    list_display = ['ordering_number', 'language', 'title']
+    list_display_links = ['ordering_number', 'language']
+    list_filter = ['language', 'ordering_number']
+    search_fields = ['title']
 
 
 @admin.register(BookChapter)
 class BookChapterAdmin(admin.ModelAdmin):
-    list_display = ['book', 'ordering_number', 'is_open', 'is_active']
-    list_filter = list_display
-    inlines = (BookChapterDetailInline,)
+    list_display = ['ordering_number', 'book', 'is_open', 'title']
+    list_display_links = ['ordering_number', 'book', 'title']
+    list_filter = ['ordering_number', 'book', 'is_open']
+    search_fields = ['title']
 
 
-class BookPartInline(AbstractStackedInline):
-    model = BookPart
-    min_num = 1
-    max_num = None
-    extra = 3
-    verbose_name = 'detail'
-    verbose_name_plural = 'details'
-
-
-@admin.register(BookChapterDetail)
-class BookChapterDetailAdmin(admin.ModelAdmin):
-    list_display = ['chapter', 'title', 'language', 'audio']
-    list_display_links = ['chapter', 'title', 'language']
-    list_filter = ['chapter', 'language']
-    inlines = (BookPartInline,)
+@admin.register(BookPart)
+class BookPartAdmin(admin.ModelAdmin):
+    list_display = ['book_chapter', 'ordering_number']
+    list_display_links = list_display
+    list_filter = ['book_chapter', 'ordering_number']

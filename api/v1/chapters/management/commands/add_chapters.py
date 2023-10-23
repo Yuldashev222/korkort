@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
+from api.v1.general.enums import title
 from api.v1.chapters.models import Chapter, ChapterDetail
-from api.v1.general.enums import title, desc
 from api.v1.languages.models import Language
 
 
