@@ -1,5 +1,4 @@
 from django.db import models
-from django.core.cache import cache
 from django.core.validators import MinValueValidator
 from rest_framework.exceptions import ValidationError
 
@@ -20,18 +19,6 @@ class Level(models.Model):
         if not self.pk and Level.objects.filter(ordering_number__lt=self.ordering_number,
                                                 correct_answers__gt=self.correct_answers).exists():
             raise ValidationError({'correct_answers': 'error'})
-
-    @classmethod
-    def get_levels(cls):
-        levels = cache.get('levels')
-        if not levels:
-            cls.set_redis()
-            levels = cache.get('levels')
-        return levels
-
-    @classmethod
-    def set_redis(cls):
-        cache.set('levels', cls.objects.values().order_by('ordering_number'))
 
 
 class LevelDetail(models.Model):

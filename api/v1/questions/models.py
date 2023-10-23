@@ -49,7 +49,7 @@ class Question(models.Model):
     def is_correct_question_id(cls, question_id, question_ids=None):
         if question_ids is None:
             question_ids = cls.get_question_ids()
-            len_question_ids = cache.get('all_questions_count')
+            len_question_ids = cls.get_all_questions_count()
         else:
             len_question_ids = len(question_ids)
 
@@ -67,9 +67,9 @@ class Question(models.Model):
         return False
 
     @classmethod
-    def get_question_ids(cls):
+    def get_question_ids(cls):  # last
         question_ids = cache.get('question_ids')
-        if not question_ids:
+        if question_ids is None:
             cls.set_redis()
             question_ids = cache.get('question_ids')
         return question_ids
@@ -77,11 +77,8 @@ class Question(models.Model):
     @classmethod
     def get_all_questions_count(cls):
         all_questions_count = cache.get('all_questions_count')
-        if not all_questions_count:
-            try:
-                cls.set_redis()
-            except OperationalError:
-                return 0
+        if all_questions_count is None:
+            cls.set_redis()
             all_questions_count = cache.get('all_questions_count')
         return all_questions_count
 

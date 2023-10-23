@@ -9,17 +9,28 @@ from api.v1.questions.models import Category, Variant, Question, QuestionDetail,
 class VariantInlineFormset(forms.models.BaseInlineFormSet):
     def clean(self):
         super().clean()
-        corrects = [form.cleaned_data['is_correct'] for form in self.forms if form.cleaned_data.get('is_correct')]
-        if len(corrects) != 1:
-            raise forms.ValidationError("Each question must have exactly one correct option.")
+        temp = []
+        langs = []
+        for form in self.forms:
+            print(form.cleaned_data)
+            obj = (form.cleaned_data['language'], form.cleaned_data['is_correct'])
+            if obj in temp and obj[1]:
+                raise forms.ValidationError("Each question must have exactly one correct option.")
+            else:
+                temp.append(obj)
+                langs.append(obj[0])
+
+        for lang in langs:
+            cnt = langs.count(lang)
+            if not (2 <= cnt <= 4):
+                raise forms.ValidationError("options in each language must be in the range [2, 4].")
 
 
 class VariantInline(admin.TabularInline):
     model = Variant
     formset = VariantInlineFormset
     min_num = 2
-    extra = 2
-    max_num = 6
+    extra = 10
 
 
 class QuestionDetailInline(AbstractStackedInline):

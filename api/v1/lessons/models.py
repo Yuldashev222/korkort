@@ -23,7 +23,7 @@ class Lesson(models.Model):
     @classmethod
     def get_all_lessons_count(cls):
         all_lessons_count = cache.get('all_lessons_count')
-        if not all_lessons_count:
+        if all_lessons_count is None:
             cls.set_redis()
             all_lessons_count = cache.get('all_lessons_count')
         return all_lessons_count

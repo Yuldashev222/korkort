@@ -22,14 +22,14 @@ class Language(models.Model):
     @classmethod
     def get_languages(cls):
         languages = cache.get('languages')
-        if not languages:
+        if languages is None:
             cls.set_redis()
             languages = cache.get('languages')
         return languages
 
     @classmethod
     def set_redis(cls):
-        cache.set('languages', cls.objects.filter(is_active=True).values_list('language_id', flat=True))
+        cache.set('languages', list(cls.objects.filter(is_active=True).values_list('language_id', flat=True)))
 
     class Meta:
         ordering = ['ordering_number']

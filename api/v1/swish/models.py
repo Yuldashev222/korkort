@@ -21,7 +21,7 @@ class MinBonusMoney(models.Model):
     @classmethod
     def get_min_bonus_money(cls):
         temp = cache.get('min_bonus_money')
-        if not temp:
+        if temp is None:
             cls.set_redis()
             temp = cache.get('min_bonus_money')
         return temp
