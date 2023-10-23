@@ -11,14 +11,26 @@ class VariantInlineFormset(forms.models.BaseInlineFormSet):
         super().clean()
         temp = []
         langs = []
+        trues = {}
         for form in self.forms:
-            print(form.cleaned_data)
-            obj = (form.cleaned_data['language'], form.cleaned_data['is_correct'])
-            if obj in temp and obj[1]:
-                raise forms.ValidationError("Each question must have exactly one correct option.")
-            else:
-                temp.append(obj)
-                langs.append(obj[0])
+            if form.cleaned_data.get('language'):
+                obj = (form.cleaned_data['language'], form.cleaned_data['is_correct'])
+                if obj in temp and obj[1]:
+                    raise forms.ValidationError("Each question must have exactly one correct option.")
+                else:
+                    temp.append(obj)
+                    langs.append(obj[0])
+
+                    if obj[1]:
+                        if trues.get(obj[0]):
+                            trues[obj[0]] += 1
+                        else:
+                            trues[obj[0]] = 1
+                    else:
+                        trues[obj[0]] = 0
+
+        if 0 in trues.values():
+            raise forms.ValidationError("Each question must have exactly one correct option.")
 
         for lang in langs:
             cnt = langs.count(lang)
