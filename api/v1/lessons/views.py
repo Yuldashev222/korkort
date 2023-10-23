@@ -8,6 +8,7 @@ from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
+from api.v1.general.utils import bubble_search
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStudent, LessonDetail
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail, CategoryDetail, Variant
@@ -102,8 +103,21 @@ class LessonQuestionAPIView(GenericAPIView):
     queryset = Lesson.objects.all()
 
     def get(self, request, *args, **kwargs):
+        self.get_object()
+
+        page = str(request.build_absolute_uri())
+        page_cache = cache.get(page)
+        if page_cache:
+            sort_list = StudentSavedQuestion.objects.filter(student=self.request.user).values('question'
+                                                                                              ).order_by('question_id')
+            for i in page_cache:
+                obj = bubble_search(i['id'], 'question', sort_list)
+                i['is_saved'] = True if obj is not None else False
+            return Response(page_cache)
+
         questions = Question.objects.filter(lesson_id=self.kwargs[self.lookup_field])
         serializer = self.get_serializer(questions, many=True)
+        cache.set(page, serializer.data)
         return Response(serializer.data)
 
     def get_serializer_context(self):

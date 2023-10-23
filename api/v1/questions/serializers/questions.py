@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from api.v1.general.utils import bubble_search
 from api.v1.questions.tests import gifs
-from api.v1.questions.models import Question
 
 
 class QuestionSerializer(serializers.Serializer):
