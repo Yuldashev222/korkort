@@ -1,6 +1,9 @@
+from django.conf import settings
+from django.utils.decorators import method_decorator
 from rest_framework.generics import ListAPIView, CreateAPIView
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.cache import cache_page
 
 from api.v1.todos.models import Todo, TodoDetail, TodoStudent
 from api.v1.todos.serializers import TodoListSerializer, TodoStudentSerializer
@@ -13,6 +16,10 @@ class TodoListAPIView(ListAPIView):
     pagination_class = CustomPageNumberPagination
     queryset = Todo.objects.order_by('ordering_number')
     serializer_class = TodoListSerializer
+
+    @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_queryset(self):
         language = get_language()

@@ -1,20 +1,21 @@
 from datetime import timedelta
+from django.core.cache import cache
 from django.db.models import Count
 from django.utils.timezone import now
 from rest_framework.status import HTTP_201_CREATED
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.lessons.models import StudentLessonViewStatistics, Lesson
+from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStudent, LessonDetail
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail, CategoryDetail, Variant
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.questions import QuestionSerializer
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
-                                        LessonAnswerSerializer)
+                                        LessonAnswerSerializer, LessonListSerializer)
 
 
 class LessonAnswerAPIView(GenericAPIView):
@@ -40,8 +41,25 @@ class LessonStudentAPIView(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         student = self.request.user
+        page = str(request.build_absolute_uri())
         change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.id)
+
+        page_cache = cache.get(page)
+        if page_cache:
+            queryset = LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student=student
+                                                    ).select_related('lesson')
+            ctx = {
+                'student': student,
+                'lesson_title_list': LessonDetail.objects.filter(language=get_language(),
+                                                                 lesson__chapter_id=instance.chapter_id
+                                                                 ).values('lesson', 'title').order_by('lesson')
+            }
+
+            page_cache['lessons'] = LessonListSerializer(queryset, many=True, context=ctx).data
+            return Response(page_cache)
+
         serializer = self.get_serializer(instance)
+        cache.set(page, serializer.data)
         return Response(serializer.data)
 
 

@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
-from api.v1.lessons.models import LessonStudent, LessonDetail
+from api.v1.lessons.models import LessonStudent
 from api.v1.chapters.models import Chapter, ChapterDetail, ChapterStudent
 from api.v1.lessons.serializers import LessonRetrieveSerializer
 from api.v1.accounts.permissions import IsStudent
@@ -18,6 +18,9 @@ class ChapterAPIView(ReadOnlyModelViewSet):
     serializer_class = ChapterSerializer
     permission_classes = (IsAuthenticated, IsStudent)
     queryset = Chapter.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()

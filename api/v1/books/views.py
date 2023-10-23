@@ -1,6 +1,9 @@
+from django.conf import settings
+from django.utils.decorators import method_decorator
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404, CreateAPIView
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.cache import cache_page
 
 from api.v1.books.models import BookDetail, Book, BookChapterDetail, BookChapterStudent, BookChapter
 from api.v1.books.serializers import BookListSerializer, BookDetailSerializer, BookChapterStudentSerializer
@@ -44,6 +47,10 @@ class BookDetailAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased)
     queryset = BookChapter.objects.filter(is_active=True)
     serializer_class = BookDetailSerializer
+
+    @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     def get_object(self):
         chapter = super().get_object()
