@@ -18,6 +18,7 @@ class ChapterAdmin(admin.ModelAdmin):
     fields = ['ordering_number', 'image', 'lessons']
     readonly_fields = ['lessons']
     inlines = [ChapterDetailInline]
+    ordering = ['ordering_number']
 
     def img(self, obj):
         if obj.image:
