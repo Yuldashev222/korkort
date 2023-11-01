@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(_("name"), max_length=50)
     last_name = models.CharField(_("surname"), max_length=100)
 
-    avatar_id = models.PositiveSmallIntegerField(blank=True, null=True)
+    avatar_id = models.PositiveSmallIntegerField(default=0)
     user_code = models.CharField(max_length=400, unique=True)
     bonus_money = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
