@@ -13,3 +13,4 @@ class LevelAdmin(admin.ModelAdmin):
     list_display = ['ordering_number', 'correct_answers']
     list_display_links = list_display
     inlines = [LevelDetailInline]
+    ordering = ['ordering_number']
