@@ -13,7 +13,7 @@ class LevelAdmin(admin.ModelAdmin):
     list_display = ['ordering_number', 'correct_answers']
     list_display_links = list_display
     inlines = [LevelDetailInline]
-    readonly_fields = ('correct_answers',)
+    readonly_fields = ('correct_answers', 'ordering_number')
     ordering = ['ordering_number']
 
     def has_add_permission(self, request):
