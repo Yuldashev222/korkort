@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.timezone import now
 
 from .models import CustomUser
 
@@ -33,3 +34,9 @@ class CustomUserAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return CustomUser.objects.filter(is_staff=False)
+
+    def has_delete_permission(self, request, obj=None):
+        return obj and obj.tariff_expire_date < now()
+
+    def has_add_permission(self, request):
+        return False

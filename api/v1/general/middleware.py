@@ -8,9 +8,9 @@ class LanguageMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        language = request.GET.get('language')
+        language = str(request.GET.get('language_id'))
         languages = Language.get_languages()
-        if language and language in languages:
+        if language in languages:
             activate(language)
         else:
             activate(languages[0])

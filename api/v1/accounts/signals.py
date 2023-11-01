@@ -61,22 +61,21 @@ def check_user_verification(*args, **kwargs):
 def change_fields_pre_save(instance, *args, **kwargs):
     instance.first_name, instance.last_name = normalize_text(instance.first_name, instance.last_name)
     if not instance.is_staff:
+        if not instance.pk:
+            instance.user_code = instance.generate_unique_user_code
+
         instance.ball = instance.correct_answers * settings.TEST_BALL + instance.completed_lessons * settings.LESSON_BALL
         instance.bonus_money = round(instance.bonus_money, 1)
 
-        level = Level.objects.filter(correct_answers__lte=instance.ball).order_by('ordering_number').last()
+        level = Level.objects.filter(correct_answers__lte=instance.ball).order_by('-ordering_number').first()
         gt_level = Level.objects.filter(correct_answers__gt=instance.ball).order_by('ordering_number').first()
 
-        instance.level_id = level.ordering_number
+        instance.level_id = level.ordering_number if level else 1
         instance.level_percent = int(instance.ball / gt_level.correct_answers) if gt_level else 100
 
-    if not instance.pk:
-        if instance.is_staff:
-            instance.user_code = instance.email
-            instance.is_verified = True
-
-        else:
-            instance.user_code = instance.generate_unique_user_code
+    elif not instance.pk:
+        instance.user_code = instance.email
+        instance.is_verified = True
 
 
 @receiver(post_save, sender=CustomUser)

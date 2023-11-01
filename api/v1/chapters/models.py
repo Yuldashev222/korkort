@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
 
@@ -7,7 +7,9 @@ from api.v1.general.services import normalize_text
 class Chapter(models.Model):
     ordering_number = models.PositiveSmallIntegerField(primary_key=True, unique=True, verbose_name='ordering',
                                                        validators=[MinValueValidator(1)])
-    image = models.ImageField(upload_to='chapters/images/', max_length=300)
+    image = models.ImageField(upload_to='chapters/images/', max_length=300,
+                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
+
     lessons = models.PositiveSmallIntegerField(default=0)
     chapter_hour = models.PositiveSmallIntegerField(verbose_name='hour', default=0, editable=False)
     chapter_minute = models.PositiveSmallIntegerField(verbose_name='minute', default=0, editable=False)

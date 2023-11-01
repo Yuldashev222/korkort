@@ -73,7 +73,7 @@ class LessonSourceAdmin(admin.ModelAdmin):
     list_display_links = ['chapter', 'lesson', 'language', 'text']
     list_filter = ['lesson_detail__lesson__chapter', LessonSourceFilter, 'lesson_detail__language']
     search_fields = ['text', 'link']
-    ordering = ['-pk']
+    ordering = ['-pk', 'lesson_detail__lesson__chapter__ordering_number', 'lesson_detail__lesson__ordering_number']
     readonly_fields = ('lesson_detail',)
     fields = ('lesson_detail', 'text', 'link')
 

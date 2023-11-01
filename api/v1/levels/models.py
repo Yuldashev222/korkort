@@ -1,6 +1,5 @@
 from django.db import models
 from django.core.validators import MinValueValidator
-from rest_framework.exceptions import ValidationError
 
 from api.v1.general.services import normalize_text
 
@@ -11,11 +10,6 @@ class Level(models.Model):
 
     def __str__(self):
         return f'Level No {self.ordering_number}'
-
-    def clean(self):
-        if not self.pk and Level.objects.filter(ordering_number__lt=self.ordering_number,
-                                                correct_answers__gt=self.correct_answers).exists():
-            raise ValidationError({'correct_answers': 'error'})
 
 
 class LevelDetail(models.Model):

@@ -14,10 +14,6 @@ class MinBonusMoney(models.Model):
         if not self.pk and MinBonusMoney.objects.exists():
             raise ValidationError('obj exist')
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.set_redis()
-
     @classmethod
     def get_min_bonus_money(cls):
         temp = cache.get('min_bonus_money')

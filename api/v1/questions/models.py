@@ -10,7 +10,8 @@ from api.v1.questions.services import get_last_frame_number_and_duration
 
 class Category(models.Model):
     ordering_number = models.PositiveSmallIntegerField(primary_key=True, unique=True, validators=[MinValueValidator(1)])
-    image = models.ImageField(upload_to='categories/images/', max_length=300)
+    image = models.ImageField(upload_to='categories/images/', max_length=300,
+                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -39,7 +40,9 @@ class Question(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
-    image = models.ImageField(upload_to='questions/images/', blank=True, null=True, max_length=300)
+    image = models.ImageField(upload_to='questions/images/', blank=True, null=True, max_length=300,
+                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
+
     gif = models.FileField(upload_to='questions/gifs/', blank=True, null=True, max_length=300,
                            validators=[FileExtensionValidator(allowed_extensions=['gif'])])
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)

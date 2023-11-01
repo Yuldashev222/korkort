@@ -1,6 +1,16 @@
 from django.contrib import admin
 
-from api.v1.swish.models import SwishCard
+from api.v1.swish.models import SwishCard, MinBonusMoney
+
+
+@admin.register(MinBonusMoney)
+class MinBonusMoneyAdmin(admin.ModelAdmin):
+    list_display = ['money']
+    list_display_links = None
+    list_editable = ['money']
+
+    def has_add_permission(self, request):
+        return not MinBonusMoney.objects.exists()
 
 
 @admin.register(SwishCard)

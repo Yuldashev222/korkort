@@ -1,7 +1,7 @@
 from django.db import models
 from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 
 
 class DiscountMixin(models.Model):
@@ -20,7 +20,8 @@ class DiscountMixin(models.Model):
 
 
 class TariffDiscount(DiscountMixin):
-    image = models.ImageField(upload_to='discounts/images/', max_length=500)
+    image = models.ImageField(upload_to='discounts/images/', max_length=500,
+                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
     name = models.CharField(max_length=30)
 
     def clean(self):

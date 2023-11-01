@@ -1,5 +1,5 @@
-from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
+from django.db.models.signals import post_delete, pre_save
 
 from api.v1.books.models import BookChapter
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save

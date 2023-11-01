@@ -7,7 +7,9 @@ from api.v1.general.services import normalize_text
 
 
 class Lesson(models.Model):
-    image = models.ImageField(upload_to='lessons/images/')
+    image = models.ImageField(upload_to='lessons/images/',
+                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
+
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
     lesson_time = models.FloatField(help_text='in minute')

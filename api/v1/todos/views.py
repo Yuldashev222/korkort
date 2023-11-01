@@ -39,9 +39,8 @@ class TodoListAPIView(ListAPIView):
         return data
 
     def get_queryset(self):
-        language = get_language()
-        return TodoDetail.objects.filter(language_id=language).values('todo_id', 'title', 'text'
-                                                                      ).order_by('todo__ordering_number')
+        return TodoDetail.objects.filter(language_id=get_language()).values('todo_id', 'title', 'text'
+                                                                            ).order_by('todo__ordering_number')
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()

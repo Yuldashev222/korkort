@@ -13,4 +13,11 @@ class LevelAdmin(admin.ModelAdmin):
     list_display = ['ordering_number', 'correct_answers']
     list_display_links = list_display
     inlines = [LevelDetailInline]
+    readonly_fields = ('correct_answers',)
     ordering = ['ordering_number']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
