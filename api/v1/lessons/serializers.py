@@ -89,7 +89,7 @@ class LessonRetrieveSerializer(serializers.Serializer):
     def get_lessons(self, instance):
         student = self.context['request'].user
         queryset = list(LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
-                                                     ).select_related('lesson').order_by('lesson_id'))
+                                                     ).select_related('lesson').order_by('lesson__ordering_number'))
         ctx = {
             'student': self.context['request'].user,
             'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
