@@ -14,7 +14,7 @@ from api.v1.accounts.permissions import IsStudent
 class TariffAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = TariffSerializer
-    queryset = Tariff.objects.all()
+    queryset = Tariff.objects.order_by('days')
 
     def get(self, request, *args, **kwargs):
         delete_expire_orders()

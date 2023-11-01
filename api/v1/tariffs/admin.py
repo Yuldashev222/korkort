@@ -8,7 +8,7 @@ class TariffAdmin(admin.ModelAdmin):
     list_display = ['days', 'price', 'tariff_discount', 'student_discount', 'is_active']
     list_display_links = ['days', 'price']
     list_filter = ['tariff_discount', 'student_discount', 'is_active']
-
+    ordering = ['days']
     fields = [
         'days',
         'price',
