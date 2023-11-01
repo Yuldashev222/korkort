@@ -29,7 +29,10 @@ class Language(models.Model):
 
     @classmethod
     def set_redis(cls):
-        cache.set('languages', list(cls.objects.filter(is_active=True).values_list('language_id', flat=True)))
+        cache.set(
+            'languages',
+            list(cls.objects.filter(is_active=True).values_list('language_id', flat=True).order_by('ordering_number'))
+        )
 
     def __str__(self):
         return self.name
