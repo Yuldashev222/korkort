@@ -35,10 +35,11 @@ class StripeCheckoutSerializer(serializers.Serializer):
                 raise ValidationError({'user_code': ['not found']})
 
             called_student = CustomUser.objects.get(user_code=user_code)
-            if Order.objects.filter(called_student=called_student, student=student, is_paid=True).exists():
+            if Order.objects.filter(called_student_email=called_student.email, student_email=student.email,
+                                    is_paid=True).exists():
                 raise ValidationError({'user_code': ['You have already registered this code']})
 
-        order = Order.objects.create(student=student, tariff=tariff, called_student=called_student,
+        order = Order.objects.create(student_id=student.pk, tariff_id=tariff.pk, called_student=called_student,
                                      use_bonus_money=use_bonus_money)
 
         attrs['order'] = order
@@ -61,7 +62,8 @@ class CheckCouponSerializer(serializers.Serializer):
             raise ValidationError('not valid')
 
         called_student = CustomUser.objects.get(user_code=value)
-        if Order.objects.filter(called_student=called_student, student=student, is_paid=True).exists():
+        if Order.objects.filter(called_student_email=called_student.email, student_email=student.email,
+                                is_paid=True).exists():
             raise PermissionDenied('You have already registered this code')
 
         return value

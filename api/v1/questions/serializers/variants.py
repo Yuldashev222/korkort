@@ -9,7 +9,7 @@ class VariantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Variant
-        fields = ['id', 'is_correct', 'text']
+        fields = ['pk', 'is_correct', 'text']
 
     def get_text(self, instance):
         return getattr(instance, 'text_' + get_language())

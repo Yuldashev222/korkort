@@ -21,10 +21,10 @@ class TodoListAPIView(ListAPIView):
         page = str(request.build_absolute_uri())
         page_cache = cache.get(page)
         if page_cache:
-            sort_list = TodoStudent.objects.filter(student_id=self.request.user.id
+            sort_list = TodoStudent.objects.filter(student_id=self.request.user.pk
                                                    ).values('todo_id', 'is_completed').order_by('todo__ordering_number')
             for i in page_cache['results']:
-                obj = bubble_search(i['id'], 'todo_id', sort_list)
+                obj = bubble_search(i['pk'], 'todo_id', sort_list)
                 if obj is not None:
                     i['is_completed'] = obj['is_completed']
                 else:
@@ -45,7 +45,7 @@ class TodoListAPIView(ListAPIView):
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
-        ctx['student_todo_list'] = TodoStudent.objects.filter(student_id=self.request.user.id
+        ctx['student_todo_list'] = TodoStudent.objects.filter(student_id=self.request.user.pk
                                                               ).values('todo_id', 'is_completed'
                                                                        ).order_by('todo__ordering_number')
         return ctx

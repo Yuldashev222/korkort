@@ -1,74 +1,68 @@
 from uuid import uuid4
-from django.core.management.base import BaseCommand
-
+from random import randint
 from api.v1.general.enums import title, desc
 from api.v1.lessons.models import Lesson
 from api.v1.languages.models import Language
-from api.v1.questions.models import Category, Question, Variant, CategoryDetail, QuestionDetail
+from api.v1.questions.models import Category, Question, CategoryDetail, QuestionDetail
+from django.core.management.base import BaseCommand
 
 
 def create_categories():
+    last_category = Category.objects.order_by('pk').last()
+    if last_category:
+        ordering_number = last_category.ordering_number + 1
+    else:
+        ordering_number = 1
+
     for i in range(10):
         obj = Category.objects.create(image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png',
-                                      ordering_number=i + 1)
+                                      ordering_number=ordering_number)
         for language in Language.objects.all():
-            CategoryDetail.objects.create(category=obj, language=language, name=title)
+            CategoryDetail.objects.create(category_id=obj.pk, language_id=language.pk, name=title)
+
+        ordering_number += 1
 
 
-def create_questions(self):
-    categories = Category.objects.all()
-    lessons = Lesson.objects.order_by('-id')
+def create_questions(self, for_lesson=False):
+    categories = Category.objects.order_by('-pk')
     lst = []
-    for lesson in lessons:
-        self.stdout.write(str(lesson.id))
 
-        for index, category in enumerate(categories, 1):
-            if index > 7:
-                difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
-            elif index % 2 == 0:
-                difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
-            else:
-                difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
+    def wrapper(lesson=None):
+        ordering_number = randint(10000, 999999) if lesson else 0
+        obj = Question.objects.create(lesson=lesson, category_id=category.pk, ordering_number=ordering_number,
+                                      gif='a.gif', difficulty_level=difficulty_level,
+                                      image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
 
-            obj = Question.objects.create(difficulty_level=difficulty_level, lesson=lesson, category=category,
-                                          ordering_number=index, gif='a.gif',
-                                          image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
+        for language in Language.objects.all():
+            lst.append(QuestionDetail(question_id=obj.pk, language_id=language.pk, text=str(uuid4()),
+                                      correct_variant=title + ' asdasd',
+                                      variant2=title,
+                                      variant3=title,
+                                      variant4=title,
+                                      answer=desc))
 
-            for language in Language.objects.all():
-                lst.append(QuestionDetail(question=obj, language=language, text=str(uuid4()), answer=desc))
+    for idx, category in enumerate(categories, 1):
+        self.stdout.write(str(category.pk))
 
-        for index, category in enumerate(categories, 1):
-            if index > 7:
-                difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
-            elif index % 2 == 0:
-                difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
-            else:
-                difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
+        if idx > 7:
+            difficulty_level = Question.DIFFICULTY_LEVEL[2][0]
+        elif idx % 2 == 0:
+            difficulty_level = Question.DIFFICULTY_LEVEL[0][0]
+        else:
+            difficulty_level = Question.DIFFICULTY_LEVEL[1][0]
 
-            obj = Question.objects.create(category=category, ordering_number=100000, difficulty_level=difficulty_level,
-                                          gif='a.gif',
-                                          image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
+        for i in range(100):
+            wrapper()
 
-            for language in Language.objects.all():
-                lst.append(QuestionDetail(question=obj, language=language, text=str(uuid4()), answer=desc))
+        for lesson in Lesson.objects.all():
+            for i in range(2):
+                wrapper(lesson=lesson)
 
     QuestionDetail.objects.bulk_create(lst)
     Question.set_redis()
-
-
-def create_variants(self):
-    objs = []
-    questions = Question.objects.order_by('-id')
-    for question in questions:
-        self.stdout.write(str(question.id))
-        for i in range(4):
-            for language in Language.objects.all():
-                objs.append(Variant(question=question, language=language, is_correct=i == 2, text=str(uuid4())))
-    Variant.objects.bulk_create(objs)
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
         create_categories()
         create_questions(self)
-        create_variants(self)

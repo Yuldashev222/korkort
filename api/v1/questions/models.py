@@ -1,6 +1,7 @@
-from django.db import models, OperationalError
+from django.db import models
 from ckeditor.fields import RichTextField
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
@@ -8,11 +9,10 @@ from api.v1.questions.services import get_last_frame_number_and_duration
 
 
 class Category(models.Model):
+    ordering_number = models.PositiveSmallIntegerField(primary_key=True, unique=True, validators=[MinValueValidator(1)])
     image = models.ImageField(upload_to='categories/images/', max_length=300)
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
 
     class Meta:
-        ordering = ['ordering_number']
         verbose_name_plural = 'Categories'
 
     def __str__(self):
@@ -28,7 +28,7 @@ class CategoryDetail(models.Model):
         unique_together = ['category', 'language']
 
     def __str__(self):
-        return self.name
+        return f'{self.language_id} Category No {self.category_id}'
 
 
 class Question(models.Model):
@@ -44,6 +44,27 @@ class Question(models.Model):
                            validators=[FileExtensionValidator(allowed_extensions=['gif'])])
     gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
     gif_duration = models.FloatField(default=0)
+
+    def clean(self):
+        if self.gif and self.image:
+            raise ValidationError('choice gif or image')
+
+    def __str__(self):
+        if self.lesson:
+            return f'Question No {self.ordering_number}'
+        return f'Question No {self.pk}'
+
+    class Meta:
+        unique_together = ['lesson', 'ordering_number']  # last
+        verbose_name_plural = '  Questions'
+
+    def save(self, *args, **kwargs):
+        if self.gif:
+            self.gif_last_frame_number, self.gif_duration = get_last_frame_number_and_duration(self.gif.path)
+        else:
+            self.gif_last_frame_number, self.gif_duration = (0, 0)
+
+        super().save(*args, **kwargs)
 
     @classmethod
     def is_correct_question_id(cls, question_id, question_ids=None):
@@ -82,26 +103,9 @@ class Question(models.Model):
             all_questions_count = cache.get('all_questions_count')
         return all_questions_count
 
-    def __str__(self):
-        if self.lesson:
-            return f'Question No {self.ordering_number}'
-        return f'Question No {self.id}'
-
-    class Meta:
-        ordering = ['ordering_number']
-        unique_together = ['lesson', 'ordering_number']  # last
-
-    def save(self, *args, **kwargs):
-        if self.gif:
-            self.gif_last_frame_number, self.gif_duration = get_last_frame_number_and_duration(self.gif.path)
-        else:
-            self.gif_last_frame_number, self.gif_duration = (0, 0)
-
-        super().save(*args, **kwargs)
-
     @classmethod
     def set_redis(cls):
-        question_ids = list(Question.objects.order_by('id').values_list('id', flat=True))
+        question_ids = list(Question.objects.order_by('pk').values_list('pk', flat=True))
         cache.set('all_questions_count', len(question_ids))
         cache.set('question_ids', question_ids)
 
@@ -110,34 +114,25 @@ class QuestionDetail(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     text = RichTextField(verbose_name='question text', max_length=300)
+
+    correct_variant = models.CharField(max_length=300)
+    variant2 = models.CharField(max_length=300)
+    variant3 = models.CharField(max_length=300, blank=True)
+    variant4 = models.CharField(max_length=300, blank=True)
+
     answer = RichTextField(max_length=500)
 
     def __str__(self):
-        return f'{self.language}: {self.question}'.title()
+        return f'{self.language_id} {self.question}'
 
     class Meta:
         unique_together = ['question', 'language']
+        verbose_name = 'Question Detail'
+        verbose_name_plural = ' Question Details'
 
     def save(self, *args, **kwargs):
         self.text, self.answer = normalize_text(self.text, self.answer)
         super().save(*args, **kwargs)
-
-
-class Variant(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    text = models.CharField(max_length=300)
-    is_correct = models.BooleanField(default=False)
-
-    def save(self, *args, **kwargs):
-        self.text = normalize_text(self.text)[0]
-        super().save(*args, **kwargs)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['question', 'language'], condition=models.Q(is_correct=True),
-                                    name="Each question must have exactly one correct option.")
-        ]
 
 
 class StudentWrongAnswer(models.Model):
@@ -149,9 +144,6 @@ class StudentWrongAnswer(models.Model):
         verbose_name = 'Wrong Answer'
         verbose_name_plural = 'Wrong Answers'
 
-    def __str__(self):
-        return str(self.question)
-
 
 class StudentCorrectAnswer(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
@@ -161,9 +153,6 @@ class StudentCorrectAnswer(models.Model):
         verbose_name = 'Correct Answer'
         verbose_name_plural = 'Correct Answers'
 
-    def __str__(self):
-        return str(self.question)
-
 
 class StudentSavedQuestion(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
@@ -171,9 +160,5 @@ class StudentSavedQuestion(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return str(self.question)
-
     class Meta:
-        ordering = ['-created_at']
         unique_together = ['question', 'student']

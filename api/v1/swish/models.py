@@ -44,9 +44,6 @@ class SwishCard(models.Model):
     purchased_price = models.FloatField(default=0, validators=[MinValueValidator(0)])
     is_purchased = models.BooleanField(default=False)
 
-    class Meta:
-        ordering = ['-created_at']
-
     def clean(self):
         if self.pk and not self.is_paid and SwishCard.objects.get(pk=self.pk).is_paid:
             raise ValidationError({'is_paid': 'not change'})

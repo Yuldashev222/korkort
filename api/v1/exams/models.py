@@ -36,6 +36,3 @@ class StudentLastExamResult(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
     questions = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     wrong_answers = models.PositiveSmallIntegerField()
-
-    class Meta:
-        ordering = ['-id']

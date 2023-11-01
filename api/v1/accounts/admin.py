@@ -13,12 +13,12 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_filter = ['tariff_expire_date', 'date_joined']
     fields = [
         ('first_name', 'last_name'),
+        'is_active',
+        'is_verified',
         'email',
         'user_code',
         'tariff_expire_date',
         'date_joined',
-        'is_active',
-        'is_verified',
         'bonus_money',
         'correct_answers',
         'completed_lessons',

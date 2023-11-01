@@ -22,13 +22,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'ckeditor',
+    'ckeditor_uploader',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
     'drf_yasg',
     'debug_toolbar',
     'django_filters',
-    'ckeditor',
+    'rangefilter',
 
     'api.v1.general.apps.GeneralConfig',
     'api.v1.accounts.apps.AccountsConfig',
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'api.v1.languages.apps.LanguagesConfig',
     'api.v1.levels.apps.LevelsConfig',
     'api.v1.books.apps.BooksConfig',
+    'api.v1.signs.apps.SignsConfig',
     'api.v1.todos.apps.TodosConfig'
 ]
 
@@ -127,13 +130,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
 MEDIA_URL = 'media/'
+STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = '/api/v1/accounts/profile'
 
-STATIC_ROOT = BASE_DIR / 'static'
-# STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [STATIC_DIR]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -209,6 +212,8 @@ FAILURE_PAYMENT_URL = 'https://youtube.com'
 TEST_BALL = 1
 LESSON_BALL = 10
 MAX_QUESTIONS = 65
+MAX_CATEGORY_QUESTIONS = 20
+MAX_CATEGORY_MIX_QUESTIONS = 30
 FINAL_QUESTIONS = 65
 MAX_WRONG_QUESTIONS = 20
 MIN_QUESTIONS = 5
@@ -242,7 +247,61 @@ JAZZMIN_SETTINGS = {
 
 CKEDITOR_CONFIGS = {
     'default': {
-        'height': 200,
-        'width': 570,
-    },
+        'skin': 'moono',
+        # 'skin': 'office2013',
+        'toolbar_Basic': [
+            ['Source', '-', 'Bold', 'Italic']
+        ],
+        'toolbar_YourCustomToolbarConfig': [
+            {'name': 'yourcustomtools',
+             'items': ['Preview', 'Find', 'Maximize', 'Source', '-', 'Replace', 'Language', '-', 'Image', 'Flash',
+                       'Table', 'Smiley', 'SpecialChar', 'Iframe', 'CreateDiv', 'Templates', 'ShowBlocks', 'Link',
+                       'Unlink', 'Anchor']},
+
+            '/',
+
+            {'name': 'forms',
+             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
+                       'HiddenField', '-', 'NumberedList', 'HorizontalRule', 'PageBreak', 'BulletedList', '-',
+                       'Outdent', 'Indent', '-', 'Blockquote', '-', 'BidiLtr', 'BidiRtl']},
+
+            '/',
+
+            {'name': 'styles',
+             'items': ['Styles', 'Format', 'Font', 'FontSize', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight',
+                       'JustifyBlock']},
+
+            '/',
+
+            {'name': 'colors',
+             'items': ['TextColor', 'BGColor', '-', 'Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript',
+                       'Superscript', '-', 'RemoveFormat']},
+
+        ],
+        'toolbar': 'YourCustomToolbarConfig',  # put selected toolbar config here
+        # 'height': 291,
+        # 'width': '100%',
+        # 'filebrowserWindowHeight': 725,
+        # 'filebrowserWindowWidth': 940,
+        # 'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
+        'tabSpaces': 4,
+        'extraPlugins': ','.join([
+            'uploadimage',  # the upload image feature
+            # your extra plugins here
+            'div',
+            'autolink',
+            'autoembed',
+            'embedsemantic',
+            'autogrow',
+            # 'devtools',
+            'widget',
+            'lineutils',
+            'clipboard',
+            'dialog',
+            'dialogui',
+            'elementspath'
+        ]),
+    }
 }
+
+CKEDITOR_UPLOAD_PATH = 'uploads/'

@@ -40,7 +40,6 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = 'Student'
         verbose_name_plural = 'Students'
-        ordering = ['-date_joined']
 
     def __str__(self):
         return self.get_full_name()[:30]

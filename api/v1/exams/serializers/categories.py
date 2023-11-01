@@ -1,15 +1,14 @@
 from django.db import transaction
 from django.conf import settings
-from django.utils.translation import get_language
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 from rest_framework.generics import get_object_or_404
+from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult
 from api.v1.general.utils import bubble_search
 from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question, Category
-from api.v1.questions.serializers.questions import QuestionAnswerSerializer
 
 
 class CategoryExamStudentSerializer(serializers.ModelSerializer):
@@ -19,17 +18,24 @@ class CategoryExamStudentSerializer(serializers.ModelSerializer):
 
 
 class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
-    image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
-    # image = serializers.SerializerMethodField()
+    test_image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
+
+    pk = serializers.IntegerField(source='category_id')
     name = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()  # last
+    detail = serializers.SerializerMethodField()
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        ret['detail'], ret['percent'] = self.get_detail_and_percent(instance)
-        ret['image'] = self.image
-        return ret
+    def get_image(self, instance):
+        return self.test_image
 
-    def get_detail_and_percent(self, instance):
+    def get_name(self, instance):
+        sort_list = self.context['category_name_list']
+        obj = bubble_search(instance.category_id, 'category_id', sort_list)
+        if obj is not None:
+            return obj['name']
+        return '-'
+
+    def get_detail(self, instance):
         last_exams = instance.categoryexamstudent_set.all()[:10]
         data = CategoryExamStudentSerializer(last_exams, many=True).data
         len_data = len(data)
@@ -37,156 +43,125 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
             obj = {'questions': 0, 'percent': 0}
             data.extend([obj] * (10 - len_data))
         data.reverse()
-        temp = list(map(lambda el: el['percent'], data))
-        return data, int(sum(temp) / len(temp))
+        return data
 
     class Meta:
         model = CategoryExamStudentResult
-        exclude = ['student']
-
-    def get_name(self, instance):
-        sort_list = self.context['category_name_list']
-        obj = bubble_search(instance.category.id, 'category', sort_list)
-        if obj is not None:
-            return obj['name']
-        return '-'
-
-    # def get_image(self, instance):
-    #     return self.context['request'].build_absolute_uri(instance.category.image.url)
+        fields = ['pk', 'name', 'image', 'detail']
 
 
 class CategoryExamAnswerSerializer(serializers.Serializer):
-    exam_id = serializers.IntegerField()
-    wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
-    correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
+    category_id = serializers.IntegerField()
+    wrong_question_id_list = serializers.ListField(child=serializers.IntegerField(),
+                                                   max_length=settings.MAX_CATEGORY_QUESTIONS)
+    correct_question_id_list = serializers.ListField(child=serializers.IntegerField(),
+                                                     max_length=settings.MAX_CATEGORY_QUESTIONS)
 
     @transaction.atomic
     def to_internal_value(self, data):
         super().to_internal_value(data)
         student = self.context['request'].user
-        exam_id = data['exam_id']
-        wrong_questions = data['wrong_questions']
-        correct_questions = data['correct_questions']
+        category_id = data['category_id']
+        wrong_question_id_list = list(set(data['wrong_question_id_list']))
+        correct_question_id_list = list(set(data['correct_question_id_list']))
+        correct_question_id_list = [i for i in correct_question_id_list if i not in wrong_question_id_list]
 
-        if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
+        all_question_count = len(wrong_question_id_list) + len(correct_question_id_list)
+        if all_question_count > settings.MAX_CATEGORY_QUESTIONS:
             raise ValidationError({'detail': 'max length'})
 
-        if len(wrong_questions) + len(correct_questions) < 1:
+        elif all_question_count < settings.MIN_QUESTIONS:
             raise ValidationError({'detail': 'min length'})
 
         try:
-            exam = CategoryExamStudent.objects.get(id=exam_id)
-        except CategoryExamStudent.DoesNotExist:
-            raise ValidationError({'exam_id': 'not found'})
+            category = Category.objects.get(pk=category_id)
+        except Category.DoesNotExist:
+            raise ValidationError({'category_id': 'not found'})
 
-        if exam.correct_answers > 0:
-            raise ValidationError({'exam_id': 'not found'})
-
-        wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
-        correct_question_ids = list(set(question['pk'] for question in correct_questions))
-
-        wrong_question_ids = [i for i in wrong_question_ids if i not in correct_question_ids]
-
-        for question_ids in [correct_question_ids, wrong_question_ids]:
+        for question_ids in [correct_question_id_list, wrong_question_id_list]:  # last
             for pk in question_ids:
                 if not Question.is_correct_question_id(question_id=pk):
-                    raise ValidationError({'pk': 'not found'})
+                    raise ValidationError({'question_id': 'not found'})
 
-        wrong_answers_cnt = len(wrong_question_ids)
-        StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=exam.questions,
-                                             student=student)
+        wrong_question_count = len(wrong_question_id_list)
+        correct_question_count = len(correct_question_id_list)
 
-        exam.correct_answers = exam.questions - wrong_answers_cnt
-        exam.save()
+        StudentLastExamResult.objects.create(wrong_answers=wrong_question_count, questions=all_question_count,
+                                             student_id=student.pk)
 
-        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_ids,
-                                       correct_question_ids=correct_question_ids)
-        update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
-                                           correct_question_ids=correct_question_ids)
+        result, _ = CategoryExamStudentResult.objects.get_or_create(category_id=category.pk, student_id=student.pk)
+        CategoryExamStudent.objects.create(result_id=result.pk, correct_answers=correct_question_count,
+                                           questions=all_question_count)
+
+        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_id_list,
+                                       correct_question_ids=correct_question_id_list)
+        update_student_wrong_answers.delay(student_id=student.pk, wrong_question_ids=wrong_question_id_list,
+                                           correct_question_ids=correct_question_id_list)
 
         return data
 
 
 class CategoryMixExamAnswerSerializer(CategoryExamAnswerSerializer):
-    exam_id = None
-    wrong_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
-    correct_questions = serializers.ListSerializer(child=QuestionAnswerSerializer(), max_length=settings.MAX_QUESTIONS)
+    category_id = None
+    wrong_question_id_list = serializers.ListField(child=serializers.IntegerField(),
+                                                   max_length=settings.MAX_CATEGORY_MIX_QUESTIONS)
+    correct_question_id_list = serializers.ListField(child=serializers.IntegerField(),
+                                                     max_length=settings.MAX_CATEGORY_MIX_QUESTIONS)
 
     @transaction.atomic
     def to_internal_value(self, data):
         serializers.Serializer.to_internal_value(self, data)
         student = self.context['request'].user
-        wrong_questions = data['wrong_questions']
-        correct_questions = data['correct_questions']
+        wrong_question_id_list = list(set(data['wrong_question_id_list']))
+        correct_question_id_list = list(set(data['correct_question_id_list']))
+        correct_question_id_list = [i for i in correct_question_id_list if i not in wrong_question_id_list]
 
-        if len(wrong_questions) + len(correct_questions) > settings.MAX_QUESTIONS:
+        all_question_count = len(wrong_question_id_list) + len(correct_question_id_list)
+        if all_question_count > settings.MAX_CATEGORY_MIX_QUESTIONS:
             raise ValidationError({'detail': 'max length'})
 
-        if len(wrong_questions) + len(correct_questions) < 1:
+        elif all_question_count < settings.MIN_QUESTIONS:
             raise ValidationError({'detail': 'min length'})
 
-        wrong_question_ids = list(set(question['pk'] for question in wrong_questions))
-        correct_question_ids = list(set(question['pk'] for question in correct_questions))
-
-        wrong_question_ids = [i for i in wrong_question_ids if i not in correct_question_ids]
-
-        for question_ids in [correct_question_ids, wrong_question_ids]:
+        for question_ids in [correct_question_id_list, wrong_question_id_list]:  # last
             for pk in question_ids:
                 if not Question.is_correct_question_id(question_id=pk):
-                    raise ValidationError({'pk': 'not found'})
+                    raise ValidationError({'question_id': 'not found'})
 
-        wrong_answers_cnt = len(wrong_question_ids)
-        all_questions_cnt = len(correct_question_ids) + wrong_answers_cnt
-        StudentLastExamResult.objects.create(wrong_answers=wrong_answers_cnt, questions=all_questions_cnt,
-                                             student=student)
+        wrong_question_count = len(wrong_question_id_list)
 
-        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_ids,
-                                       correct_question_ids=correct_question_ids)
-        update_student_wrong_answers.delay(student_id=student.id, wrong_question_ids=wrong_question_ids,
-                                           correct_question_ids=correct_question_ids)
+        StudentLastExamResult.objects.create(wrong_answers=wrong_question_count, questions=all_question_count,
+                                             student_id=student.pk)
+
+        update_student_correct_answers(student=student, wrong_question_ids=wrong_question_id_list,
+                                       correct_question_ids=correct_question_id_list)
+        update_student_wrong_answers.delay(student_id=student.pk, wrong_question_ids=wrong_question_id_list,
+                                           correct_question_ids=correct_question_id_list)
 
         return data
 
 
-class CategoryExamCreateSerializer(serializers.ModelSerializer):
-    obj = None
+class CategoryExamCreateSerializer(serializers.Serializer):
     category_id = serializers.IntegerField()
     difficulty_level = serializers.ChoiceField(choices=Question.DIFFICULTY_LEVEL, allow_null=True)
+    counts = serializers.IntegerField(validators=[MinValueValidator(settings.MIN_QUESTIONS),
+                                                  MaxValueValidator(settings.MAX_CATEGORY_QUESTIONS)])
 
     def validate_category_id(self, cat_id):
-        try:
-            Category.objects.get(id=cat_id)
-        except Category.DoesNotExist:
-            raise ValidationError({'category_id': 'not found'})
+        get_object_or_404(Category, pk=cat_id)
         return cat_id
 
-    def create(self, validated_data):
-        validated_data.pop('difficulty_level')
-        cat_id = validated_data.pop('category_id')
-        student = self.context['request'].user
-        result, _ = CategoryExamStudentResult.objects.get_or_create(category_id=cat_id, student=student)
-        self.obj = CategoryExamStudent.objects.create(result=result, **validated_data)
-        return self.obj
 
-    class Meta:
-        model = CategoryExamStudent
-        fields = ['id', 'category_id', 'questions', 'difficulty_level']
+class CategoryMixExamCreateSerializer(serializers.Serializer):
+    difficulty_level = serializers.ChoiceField(choices=Question.DIFFICULTY_LEVEL, allow_null=True)
+    counts = serializers.IntegerField(validators=[MinValueValidator(settings.MIN_QUESTIONS),
+                                                  MaxValueValidator(settings.MAX_QUESTIONS)])
+    category_id_list = serializers.ListField(child=serializers.IntegerField(), min_length=2)
 
-
-class ListCategoryMixExamSerializer(serializers.Serializer):
-    pk = serializers.IntegerField()
-
-    def validate(self, attrs):
-        get_object_or_404(Category, pk=attrs['pk'])
-        return attrs
-
-
-class CategoryMixExamCreateSerializer(CategoryExamCreateSerializer):
-    category_id = None
-
-    def create(self, validated_data):
-        return None
-
-    class Meta:
-        model = CategoryExamStudent
-        fields = ['id', 'questions', 'difficulty_level']
+    def validate_category_id_list(self, lst):
+        lst = list(set(lst))
+        trust_category_id_list = list(Category.objects.values_list('pk', flat=True))
+        for i in lst:
+            if i not in trust_category_id_list:
+                raise ValidationError('not found')
+        return lst

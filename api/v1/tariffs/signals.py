@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 from django.core.cache import cache
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, post_delete
 
 from api.v1.tariffs.models import Tariff
 from api.v1.discounts.models import TariffDiscount, StudentDiscount
@@ -30,6 +30,6 @@ def update_discounts(instance, *args, **kwargs):
             setattr(instance, field + '_amount', 0)
 
 
-@receiver(post_save, sender=Tariff)
+@receiver([post_save, post_delete], sender=Tariff)
 def update_tariffs_cache(*args, **kwargs):
     cache.clear()

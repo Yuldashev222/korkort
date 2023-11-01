@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.v1.books.models import BookPart, BookChapterStudent
+from api.v1.books.models import BookChapterStudent, BookChapter
 from api.v1.general.utils import bubble_search
 
 
@@ -12,7 +12,7 @@ class BookChapterSerializer(serializers.Serializer):
 
     def get_is_completed(self, instance):
         sort_list = self.context['student_chapter_list']
-        obj = bubble_search(instance.id, 'chapter_id', sort_list)
+        obj = bubble_search(instance.pk, 'chapter_id', sort_list)
         if obj is not None:
             return obj['is_completed']
         return False
@@ -23,29 +23,16 @@ class BookListSerializer(serializers.Serializer):
     chapters = BookChapterSerializer(source='bookchapter_set', many=True)
 
 
-class BookPartSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+class BookDetailSerializer(serializers.ModelSerializer):
+    is_completed = serializers.SerializerMethodField()
 
     class Meta:
-        model = BookPart
-        exclude = ['id', 'ordering_number', 'book_chapter']
-
-    def get_image(self, instance):
-        if not instance.image:
-            return None
-        return self.context['request'].build_absolute_uri(instance.image.url)
-
-
-class BookDetailSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField()
-    audio = serializers.FileField()
-    is_completed = serializers.SerializerMethodField()
-    parts = BookPartSerializer(source='bookpart_set', many=True)
+        model = BookChapter
+        fields = ['pk', 'title', 'audio', 'is_completed', 'content']
 
     def get_is_completed(self, instance):
-        obj, _ = BookChapterStudent.objects.get_or_create(chapter_id=instance.id,
-                                                          student_id=self.context['request'].user.id)
+        obj, _ = BookChapterStudent.objects.get_or_create(chapter_id=instance.pk,
+                                                          student_id=self.context['request'].user.pk)
         return obj.is_completed
 
 

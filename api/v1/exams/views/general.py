@@ -11,7 +11,7 @@ from api.v1.exams.serializers.categories import CategoryExamStudentResultSeriali
 
 
 class ExamAnswerAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)
+    permission_classes = (IsAuthenticated, IsStudent)  # last
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -25,23 +25,26 @@ class ExamStudentResult(GenericAPIView):
 
     def get_queryset(self):
         return CategoryExamStudentResult.objects.filter(
-            student=self.request.user).select_related('category').prefetch_related('categoryexamstudent_set')
+            student_id=self.request.user.pk
+        ).select_related('category').prefetch_related('categoryexamstudent_set').order_by('category__ordering_number')
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
 
-        ctx['category_name_list'] = CategoryDetail.objects.filter(language=get_language()
-                                                                  ).values('category', 'name').order_by('category_id')
+        ctx['category_name_list'] = CategoryDetail.objects.filter(language_id=get_language()
+                                                                  ).values('category_id', 'name'
+                                                                           ).order_by('category_id')
         return ctx
 
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_queryset(), many=True)
+        student = self.request.user
 
         data = {
-            'all_wrong_answers_count': StudentWrongAnswer.objects.count(),
-            'wrong_answers_count': StudentWrongAnswer.objects.filter(student=self.request.user).count(),
-            'saved_answers_count': StudentSavedQuestion.objects.filter(student=self.request.user).count(),
-            'all_saved_answers_count': StudentSavedQuestion.objects.count(),
-            'category_exams': serializer.data
+            'student_wrong_answers_count': StudentWrongAnswer.objects.filter(student_id=student.pk).count(),
+            'student_saved_answers_count': StudentSavedQuestion.objects.filter(student_id=student.pk).count(),
+            'other_wrong_answers_exists': StudentWrongAnswer.objects.exclude(student_id=student.pk).exists(),  # last
+            'other_saved_answers_exists': StudentSavedQuestion.objects.exclude(student_id=student.pk).exists(),  # last
+            'categories': serializer.data
         }
         return Response(data)

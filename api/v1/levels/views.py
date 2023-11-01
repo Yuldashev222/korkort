@@ -21,6 +21,6 @@ class LevelAPIView(ListAPIView):
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
-        ctx['level_name_list'] = LevelDetail.objects.filter(language=get_language()).values('level', 'name', 'desc'
+        ctx['level_name_list'] = LevelDetail.objects.filter(language_id=get_language()).values('level', 'name', 'desc'
                                                                                             ).order_by('level_id')
         return ctx

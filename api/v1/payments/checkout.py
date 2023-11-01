@@ -29,10 +29,10 @@ class StripeCheckoutAPIView(CreateAPIView):
         session_data = {
             'mode': 'payment',
             'payment_method_types': ['card'],
-            'client_reference_id': order.id,
+            'client_reference_id': order.pk,
             'customer_email': self.request.user.email,
-            'success_url': f'{settings.SUCCESS_PAYMENT_URL}?order_id={order.id}',
-            'cancel_url': f'{settings.FAILURE_PAYMENT_URL}?order_id={order.id}',
+            'success_url': f'{settings.SUCCESS_PAYMENT_URL}?order_id={order.pk}',
+            'cancel_url': f'{settings.FAILURE_PAYMENT_URL}?order_id={order.pk}',
             'expires_at': int(time.time()) + settings.STRIPE_CHECKOUT_TIMEOUT,
             'line_items': []
         }
@@ -77,7 +77,7 @@ class StripeCheckoutAPIView(CreateAPIView):
             }
 
             stripe_coupon = stripe.Coupon.create(**data)
-            session_data['discounts'] = [{'coupon': stripe_coupon.id}]
+            session_data['discounts'] = [{'coupon': stripe_coupon.pk}]
 
         try:
             checkout_session = stripe.checkout.Session.create(**session_data)

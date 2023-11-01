@@ -1,5 +1,5 @@
-from ckeditor.fields import RichTextField
 from django.db import models
+from ckeditor.fields import RichTextField
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
@@ -14,10 +14,9 @@ class Lesson(models.Model):
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     def __str__(self):
-        return f'{self.chapter}: Lesson No {self.ordering_number}'
+        return f'Chapter No {self.chapter_id} Lesson No {self.ordering_number}'
 
     class Meta:
-        ordering = ['ordering_number']
         unique_together = ['chapter', 'ordering_number']
 
     @classmethod
@@ -36,16 +35,15 @@ class Lesson(models.Model):
 class LessonDetail(models.Model):
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    text = RichTextField(max_length=700, blank=True)
+    title = models.CharField(max_length=300)
     video = models.FileField(max_length=300, upload_to='lessons/videos/',
                              validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    title = models.CharField(max_length=300)
+    text = RichTextField(max_length=700, blank=True)
 
     def __str__(self):
-        return self.title
+        return f'{self.language_id} Lesson No {self.lesson}'
 
     class Meta:
-        ordering = ['lesson__ordering_number']
         unique_together = ['lesson', 'language']
 
     def save(self, *args, **kwargs):
@@ -54,14 +52,16 @@ class LessonDetail(models.Model):
 
 
 class LessonWordInfo(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    lesson_detail = models.ForeignKey(LessonDetail, on_delete=models.CASCADE)
     word = models.CharField(max_length=300)
-    info = models.CharField(max_length=500)
+    info = RichTextField(max_length=500)
 
     class Meta:
         verbose_name = 'Word Info'
         verbose_name_plural = 'Word Infos'
+
+    def __str__(self):
+        return self.word
 
     def save(self, *args, **kwargs):
         self.word, self.info = normalize_text(self.word, self.info)
@@ -69,14 +69,16 @@ class LessonWordInfo(models.Model):
 
 
 class LessonSource(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
+    lesson_detail = models.ForeignKey(LessonDetail, on_delete=models.CASCADE)
     text = models.CharField(max_length=500)
     link = models.URLField()
 
     def save(self, *args, **kwargs):
         self.text = normalize_text(self.text)[0]
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.link
 
     class Meta:
         verbose_name = 'Source'
@@ -94,7 +96,6 @@ class LessonStudent(models.Model):
         verbose_name = 'Student Lesson'
         verbose_name_plural = 'Student Lessons'
         unique_together = ['lesson', 'student']
-        ordering = ['lesson__ordering_number']
 
 
 class StudentLessonViewStatistics(models.Model):
@@ -102,6 +103,3 @@ class StudentLessonViewStatistics(models.Model):
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     viewed_date = models.DateField()
-
-    class Meta:
-        ordering = ['-viewed_date']

@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 from django.db.models.signals import post_delete, post_save, pre_save
 
+from api.v1.accounts.models import CustomUser
 from api.v1.payments.tasks import change_student_tariff_expire_date
 from api.v1.payments.models import Order
 from api.v1.discounts.models import TariffDiscount, StudentDiscount
@@ -18,6 +19,7 @@ def check_order(instance, *args, **kwargs):
     if not instance.pk:
         instance.order_id = instance.generate_unique_order_id
         instance.student_email = student.email
+        instance.student_full_name = student.get_full_name()
 
         instance.tariff_price = tariff.price
         instance.tariff_days = tariff.days
@@ -27,9 +29,9 @@ def check_order(instance, *args, **kwargs):
             tariff_discount = TariffDiscount.objects.first()
 
             if tariff_discount:
-                instance.tariff_discount_value = tariff_discount['discount_value']
-                instance.tariff_discount_name = tariff_discount['name']
-                instance.tariff_discount_is_percent = tariff_discount['is_percent']
+                instance.tariff_discount_value = tariff_discount.discount_value
+                instance.tariff_discount_name = tariff_discount.name
+                instance.tariff_discount_is_percent = tariff_discount.is_percent
                 instance.tariff_discount_amount = tariff.tariff_discount_amount
 
         if instance.use_bonus_money:
@@ -46,13 +48,14 @@ def check_order(instance, *args, **kwargs):
 
         elif tariff.student_discount and called_student:
             instance.called_student_code = called_student.user_code
+            instance.called_student_full_name = called_student.get_full_name()
             instance.called_student_email = called_student.email
 
-            student_discount = StudentDiscount.get_student_discount()
+            student_discount = StudentDiscount.objects.first()
 
             if student_discount:
-                instance.student_discount_value = student_discount['discount_value']
-                instance.student_discount_is_percent = student_discount['is_percent']
+                instance.student_discount_value = student_discount.discount_value
+                instance.student_discount_is_percent = student_discount.is_percent
                 instance.student_discount_amount = tariff.student_discount_amount
 
     all_discounts = instance.student_discount_amount + instance.tariff_discount_amount + instance.student_bonus_amount
@@ -65,8 +68,8 @@ def check_order(instance, *args, **kwargs):
             instance.purchased_at = now()
 
         if not instance.expire_at:
-            last_order = Order.objects.filter(student=student, is_paid=True, expire_at__gte=instance.purchased_at
-                                              ).first()
+            last_order = Order.objects.filter(student_email=student.email, is_paid=True,
+                                              expire_at__gte=instance.purchased_at).first()
 
             instance.expire_at = last_order.expire_at if last_order else instance.purchased_at
             instance.expire_at += timedelta(days=instance.tariff_days)
@@ -85,7 +88,7 @@ def check_order(instance, *args, **kwargs):
 def change_student_tariff_expire_date_on_save(instance, *args, **kwargs):
     student = instance.student
     if instance.is_paid and instance.expire_at and student:
-        change_student_tariff_expire_date(student.id)
+        change_student_tariff_expire_date(student.pk)
 
 
 @receiver(post_delete, sender=Order)
@@ -94,9 +97,10 @@ def reply_student_bonus_money(instance, *args, **kwargs):
     if not student:
         return
 
-    # if instance.is_paid and instance.expire_at:  # last Error
-    #     change_student_tariff_expire_date(student.id)
+    if instance.is_paid:
+        if instance.expire_at > now():
+            change_student_tariff_expire_date(student.pk)
 
-    if not instance.is_paid and instance.student_bonus_amount > 0:
+    elif instance.student_bonus_amount > 0:
         student.bonus_money += instance.student_bonus_amount
         student.save()

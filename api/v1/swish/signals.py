@@ -1,7 +1,8 @@
-from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.cache import cache
+from django.db.models.signals import post_save, post_delete
 
-from api.v1.swish.models import SwishCard
+from api.v1.swish.models import SwishCard, MinBonusMoney
 
 
 @receiver(post_save, sender=SwishCard)
@@ -15,3 +16,8 @@ def change_student_bonus_money(instance, *args, **kwargs):
         instance.student.save()
         instance.is_purchased = True
         instance.save()
+
+
+@receiver([post_save, post_delete], sender=MinBonusMoney)
+def update_tariffs_cache(*args, **kwargs):
+    cache.clear()

@@ -9,7 +9,7 @@ class LevelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Level
-        exclude = ['id', 'correct_answers']
+        exclude = ['pk', 'correct_answers']
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -18,7 +18,7 @@ class LevelSerializer(serializers.ModelSerializer):
 
     def get_level_name_and_desc(self, instance):
         sort_list = self.context['level_name_list']
-        obj = bubble_search(instance.id, 'level', sort_list)
+        obj = bubble_search(instance.pk, 'level', sort_list)
         if obj is not None:
             return obj['name'], obj['desc']
         return '-', '-'

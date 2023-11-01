@@ -32,7 +32,7 @@ class StripeWebhookView(View):
             session = event.data.object
             if session.mode == 'payment' and session.payment_status == 'paid':
                 try:
-                    order = Order.objects.select_related('student').get(id=session.client_reference_id, is_paid=False)
+                    order = Order.objects.select_related('student').get(pk=session.client_reference_id, is_paid=False)
                 except Order.DoesNotExist as e:
                     return HttpResponse(content=str(e), status=400)
                 order.is_paid = True

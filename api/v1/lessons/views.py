@@ -1,6 +1,7 @@
+import random
 from datetime import timedelta
-from django.core.cache import cache
 from django.db.models import Count
+from django.core.cache import cache
 from django.utils.timezone import now
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
@@ -11,12 +12,12 @@ from rest_framework.permissions import IsAuthenticated
 from api.v1.general.utils import bubble_search
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStudent, LessonDetail
-from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail, CategoryDetail, Variant
+from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
-from api.v1.accounts.permissions import IsStudent
-from api.v1.questions.serializers.questions import QuestionSerializer
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer, LessonListSerializer)
+from api.v1.accounts.permissions import IsStudent
+from api.v1.questions.serializers.questions import QuestionSerializer
 
 
 class LessonAnswerAPIView(GenericAPIView):
@@ -25,10 +26,11 @@ class LessonAnswerAPIView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            obj = get_object_or_404(Lesson, pk=request.data['lesson_id'])
+            obj = Lesson.objects.get(pk=request.data.get('lesson_id'))
             self.check_object_permissions(self.request, obj)
-        except KeyError:
+        except (Lesson.DoesNotExist, ValueError):
             pass
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(status=HTTP_201_CREATED)
@@ -41,17 +43,18 @@ class LessonStudentAPIView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        lesson_detail = get_object_or_404(LessonDetail, lesson_id=instance.pk, language_id=get_language())
         student = self.request.user
         page = str(request.build_absolute_uri())
-        change_student_lesson_view_statistics.delay(student_id=student.id, lesson_id=instance.id)
+        change_student_lesson_view_statistics.delay(student_id=student.pk, lesson_id=instance.pk)
 
         page_cache = cache.get(page)
         if page_cache:
-            queryset = LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student=student
+            queryset = LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
                                                     ).select_related('lesson')
             ctx = {
                 'student': student,
-                'lesson_title_list': LessonDetail.objects.filter(language=get_language(),
+                'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
                                                                  lesson__chapter_id=instance.chapter_id
                                                                  ).values('lesson', 'title').order_by('lesson')
             }
@@ -60,13 +63,9 @@ class LessonStudentAPIView(RetrieveAPIView):
             return Response(page_cache)
 
         serializer = self.get_serializer(instance)
+        serializer.context['lesson_detail'] = lesson_detail
         cache.set(page, serializer.data)
         return Response(serializer.data)
-
-
-class LessonAPIView(LessonStudentAPIView):
-    lookup_field = 'lesson_id'
-    lookup_url_kwarg = 'pk'
 
 
 class StudentLessonViewStatisticsAPIView(GenericAPIView):
@@ -74,7 +73,7 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
     serializer_class = StudentLessonViewStatisticsSerializer
 
     def get_queryset(self):
-        return StudentLessonViewStatistics.objects.filter(student=self.request.user).values(
+        return StudentLessonViewStatistics.objects.filter(student_id=self.request.user.pk).values(
             'viewed_date').annotate(count=Count('lesson')).order_by('-viewed_date')[:7]
 
     def get(self, request, *args, **kwargs):
@@ -108,34 +107,35 @@ class LessonQuestionAPIView(GenericAPIView):
         page = str(request.build_absolute_uri())
         page_cache = cache.get(page)
         if page_cache:
-            sort_list = StudentSavedQuestion.objects.filter(student=self.request.user).values('question'
-                                                                                              ).order_by('question_id')
+            sort_list = StudentSavedQuestion.objects.filter(student_id=self.request.user.pk
+                                                            ).values('question_id').order_by('question_id')
             for i in page_cache:
-                obj = bubble_search(i['id'], 'question', sort_list)
-                i['is_saved'] = True if obj is not None else False
+                obj = bubble_search(i['pk'], 'question_id', sort_list)
+                i['is_saved'] = bool(obj)
             return Response(page_cache)
 
-        questions = Question.objects.filter(lesson_id=self.kwargs[self.lookup_field])
+        questions = Question.objects.filter(lesson_id=self.kwargs[self.lookup_field]).order_by('ordering_number')
         serializer = self.get_serializer(questions, many=True)
         cache.set(page, serializer.data)
         return Response(serializer.data)
 
     def get_serializer_context(self):
-        student_saved_question_list = StudentSavedQuestion.objects.filter(student=self.request.user).values(
-            'question').order_by('question_id')
-        question_text_list = QuestionDetail.objects.filter(language=get_language()).values('question', 'text').order_by(
-            'question_id')
-        category_name_list = CategoryDetail.objects.filter(language=get_language()).values('category', 'name').order_by(
-            'category_id')
-        variant_list = Variant.objects.filter(language=get_language(),
-                                              question__lesson_id=self.kwargs[self.lookup_field]
-                                              ).values('question', 'text', 'is_correct')
+        student_saved_question_list = StudentSavedQuestion.objects.filter(student_id=self.request.user.pk
+                                                                          ).values('question_id'
+                                                                                   ).order_by('question_id')
+
+        question_text_list = QuestionDetail.objects.filter(language_id=get_language()).values('pk', 'question_id',
+                                                                                              'text',
+                                                                                              'correct_variant',
+                                                                                              'variant2',
+                                                                                              'variant3',
+                                                                                              'variant4',
+                                                                                              ).order_by('question_id')
+
         return {
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
             'student_saved_question_list': student_saved_question_list,
-            'question_text_list': question_text_list,
-            'category_name_list': category_name_list,
-            'variant_list': variant_list
+            'question_text_list': question_text_list
         }

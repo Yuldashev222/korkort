@@ -22,5 +22,5 @@ class Command(BaseCommand):
         for idx, i in enumerate(LEVEL_CORRECT_COUNTS):
             level = Level.objects.create(correct_answers=i, ordering_number=idx + 1)
             for language in Language.objects.all():
-                LevelDetail.objects.create(level=level, language=language,
-                                           name=f'{language.language_id}_{LEVEL_NAMES_SWE[idx]}')
+                LevelDetail.objects.create(level_id=level.pk, language_id=language.pk,
+                                           name=f'{language.pk}_{LEVEL_NAMES_SWE[idx]}')

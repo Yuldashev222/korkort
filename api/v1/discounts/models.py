@@ -1,6 +1,5 @@
 from django.db import models
 from ckeditor.fields import RichTextField
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
@@ -22,7 +21,7 @@ class DiscountMixin(models.Model):
 
 class TariffDiscount(DiscountMixin):
     image = models.ImageField(upload_to='discounts/images/', max_length=500)
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=30)
 
     def clean(self):
         super().clean()
@@ -31,13 +30,15 @@ class TariffDiscount(DiscountMixin):
 
     class Meta:
         verbose_name_plural = 'Tariff Discount'
-        constraints = [models.UniqueConstraint(fields=['discount_value', 'is_percent'], name='unique discounts')]
 
 
 class TariffDiscountDetail(models.Model):
     tariff_discount = models.ForeignKey(TariffDiscount, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    title = RichTextField(max_length=200)
+    title = RichTextField(max_length=500)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         unique_together = ['tariff_discount', 'language']

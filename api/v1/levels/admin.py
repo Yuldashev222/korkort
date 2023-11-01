@@ -1,9 +1,10 @@
 from django.contrib import admin
 
 from api.v1.levels.models import Level, LevelDetail
+from api.v1.general.admin import AbstractStackedInline
 
 
-class LevelDetailInline(admin.TabularInline):
+class LevelDetailInline(AbstractStackedInline):
     model = LevelDetail
 
 

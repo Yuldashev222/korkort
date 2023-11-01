@@ -2,6 +2,7 @@ from django.utils.translation import get_language
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
+from api.v1.exams.models import StudentLastExamResult
 from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
 from api.v1.levels.models import LevelDetail
@@ -10,25 +11,25 @@ from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    last_exams_result = 0
+    # last_exams_result = 0
     all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
     all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())
     last_exams = serializers.SerializerMethodField()
     level = serializers.SerializerMethodField()
 
     def get_level(self, instance):
-        return LevelDetail.objects.get(language=get_language(), level__ordering_number=instance.level_id).name
+        return LevelDetail.objects.get(language_id=get_language(), level__ordering_number=instance.level_id).name
 
     def get_last_exams(self, instance):
-        last_exams = instance.studentlastexamresult_set.all()[:10]
+        last_exams = StudentLastExamResult.objects.filter(student_id=instance.pk).order_by('-pk')[:10]
         data = StudentLastExamResultSerializer(last_exams, many=True).data
         len_data = len(data)
         if len_data < 10:
             obj = {'questions': 0, 'percent': 0}
             data.extend([obj] * (10 - len_data))
         data.reverse()
-        temp = list(map(lambda el: el['percent'], data))
-        self.last_exams_result = int(sum(temp) / len(temp))
+        # temp = list(map(lambda el: el['percent'], data))
+        # self.last_exams_result = int(sum(temp) / len(temp))
         return data
 
     class Meta:

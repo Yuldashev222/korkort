@@ -42,7 +42,7 @@ class PasswordResetSerializer(serializers.Serializer):
     def save(self):
         token = default_token_generator.make_token(self.user)
         current_site = get_current_site(self.context['request'])
-        send_password_reset_email.delay(user_id=self.user.id, token=token, domain=current_site.domain,
+        send_password_reset_email.delay(user_id=self.user.pk, token=token, domain=current_site.domain,
                                         email_address=self.user.email, link_type=self.validated_data.get('link_type'))
 
 
@@ -51,7 +51,7 @@ class PasswordResetCodeSerializer(PasswordResetSerializer):
         code = ''.join(secrets.choice(string.digits) for _ in range(6))
         cache.set(f'{self.user.email}_reset_password', code, 60 * 60 * 10)
         current_site = get_current_site(self.context['request'])
-        send_password_reset_email.delay(user_id=self.user.id, code=code, domain=current_site.domain,
+        send_password_reset_email.delay(user_id=self.user.pk, code=code, domain=current_site.domain,
                                         email_address=self.user.email, link_type=self.validated_data.get('link_type'))
 
 

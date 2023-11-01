@@ -6,7 +6,7 @@ from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 
 class Tariff(models.Model):
-    days = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    days = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
     price = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -14,11 +14,8 @@ class Tariff(models.Model):
     tariff_discount = models.BooleanField(default=False)
     tariff_discount_amount = models.FloatField(default=0)
 
-    student_discount = models.BooleanField(default=True)
+    student_discount = models.BooleanField(verbose_name='User Code Discount', default=False)
     student_discount_amount = models.FloatField(default=0)
-
-    class Meta:
-        ordering = ['-created_at']
 
     def clean(self):
         if self.student_discount and not StudentDiscount.objects.exists():

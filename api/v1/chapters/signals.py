@@ -3,7 +3,6 @@ from django.db.models import Sum
 from django.db.models.signals import post_save, pre_save, post_delete
 
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
-from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import Chapter, ChapterStudent
 
 
@@ -14,18 +13,15 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Chapter)
 def delete_image(instance, *args, **kwargs):
-    try:
-        delete_object_file_pre_save(Chapter, instance, 'image')
-    except Chapter.DoesNotExist:
-        pass
+    delete_object_file_pre_save(Chapter, instance, 'image')
 
 
 @receiver(post_save, sender=ChapterStudent)
 def update_student_completed_lessons(instance, *args, **kwargs):
     student = instance.student
     if student:
-        completed_lessons = ChapterStudent.objects.filter(student=student).aggregate(amount=Sum('completed_lessons')
-                                                                                     )['amount']
+        completed_lessons = ChapterStudent.objects.filter(student_id=student.pk
+                                                          ).aggregate(amount=Sum('completed_lessons'))['amount']
         if student.completed_lessons != completed_lessons:
             student.completed_lessons = completed_lessons
             student.save()

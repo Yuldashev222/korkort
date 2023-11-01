@@ -8,26 +8,15 @@ from api.v1.discounts.models import StudentDiscount, TariffDiscount
 
 @receiver(post_delete, sender=TariffDiscount)
 def delete_image(instance, *args, **kwargs):
-    for tariff in Tariff.objects.filter(tariff_discount=True):
-        tariff.save()
     delete_object_file_post_delete(instance, 'image')
-
-
-@receiver(post_save, sender=TariffDiscount)
-def update_tariff_discount(*args, **kwargs):
-    for tariff in Tariff.objects.filter(tariff_discount=True):
-        tariff.save()
 
 
 @receiver(pre_save, sender=TariffDiscount)
 def delete_image(instance, *args, **kwargs):
-    try:
-        delete_object_file_pre_save(TariffDiscount, instance, 'image')
-    except TariffDiscount.DoesNotExist:
-        pass
+    delete_object_file_pre_save(TariffDiscount, instance, 'image')
 
 
-@receiver([post_save, post_delete], sender=StudentDiscount)
+@receiver([post_save, post_delete], sender=StudentDiscount)  # last
 def update_tariff_discount(*args, **kwargs):
     for tariff in Tariff.objects.filter(student_discount=True):
         tariff.save()

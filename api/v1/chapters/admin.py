@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
+from api.v1.general.admin import AbstractStackedInline
 from api.v1.chapters.models import Chapter, ChapterDetail
-from api.v1.general.admin import AbstractTabularInline
-from api.v1.languages.models import Language
 
 
-class ChapterDetailInline(AbstractTabularInline):
+class ChapterDetailInline(AbstractStackedInline):
     model = ChapterDetail
+    verbose_name = 'Title'
+    verbose_name_plural = 'Titles'
 
 
 @admin.register(Chapter)

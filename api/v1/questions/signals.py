@@ -16,11 +16,8 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Question)
 def delete_image(instance, *args, **kwargs):
-    try:
-        delete_object_file_pre_save(Question, instance, 'image')
-        delete_object_file_pre_save(Question, instance, 'gif')
-    except Question.DoesNotExist:
-        pass
+    delete_object_file_pre_save(Question, instance, 'image')
+    delete_object_file_pre_save(Question, instance, 'gif')
 
 
 @receiver(post_save, sender=Question)
@@ -30,10 +27,7 @@ def update_question_count(*args, **kwargs):
 
 @receiver(pre_save, sender=Category)
 def delete_image(instance, *args, **kwargs):
-    try:
-        delete_object_file_pre_save(Category, instance, 'image')
-    except Category.DoesNotExist:
-        pass
+    delete_object_file_pre_save(Category, instance, 'image')
 
 
 @receiver(post_delete, sender=Category)
@@ -45,7 +39,7 @@ def delete_image(instance, *args, **kwargs):
 def create_student_exams(instance, created, *args, **kwargs):
     if created:
         objs = [
-            CategoryExamStudentResult(category=instance, student=student)
+            CategoryExamStudentResult(category_id=instance.pk, student_id=student.pk)
             for student in CustomUser.objects.filter(is_staff=False)
         ]
         CategoryExamStudentResult.objects.bulk_create(objs)

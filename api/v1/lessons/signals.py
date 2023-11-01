@@ -16,16 +16,13 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(pre_save, sender=Lesson)
 def delete_image(instance, *args, **kwargs):
-    try:
-        delete_object_file_pre_save(Lesson, instance, 'image')
-    except Lesson.DoesNotExist:
-        pass
+    delete_object_file_pre_save(Lesson, instance, 'image')
 
 
 def update_chapter_time(instance, *args, **kwargs):  # last
     if instance.chapter:
         chapter = instance.chapter
-        data = Lesson.objects.filter(chapter=chapter).aggregate(time=Sum('lesson_time'), cnt=Count('id'))
+        data = Lesson.objects.filter(chapter_id=chapter.pk).aggregate(time=Sum('lesson_time'), cnt=Count('pk'))
         time_in_minute, lessons = data.get('time'), data.get('cnt')
 
         if not time_in_minute:
@@ -41,8 +38,8 @@ def update_chapter_time(instance, *args, **kwargs):  # last
 @receiver(post_save, sender=Lesson)
 def add_to_student_on_create(instance, created, *args, **kwargs):
     if created:
-        student_ids = CustomUser.objects.filter(is_staff=False).values_list('id', flat=True)
-        objs = (LessonStudent(student_id=student_id, lesson_id=instance.id) for student_id in student_ids)
+        student_ids = CustomUser.objects.filter(is_staff=False).values_list('pk', flat=True)
+        objs = (LessonStudent(student_id=student_id, lesson_id=instance.pk) for student_id in student_ids)
         LessonStudent.objects.bulk_create(objs)
 
     update_chapter_time(instance, *args, **kwargs)
@@ -53,9 +50,9 @@ def update_student_ball(instance, *args, **kwargs):
     student = instance.student
     chapter = instance.lesson.chapter
     if student and instance.is_completed and chapter:
-        completed_lessons = LessonStudent.objects.filter(student=student, is_completed=True, lesson__chapter=chapter
-                                                         ).count()
-        obj, _ = ChapterStudent.objects.get_or_create(chapter=chapter, student=student)
+        completed_lessons = LessonStudent.objects.filter(student_id=instance.student_id, is_completed=True,
+                                                         lesson__chapter_id=instance.lesson.chapter_id).count()
+        obj, _ = ChapterStudent.objects.get_or_create(chapter_id=chapter.pk, student_id=student.pk)
         if obj.completed_lessons != completed_lessons:
             obj.completed_lessons = completed_lessons
             obj.save()

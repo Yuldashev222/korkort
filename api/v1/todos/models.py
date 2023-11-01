@@ -6,10 +6,10 @@ from api.v1.general.services import normalize_text
 
 
 class Todo(models.Model):
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
+    ordering_number = models.PositiveSmallIntegerField(primary_key=True, unique=True, validators=[MinValueValidator(1)])
 
     def __str__(self):
-        return f'Todo No {self.ordering_number}'
+        return f'Todo No {self.pk}'
 
 
 class TodoDetail(models.Model):
@@ -19,10 +19,12 @@ class TodoDetail(models.Model):
     text = RichTextField(max_length=500)
 
     def __str__(self):
-        return self.title
+        return f'{self.language_id} Todo No {self.todo_id}'
 
     class Meta:
         unique_together = ['todo', 'language']
+        verbose_name = 'Todo Language'
+        verbose_name_plural = 'Todo Languages'
 
     def save(self, *args, **kwargs):
         self.title = normalize_text(self.title)[0]

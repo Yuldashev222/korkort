@@ -23,7 +23,7 @@ class ChapterSerializer(serializers.ModelSerializer):
     def get_is_open(self, instance):
         temp = LessonListSerializer.play
 
-        if not (self.old_obj_completed_lessons is not None or self.old_obj_chapter_lessons is not None):
+        if self.old_obj_completed_lessons is None and self.old_obj_chapter_lessons is None:
             temp = LessonListSerializer.play
 
         elif self.context['request'].user.tariff_expire_date <= now():
@@ -38,16 +38,15 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     def get_completed_lessons(self, instance):
         sort_list = self.context['chapter_student_list']
-        obj = bubble_search(instance.id, 'chapter', sort_list)
+        obj = bubble_search(instance.pk, 'chapter_id', sort_list)
         if obj is not None:
-            if self.obj_completed_lessons is not None:
-                self.obj_completed_lessons = obj['completed_lessons']
+            self.obj_completed_lessons = obj['completed_lessons']
             return obj['completed_lessons']
         return 0
 
     def get_title(self, instance):
         sort_list = self.context['details']
-        obj = bubble_search(instance.id, 'chapter', sort_list)
+        obj = bubble_search(instance.pk, 'chapter', sort_list)
         if obj is not None:
             return obj['title']
         return '-'
@@ -59,4 +58,4 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ['id', 'title', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open']
+        fields = ['pk', 'title', 'lessons', 'chapter_hour', 'chapter_minute', 'completed_lessons', 'is_open']

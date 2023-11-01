@@ -12,4 +12,4 @@ class Command(BaseCommand):
                                          ordering_number=i + 1)
 
             for language in Language.objects.all():
-                ChapterDetail.objects.create(chapter=obj, language=language, title=title)
+                ChapterDetail.objects.create(chapter_id=obj.pk, language_id=language.pk, title=title)
