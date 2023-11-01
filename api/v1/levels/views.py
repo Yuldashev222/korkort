@@ -12,7 +12,7 @@ from api.v1.accounts.permissions import IsStudent
 
 class LevelAPIView(ListAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
-    queryset = Level.objects.all()
+    queryset = Level.objects.order_by('ordering_number')
     serializer_class = LevelSerializer
 
     @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
@@ -21,6 +21,7 @@ class LevelAPIView(ListAPIView):
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
-        ctx['level_name_list'] = LevelDetail.objects.filter(language_id=get_language()).values('level', 'name', 'desc'
-                                                                                            ).order_by('level_id')
+        ctx['level_name_list'] = LevelDetail.objects.filter(language_id=get_language()
+                                                            ).values('level_id', 'name'
+                                                                     ).order_by('level__ordering_number')
         return ctx
