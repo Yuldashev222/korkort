@@ -25,7 +25,7 @@ class LessonListSerializer(serializers.Serializer):
 
     def get_title(self, instance):
         sort_list = self.context['lesson_title_list']
-        obj = bubble_search(instance.lesson.pk, 'lesson', sort_list)
+        obj = bubble_search(instance.lesson.pk, 'lesson_id', sort_list)
         if obj is not None:
             return obj['title']
         return '-'
@@ -89,12 +89,12 @@ class LessonRetrieveSerializer(serializers.Serializer):
     def get_lessons(self, instance):
         student = self.context['request'].user
         queryset = list(LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
-                                                     ).select_related('lesson'))
+                                                     ).select_related('lesson').order_by('lesson_id'))
         ctx = {
             'student': self.context['request'].user,
             'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
                                                              lesson__lessonstudent__in=queryset
-                                                             ).values('lesson', 'title').order_by('lesson')
+                                                             ).values('lesson_id', 'title').order_by('lesson_id')
         }
         lessons = LessonListSerializer(queryset, many=True, context=ctx).data
         return lessons
