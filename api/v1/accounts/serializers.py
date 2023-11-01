@@ -1,24 +1,33 @@
-from django.utils.translation import get_language
 from rest_framework import serializers
+from django.utils.translation import get_language
 from django.contrib.auth.hashers import make_password
 
 from api.v1.exams.models import StudentLastExamResult
+from api.v1.levels.models import LevelDetail
 from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
-from api.v1.levels.models import LevelDetail
 from api.v1.questions.models import Question
 from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # last_exams_result = 0
     all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
     all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())
     last_exams = serializers.SerializerMethodField()
     level = serializers.SerializerMethodField()
 
     def get_level(self, instance):
-        return LevelDetail.objects.get(language_id=get_language(), level__ordering_number=instance.level_id).name
+        level = {
+            'id': instance.level_id,
+            'percent': instance.level_percent
+        }
+        try:
+            obj = LevelDetail.objects.get(language_id=get_language(), level__ordering_number=instance.level_id)
+        except LevelDetail.DoesNotExist:
+            level['name'] = '-'
+        else:
+            level['name'] = obj.name
+        return level
 
     def get_last_exams(self, instance):
         last_exams = StudentLastExamResult.objects.filter(student_id=instance.pk).order_by('-pk')[:10]
@@ -28,16 +37,13 @@ class ProfileSerializer(serializers.ModelSerializer):
             obj = {'questions': 0, 'percent': 0}
             data.extend([obj] * (10 - len_data))
         data.reverse()
-        # temp = list(map(lambda el: el['percent'], data))
-        # self.last_exams_result = int(sum(temp) / len(temp))
         return data
 
     class Meta:
         model = CustomUser
         fields = [
-            'first_name', 'last_name', 'ball', 'email', 'avatar_id', 'user_code', 'bonus_money',
-            'completed_lessons', 'all_lessons_count', 'all_questions_count', 'correct_answers',
-            'level_id', 'level', 'level_percent', 'tariff_expire_date', 'last_exams'
+            'first_name', 'last_name', 'ball', 'email', 'avatar_id', 'user_code', 'bonus_money', 'completed_lessons',
+            'all_lessons_count', 'all_questions_count', 'correct_answers', 'tariff_expire_date', 'level', 'last_exams'
         ]
 
 

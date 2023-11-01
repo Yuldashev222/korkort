@@ -1,5 +1,7 @@
 import string
 import secrets
+
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -22,7 +24,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(_("name"), max_length=50)
     last_name = models.CharField(_("surname"), max_length=100)
 
-    avatar_id = models.PositiveSmallIntegerField(default=0)
+    avatar_id = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(500)])
     user_code = models.CharField(max_length=400, unique=True)
     bonus_money = models.FloatField(default=0)
     is_active = models.BooleanField(default=True)
