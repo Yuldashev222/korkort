@@ -17,6 +17,7 @@ class CategoryDetailInline(AbstractStackedInline):
 class QuestionCategoryAdmin(admin.ModelAdmin):
     list_display = ['ordering_number', 'img']
     inlines = (CategoryDetailInline,)
+    ordering = ['ordering_number']
 
     def img(self, obj):
         if obj.image:
