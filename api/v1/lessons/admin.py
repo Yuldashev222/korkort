@@ -16,7 +16,7 @@ class LessonAdmin(admin.ModelAdmin):
     list_display_links = ['chapter', 'ordering_number']
     inlines = [LessonDetailInline]
     list_filter = ['chapter']
-    ordering = ('chapter__ordering_number',)
+    ordering = ('chapter__ordering_number', 'ordering_number')
 
     def chapter(self, obj):
         return obj.chapter
