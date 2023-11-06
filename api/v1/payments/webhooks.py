@@ -13,7 +13,6 @@ endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 @method_decorator(csrf_exempt, name="dispatch")
 class StripeWebhookView(View):
     def post(self, request, *args, **kwargs):
-        event = None
         payload = request.body
         sig_header = request.META['HTTP_STRIPE_SIGNATURE']
 
