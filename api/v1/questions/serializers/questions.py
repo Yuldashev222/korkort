@@ -21,38 +21,29 @@ class QuestionSerializer(serializers.Serializer):
     def get_variants(self, instance):
         sort_list = self.context['question_text_list']
         obj = bubble_search(instance.pk, 'question_id', sort_list)
-        if obj is not None:
-            variants = [
-                {'text': obj['correct_variant'], 'is_correct': True}, {'text': obj['variant2'], 'is_correct': False}
-            ]
-            if obj['variant3']:
-                variants.append({'text': obj['variant3'], 'is_correct': False})
-            if obj['variant4']:
-                variants.append({'text': obj['variant4'], 'is_correct': False})
+        variants = [
+            {'text': obj['correct_variant'], 'is_correct': True}, {'text': obj['variant2'], 'is_correct': False}
+        ]
+        if obj['variant3']:
+            variants.append({'text': obj['variant3'], 'is_correct': False})
+        if obj['variant4']:
+            variants.append({'text': obj['variant4'], 'is_correct': False})
 
-            random.shuffle(variants)
-            return variants
-        return []
+        random.shuffle(variants)
+        return variants
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['gif'], ret['gif_last_frame_number'], ret['gif_duration'] = random.choice(gifs)
-        ret['text'], ret['answer'] = self.get_question_text_and_answer_and(instance)
+        ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
         return ret
 
     def get_is_saved(self, instance):
         sort_list = self.context['student_saved_question_list']
         obj = bubble_search(instance.pk, 'question_id', sort_list)
-        if obj is not None:
-            return True
-        return False
+        return bool(obj)
 
-    def get_question_text_and_answer_and(self, instance):
+    def get_question_text_and_answer(self, instance):
         sort_list = self.context['question_text_list']
         obj = bubble_search(instance.pk, 'question_id', sort_list)
-        if obj is not None:
-            try:
-                return obj['text'], obj['answer']
-            except KeyError:
-                return obj['text'], '-'
-        return '-', '-', []
+        return obj['text'], obj.get('answer', None)

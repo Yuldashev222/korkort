@@ -6,4 +6,4 @@ from .models import Tariff
 class TariffSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tariff
-        exclude = ['is_active', 'created_at']
+        exclude = ['is_active']

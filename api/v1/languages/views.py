@@ -9,6 +9,7 @@ from api.v1.languages.serializers import LanguageSerializer
 
 class LanguageAPIView(ListAPIView):
     permission_classes = ()
+    authentication_classes = ()
     queryset = Language.objects.filter(is_active=True).order_by('ordering_number')
     serializer_class = LanguageSerializer
 

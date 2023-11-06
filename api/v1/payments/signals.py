@@ -4,10 +4,9 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 from django.db.models.signals import post_delete, post_save, pre_save
 
-from api.v1.accounts.models import CustomUser
 from api.v1.payments.tasks import change_student_tariff_expire_date
 from api.v1.payments.models import Order
-from api.v1.discounts.models import TariffDiscount, StudentDiscount
+from api.v1.discounts.models import TariffDiscount, UserCodeDiscount
 
 
 @receiver(pre_save, sender=Order)
@@ -19,20 +18,19 @@ def check_order(instance, *args, **kwargs):
     if not instance.pk:
         instance.order_id = instance.generate_unique_order_id
         instance.student_email = student.email
-        instance.student_full_name = student.get_full_name()
+        instance.student_name = student.name
 
         instance.tariff_price = tariff.price
         instance.tariff_days = tariff.days
 
-        if tariff.tariff_discount:
+        tariff_discount = TariffDiscount.objects.first()
+        student_discount = UserCodeDiscount.objects.first()
 
-            tariff_discount = TariffDiscount.objects.first()
-
-            if tariff_discount:
-                instance.tariff_discount_value = tariff_discount.discount_value
-                instance.tariff_discount_name = tariff_discount.name
-                instance.tariff_discount_is_percent = tariff_discount.is_percent
-                instance.tariff_discount_amount = tariff.tariff_discount_amount
+        if tariff_discount:
+            instance.tariff_discount_value = tariff_discount.discount_value
+            instance.tariff_discount_name = tariff_discount.name
+            instance.tariff_discount_is_percent = tariff_discount.is_percent
+            instance.tariff_discount_amount = tariff.tariff_discount_amount
 
         if instance.use_bonus_money:
             if student.bonus_money > 0:
@@ -46,17 +44,14 @@ def check_order(instance, *args, **kwargs):
                         student.bonus_money = 0
                     student.save()
 
-        elif tariff.student_discount and called_student:
-            instance.called_student_code = called_student.user_code
-            instance.called_student_full_name = called_student.get_full_name()
+        elif called_student and student_discount:
+            instance.called_student_name = called_student.name
             instance.called_student_email = called_student.email
+            instance.called_student_code = called_student.user_code
 
-            student_discount = StudentDiscount.objects.first()
-
-            if student_discount:
-                instance.student_discount_value = student_discount.discount_value
-                instance.student_discount_is_percent = student_discount.is_percent
-                instance.student_discount_amount = tariff.student_discount_amount
+            instance.student_discount_value = student_discount.discount_value
+            instance.student_discount_amount = tariff.student_discount_amount
+            instance.student_discount_is_percent = student_discount.is_percent
 
     all_discounts = instance.student_discount_amount + instance.tariff_discount_amount + instance.student_bonus_amount
     instance.purchased_price = instance.tariff_price - all_discounts

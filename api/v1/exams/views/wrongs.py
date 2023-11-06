@@ -21,7 +21,7 @@ class WrongQuestionsExamAPIView(GenericAPIView):
 
     def get_queryset(self, my_questions=False, difficulty_level=None, counts=settings.MIN_QUESTIONS):
         student = self.request.user
-        queryset = Question.objects.filter(studentwronganswer__isnull=False)  # last
+        queryset = Question.objects.filter(studentwronganswer__isnull=False, questiondetail__language_id=get_language())
 
         if difficulty_level:
             queryset = queryset.filter(difficulty_level=difficulty_level)
@@ -31,7 +31,7 @@ class WrongQuestionsExamAPIView(GenericAPIView):
         else:
             queryset = queryset.exclude(studentwronganswer__student_id=student.pk)
 
-        return list(queryset.order_by('?')[:counts])
+        return queryset.order_by('?')[:counts]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -41,10 +41,11 @@ class WrongQuestionsExamAPIView(GenericAPIView):
         counts = serializer.validated_data['counts']
         student = self.request.user
 
-        queryset = self.get_queryset(my_questions, difficulty_level, counts)
+        queryset = list(self.get_queryset(my_questions, difficulty_level, counts))
 
         question_text_list = QuestionDetail.objects.filter(question__in=queryset, language_id=get_language()
-                                                           ).values('question_id', 'text',
+                                                           ).values('question_id',
+                                                                    'text',
                                                                     'correct_variant',
                                                                     'variant2',
                                                                     'variant3',

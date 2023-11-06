@@ -15,14 +15,14 @@ class MinBonusMoneyAdmin(admin.ModelAdmin):
 
 @admin.register(SwishCard)
 class SwishCardAdmin(admin.ModelAdmin):
-    list_display = [
-        'number', 'student', 'student_money', 'created_at', 'is_paid', 'paid_at', 'is_purchased', 'purchased_price'
-    ]
-    readonly_fields = ['number', 'student', 'is_purchased', 'purchased_price']
-    fields = ('student', 'number', 'is_paid', 'paid_at', 'is_purchased', 'purchased_price')
-
-    def student_money(self, obj):
-        return obj.student.bonus_money
+    list_display = ['number', 'student', 'created_at', 'is_paid', 'paid_at', 'student_money']
+    fields = ('student', 'number', 'is_paid', 'paid_at', 'student_money')
 
     def has_add_permission(self, request):
         return False
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = ['number', 'student', 'student_money']
+        if obj and obj.is_paid:
+            readonly_fields.append('is_paid')
+        return readonly_fields

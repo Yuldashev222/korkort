@@ -13,7 +13,6 @@ from api.v1.questions.models import Question
 
 class LessonListSerializer(serializers.Serializer):
     old_obj = None
-    pause = 1
     play = 2
     clock = 3
     buy_clock = 4
@@ -21,23 +20,22 @@ class LessonListSerializer(serializers.Serializer):
     id = serializers.IntegerField(source='lesson_id')
     lesson_time = serializers.FloatField(source='lesson.lesson_time')
     title = serializers.SerializerMethodField()
-    lesson_permission = serializers.SerializerMethodField()
+    is_open = serializers.SerializerMethodField()
 
     def get_title(self, instance):
         sort_list = self.context['lesson_title_list']
         obj = bubble_search(instance.lesson.pk, 'lesson_id', sort_list)
-        if obj is not None:
-            return obj['title']
-        return '-'
+        return obj['title']
 
-    def get_lesson_permission(self, instance):
+    def get_is_open(self, instance):
         temp = self.clock
         tariff_expire_date = self.context['student'].tariff_expire_date
-        if not instance.lesson.is_open and tariff_expire_date <= now():
-            temp = self.buy_clock
 
-        elif not self.old_obj:
+        if self.old_obj is None:
             temp = self.play
+
+        elif not instance.lesson.is_open and tariff_expire_date < now():
+            temp = self.buy_clock
 
         elif self.old_obj.is_completed:
             temp = self.play
@@ -88,16 +86,15 @@ class LessonRetrieveSerializer(serializers.Serializer):
 
     def get_lessons(self, instance):
         student = self.context['request'].user
-        queryset = list(LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
-                                                     ).select_related('lesson').order_by('lesson__ordering_number'))
+        queryset = LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
+                                                ).select_related('lesson').order_by('lesson__ordering_number')
         ctx = {
             'student': self.context['request'].user,
             'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
-                                                             lesson__lessonstudent__in=queryset
+                                                             lesson__chapter_id=instance.chapter_id
                                                              ).values('lesson_id', 'title').order_by('lesson_id')
         }
-        lessons = LessonListSerializer(queryset, many=True, context=ctx).data
-        return lessons
+        return LessonListSerializer(queryset, many=True, context=ctx).data
 
     def get_word_infos(self, instance):
         lesson_detail = self.context['lesson_detail']

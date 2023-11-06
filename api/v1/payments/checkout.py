@@ -81,7 +81,6 @@ class StripeCheckoutAPIView(CreateAPIView):
 
         try:
             checkout_session = stripe.checkout.Session.create(**session_data)
-            order.payment_link = checkout_session.url
             order.save()
             return Response({'checkout_url': checkout_session.url, 'is_paid': False}, status=status.HTTP_200_OK)
         except Exception as e:

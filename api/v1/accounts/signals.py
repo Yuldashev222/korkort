@@ -59,7 +59,7 @@ def check_user_verification(*args, **kwargs):
 
 @receiver(pre_save, sender=CustomUser)
 def change_fields_pre_save(instance, *args, **kwargs):
-    instance.first_name, instance.last_name = normalize_text(instance.first_name, instance.last_name)
+    instance.name = normalize_text(instance.name)[0]
     if not instance.is_staff:
         if not instance.pk:
             instance.user_code = instance.generate_unique_user_code

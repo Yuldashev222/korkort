@@ -2,15 +2,15 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from api.v1.general.admin import AbstractTabularInline, AbstractStackedInline
-from api.v1.discounts.models import StudentDiscount, TariffDiscount, TariffDiscountDetail
+from api.v1.discounts.models import UserCodeDiscount, TariffDiscount, TariffDiscountDetail
 
 
-@admin.register(StudentDiscount)
-class StudentDiscountAdmin(admin.ModelAdmin):
+@admin.register(UserCodeDiscount)
+class UserCodeDiscountAdmin(admin.ModelAdmin):
     list_display = ['discount_value', 'is_percent']
 
     def has_add_permission(self, request):
-        return not StudentDiscount.objects.exists()
+        return not UserCodeDiscount.objects.exists()
 
 
 class TariffDiscountDetailInline(AbstractStackedInline):

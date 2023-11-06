@@ -14,29 +14,7 @@ from api.v1.accounts.permissions import IsStudent
 class TodoListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
     pagination_class = CustomPageNumberPagination
-    queryset = Todo.objects.order_by('ordering_number')
     serializer_class = TodoListSerializer
-
-    def list(self, request, *args, **kwargs):
-        page = str(request.build_absolute_uri())
-        page_cache = cache.get(page)
-        if page_cache:
-            sort_list = TodoStudent.objects.filter(student_id=self.request.user.pk
-                                                   ).values('todo_id', 'is_completed').order_by('todo__ordering_number')
-            for i in page_cache['results']:
-                obj = bubble_search(i['pk'], 'todo_id', sort_list)
-                if obj is not None:
-                    i['is_completed'] = obj['is_completed']
-                else:
-                    i['is_completed'] = False
-            return Response(page_cache)
-
-        queryset = self.filter_queryset(self.get_queryset())
-        page_q = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page_q, many=True)
-        data = self.get_paginated_response(serializer.data)
-        cache.set(page, data.data)
-        return data
 
     def get_queryset(self):
         return TodoDetail.objects.filter(language_id=get_language()).values('todo_id', 'title', 'text'
@@ -48,6 +26,24 @@ class TodoListAPIView(ListAPIView):
                                                               ).values('todo_id', 'is_completed'
                                                                        ).order_by('todo__ordering_number')
         return ctx
+
+    def list(self, request, *args, **kwargs):
+        page = str(request.build_absolute_uri())
+        page_cache = cache.get(page)
+        if page_cache:
+            sort_list = TodoStudent.objects.filter(student_id=self.request.user.pk
+                                                   ).values('todo_id', 'is_completed').order_by('todo__ordering_number')
+            for i in page_cache['results']:
+                obj = bubble_search(i['pk'], 'todo_id', sort_list)
+                i['is_completed'] = obj and obj['is_completed']
+            return Response(page_cache)
+
+        queryset = self.filter_queryset(self.get_queryset())
+        page_q = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page_q, many=True)
+        data = self.get_paginated_response(serializer.data)
+        cache.set(page, data.data)
+        return data
 
 
 class TodoStudentAPIView(CreateAPIView):

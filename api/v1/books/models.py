@@ -10,7 +10,7 @@ class Book(models.Model):
 
     class Meta:
         unique_together = ['ordering_number', 'language']
-        verbose_name_plural = ' Books'
+        verbose_name_plural = 'Books'
 
     def __str__(self):
         return f'{self.language_id} Book No {self.ordering_number}'

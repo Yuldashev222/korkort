@@ -11,9 +11,12 @@ from api.v1.accounts.permissions import IsStudent
 
 
 class LevelAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)
-    queryset = Level.objects.order_by('ordering_number')
+    authentication_classes = []
+    permission_classes = []
     serializer_class = LevelSerializer
+
+    def get_queryset(self):
+        return Level.objects.filter(leveldetail__language_id=get_language()).order_by('ordering_number')
 
     @method_decorator(cache_page(settings.CACHES['default']['TIMEOUT']))
     def list(self, request, *args, **kwargs):

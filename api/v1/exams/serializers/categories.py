@@ -31,9 +31,7 @@ class CategoryExamStudentResultSerializer(serializers.ModelSerializer):
     def get_name(self, instance):
         sort_list = self.context['category_name_list']
         obj = bubble_search(instance.category_id, 'category_id', sort_list)
-        if obj is not None:
-            return obj['name']
-        return '-'
+        return obj['name']
 
     def get_detail(self, instance):
         last_exams = instance.categoryexamstudent_set.all()[:10]

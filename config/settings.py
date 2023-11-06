@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'ckeditor',
-    'ckeditor_uploader',
+    # 'ckeditor_uploader',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -112,14 +112,8 @@ CACHES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    }
 ]
 
 LANGUAGE_CODE = 'en-us'
@@ -134,10 +128,10 @@ MEDIA_URL = 'media/'
 STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = '/api/v1/accounts/profile'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# STATIC_DIR = os.path.join(BASE_DIR, 'static')
-# STATICFILES_DIRS = [STATIC_DIR]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+#
+# STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -233,7 +227,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 INTERNAL_IPS = [
     'localhost',
     '127.0.0.1',
-    '16.171.170.49'
 ]
 
 if DEBUG:
@@ -242,7 +235,7 @@ if DEBUG:
 JAZZMIN_SETTINGS = {
     "site_header": 'lattmedkorkort',
     "site_brand": 'lattmedkorkort',
-    "site_logo": 'logos/logo.png',
+    "site_logo": 'logo.png',
     "copyright": 'test copyright',
 }
 
@@ -306,3 +299,4 @@ CKEDITOR_CONFIGS = {
 }
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor"

@@ -8,7 +8,7 @@ class Order(models.Model):
     student = models.ForeignKey('accounts.CustomUser', verbose_name='Object', on_delete=models.SET_NULL,
                                 null=True, related_name='orders')
     student_email = models.EmailField(verbose_name='Email')
-    student_full_name = models.CharField(verbose_name='Full Name', max_length=200)
+    student_name = models.CharField(verbose_name='Name', max_length=200)
     student_bonus_amount = models.FloatField(verbose_name='bonus discount', default=0)
     use_bonus_money = models.BooleanField(verbose_name='Use Bonus', default=False)
     purchased_price = models.FloatField(default=0)
@@ -29,7 +29,6 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
 
     stripe_id = models.CharField(max_length=100, blank=True)
-    payment_link = models.URLField(blank=True, null=True)
     stripe_url = models.URLField(blank=True)
 
     tariff = models.ForeignKey('tariffs.Tariff', verbose_name='Object', on_delete=models.SET_NULL, null=True)
@@ -40,7 +39,7 @@ class Order(models.Model):
                                        on_delete=models.SET_NULL)
     called_student_code = models.CharField(verbose_name='User Code', max_length=6, default='-')
     called_student_email = models.EmailField(verbose_name='Email', blank=True)
-    called_student_full_name = models.CharField(verbose_name='Full Name', max_length=200, default='-')
+    called_student_name = models.CharField(verbose_name='Name', max_length=200, default='-')
     called_student_bonus_added = models.BooleanField(verbose_name='Bonus Added', default=False)
 
     def __str__(self):

@@ -13,7 +13,7 @@ from api.v1.general.utils import bubble_search
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStudent, LessonDetail
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail
-from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased, OldLessonCompletedForQuestions
+from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
                                         LessonAnswerSerializer, LessonListSerializer)
 from api.v1.accounts.permissions import IsStudent
@@ -21,7 +21,7 @@ from api.v1.questions.serializers.questions import QuestionSerializer
 
 
 class LessonAnswerAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompletedForQuestions, IsOpenOrPurchased)
+    permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased, OldLessonCompleted)
     serializer_class = LessonAnswerSerializer
 
     def post(self, request, *args, **kwargs):
@@ -37,13 +37,14 @@ class LessonAnswerAPIView(GenericAPIView):
 
 
 class LessonStudentAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompleted, IsOpenOrPurchased)
+    permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased, OldLessonCompleted)
     serializer_class = LessonRetrieveSerializer
-    queryset = Lesson.objects.all()
+
+    def get_queryset(self):
+        return Lesson.objects.filter(lessondetail__language_id=get_language())
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        lesson_detail = get_object_or_404(LessonDetail, lesson_id=instance.pk, language_id=get_language())
         student = self.request.user
         page = str(request.build_absolute_uri())
         change_student_lesson_view_statistics.delay(student_id=student.pk, lesson_id=instance.pk)
@@ -55,15 +56,16 @@ class LessonStudentAPIView(RetrieveAPIView):
             ctx = {
                 'student': student,
                 'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
-                                                                 lesson__chapter_id=instance.chapter_id
-                                                                 ).values('lesson', 'title').order_by('lesson')
+                                                                 lesson__lessonstudent__in=queryset
+                                                                 ).values('lesson_id', 'title').order_by('lesson_id')
             }
 
             page_cache['lessons'] = LessonListSerializer(queryset, many=True, context=ctx).data
             return Response(page_cache)
 
         serializer = self.get_serializer(instance)
-        serializer.context['lesson_detail'] = lesson_detail
+        serializer.context['lesson_detail'] = get_object_or_404(LessonDetail, lesson_id=instance.pk,
+                                                                language_id=get_language())
         cache.set(page, serializer.data)
         return Response(serializer.data)
 
@@ -97,7 +99,7 @@ class StudentLessonViewStatisticsAPIView(GenericAPIView):
 
 
 class LessonQuestionAPIView(GenericAPIView):
-    permission_classes = (IsAuthenticated, IsStudent, OldLessonCompletedForQuestions, IsOpenOrPurchased)
+    permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased, OldLessonCompleted)
     serializer_class = QuestionSerializer
     queryset = Lesson.objects.all()
 
@@ -112,9 +114,12 @@ class LessonQuestionAPIView(GenericAPIView):
             for i in page_cache:
                 obj = bubble_search(i['pk'], 'question_id', sort_list)
                 i['is_saved'] = bool(obj)
+                random.shuffle(i['variants'])
             return Response(page_cache)
 
-        questions = Question.objects.filter(lesson_id=self.kwargs[self.lookup_field]).order_by('ordering_number')
+        questions = Question.objects.filter(lesson_id=self.kwargs[self.lookup_field],
+                                            questiondetail__language_id=get_language()).order_by('ordering_number')
+
         serializer = self.get_serializer(questions, many=True)
         cache.set(page, serializer.data)
         return Response(serializer.data)
@@ -124,7 +129,8 @@ class LessonQuestionAPIView(GenericAPIView):
                                                                           ).values('question_id'
                                                                                    ).order_by('question_id')
 
-        question_text_list = QuestionDetail.objects.filter(language_id=get_language()).values('pk', 'question_id',
+        question_text_list = QuestionDetail.objects.filter(language_id=get_language()).values('pk',
+                                                                                              'question_id',
                                                                                               'text',
                                                                                               'correct_variant',
                                                                                               'variant2',

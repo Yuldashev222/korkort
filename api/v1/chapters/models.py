@@ -16,7 +16,7 @@ class Chapter(models.Model):
 
     class Meta:
         verbose_name = 'Lesson Chapter'
-        verbose_name_plural = ' Chapters'
+        verbose_name_plural = 'Chapters'
 
     def __str__(self):
         return f'Chapter No {self.ordering_number}'

@@ -28,8 +28,7 @@ class GoogleSignInSerializer(serializers.Serializer):
 
         user, created = CustomUser.objects.get_or_create(email=id_info['email'])
         if created:
-            user.first_name = id_info['given_name']
-            user.last_name = id_info['family_name']
+            user.name = id_info['given_name']  # last
             user.auth_provider = 'google'
             user.is_verified = True
             user.set_password(None)

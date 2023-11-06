@@ -13,9 +13,7 @@ class TodoListSerializer(serializers.Serializer):
     def get_is_completed(self, instance):
         sort_list = self.context['student_todo_list']
         obj = bubble_search(instance['todo_id'], 'todo_id', sort_list)
-        if obj is not None:
-            return obj['is_completed']
-        return False
+        return obj and obj['is_completed']
 
 
 class TodoStudentSerializer(serializers.ModelSerializer):

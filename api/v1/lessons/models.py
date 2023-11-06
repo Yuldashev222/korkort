@@ -12,7 +12,7 @@ class Lesson(models.Model):
 
     chapter = models.ForeignKey('chapters.Chapter', on_delete=models.PROTECT)
     is_open = models.BooleanField(default=False)
-    lesson_time = models.FloatField(help_text='in minute')
+    lesson_time = models.FloatField(help_text='in minute', validators=[MinValueValidator(1)])
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
 
     def __str__(self):

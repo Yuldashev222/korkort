@@ -15,14 +15,15 @@ from api.v1.accounts.managers import CustomUserManager
 
 class CustomUser(AbstractUser):
     username = None
+    first_name = None
+    last_name = None
     REQUIRED_FIELDS = []
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
     email = models.EmailField(_("email address"), unique=True)
     password = models.CharField(_("password"), max_length=128, validators=[validate_password])
-    first_name = models.CharField(_("name"), max_length=50)
-    last_name = models.CharField(_("surname"), max_length=100)
+    name = models.CharField(_("name"), max_length=12)
 
     avatar_id = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(500)])
     user_code = models.CharField(max_length=400, unique=True)
@@ -44,7 +45,7 @@ class CustomUser(AbstractUser):
         verbose_name_plural = 'Students'
 
     def __str__(self):
-        return self.get_full_name()[:30]
+        return self.name
 
     @property
     def generate_unique_user_code(self):

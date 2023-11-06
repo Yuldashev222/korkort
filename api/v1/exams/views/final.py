@@ -1,4 +1,3 @@
-from random import sample
 from django.conf import settings
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -15,14 +14,15 @@ class FinalExamAPIView(GenericAPIView):
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
-        random_questions = sample(Question.get_question_ids(), settings.FINAL_QUESTIONS)
-        return Question.objects.filter(id__in=random_questions)
+        return Question.objects.filter(questiondetail__language_id=get_language()
+                                       ).order_by('?')[:settings.FINAL_QUESTIONS]
 
     def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = list(self.get_queryset())
 
         question_text_list = QuestionDetail.objects.filter(question__in=queryset, language_id=get_language()
-                                                           ).values('question_id', 'text',
+                                                           ).values('question_id',
+                                                                    'text',
                                                                     'correct_variant',
                                                                     'variant2',
                                                                     'variant3',

@@ -12,12 +12,12 @@ from api.v1.accounts.permissions import IsStudent
 
 
 class BookListAPIView(ListAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)
+    permission_classes = [IsAuthenticated, IsStudent]
     serializer_class = BookListSerializer
 
     def get_queryset(self):
-        return Book.objects.filter(language_id=get_language(), bookchapter__isnull=False
-                                   ).prefetch_related('bookchapter_set').order_by('ordering_number')
+        return Book.objects.filter(language_id=get_language(), bookchapter=True
+                                   ).prefetch_related('bookchapter_set').order_by('ordering_number')  # last
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -34,14 +34,8 @@ class BookChapterDetailAPIView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         page = str(request.build_absolute_uri())
-        page_cache = None  # cache.get(page)
+        page_cache = cache.get(page)
         if page_cache:
-            try:
-                chapter_student, _ = BookChapterStudent.objects.get_or_create(chapter_id=self.kwargs[self.lookup_field],
-                                                                              student_id=self.request.user.pk)
-                page_cache['is_completed'] = chapter_student.is_completed
-            except BookChapterStudent.DoesNotExist:
-                pass
             return Response(page_cache)
 
         instance = self.get_object()

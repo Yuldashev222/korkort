@@ -59,7 +59,7 @@ class Question(models.Model):
 
     class Meta:
         unique_together = ['lesson', 'ordering_number']  # last
-        verbose_name_plural = '  Questions'
+        verbose_name_plural = 'Questions'
 
     def save(self, *args, **kwargs):
         if self.gif:
@@ -116,7 +116,7 @@ class Question(models.Model):
 class QuestionDetail(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    text = RichTextField(verbose_name='question text', max_length=300)
+    text = models.CharField(verbose_name='question text', max_length=300)
 
     correct_variant = models.CharField(max_length=300)
     variant2 = models.CharField(max_length=300)
@@ -131,7 +131,7 @@ class QuestionDetail(models.Model):
     class Meta:
         unique_together = ['question', 'language']
         verbose_name = 'Question Detail'
-        verbose_name_plural = ' Question Details'
+        verbose_name_plural = 'Question Details'
 
     def save(self, *args, **kwargs):
         self.text, self.answer = normalize_text(self.text, self.answer)

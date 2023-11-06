@@ -26,7 +26,7 @@ class CategoryExamAPIView(GenericAPIView):
     serializer_class = CategoryExamCreateSerializer
 
     def get_queryset(self, category_id_list=None, difficulty_level=None, counts=settings.MIN_QUESTIONS):
-        queryset = Question.objects.all()
+        queryset = Question.objects.filter(questiondetail__language_id=get_language())
 
         if category_id_list:
             queryset = queryset.filter(category_id__in=category_id_list)
@@ -34,7 +34,7 @@ class CategoryExamAPIView(GenericAPIView):
         if difficulty_level:
             queryset = queryset.filter(difficulty_level=difficulty_level)
 
-        return list(queryset.order_by('?')[:counts])
+        return queryset.order_by('?')[:counts]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -44,7 +44,7 @@ class CategoryExamAPIView(GenericAPIView):
         category_id = serializer.validated_data['category_id']
         difficulty_level = serializer.validated_data.get('difficulty_level')
 
-        queryset = self.get_queryset([category_id], difficulty_level, counts)
+        queryset = list(self.get_queryset([category_id], difficulty_level, counts))
 
         question_text_list = QuestionDetail.objects.filter(question__in=queryset, language_id=get_language()
                                                            ).values('pk', 'question_id', 'text',
@@ -76,8 +76,8 @@ class CategoryMixExamAPIView(CategoryExamAPIView):
         difficulty_level = serializer.validated_data.get('difficulty_level')
         category_id_list = serializer.validated_data.get('category_id_list')
 
-        queryset = self.get_queryset(category_id_list=category_id_list, difficulty_level=difficulty_level,
-                                     counts=counts)
+        queryset = list(self.get_queryset(category_id_list=category_id_list, difficulty_level=difficulty_level,
+                                          counts=counts))
 
         question_text_list = QuestionDetail.objects.filter(question__in=queryset, language_id=get_language()
                                                            ).values('question_id', 'text',

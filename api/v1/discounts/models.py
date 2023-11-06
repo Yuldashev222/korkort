@@ -3,6 +3,8 @@ from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
+from api.v1.tariffs.models import Tariff
+
 
 class DiscountMixin(models.Model):
     discount_value = models.PositiveIntegerField(verbose_name='discount amount', validators=[MinValueValidator(1)])
@@ -12,8 +14,11 @@ class DiscountMixin(models.Model):
         return str(self.discount_value) + ' %' if self.is_percent else ' SEK'
 
     def clean(self):
-        if self.is_percent and self.discount_value > 100:
-            raise ValidationError({'discount_value': 'Enter the percent value'})
+        if self.is_percent:
+            if self.discount_value >= 100:
+                raise ValidationError({'discount_value': 'Enter the percent value'})
+        elif Tariff.objects.filter(price__lte=self.discount_value).exists():
+            raise ValidationError({'discount_value': 'Enter the true value'})
 
     class Meta:
         abstract = True
@@ -45,12 +50,8 @@ class TariffDiscountDetail(models.Model):
         unique_together = ['tariff_discount', 'language']
 
 
-class StudentDiscount(DiscountMixin):
+class UserCodeDiscount(DiscountMixin):
     def clean(self):
         super().clean()
-        if not self.pk and StudentDiscount.objects.exists():
+        if not self.pk and UserCodeDiscount.objects.exists():
             raise ValidationError('old student discount object exists')
-
-    class Meta:
-        verbose_name = 'User Code Discount'
-        verbose_name_plural = 'User Code Discount'

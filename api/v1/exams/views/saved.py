@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.translation import get_language
 
 from api.v1.questions.models import Question
 from api.v1.exams.views.wrongs import WrongQuestionsExamAPIView
@@ -9,7 +10,8 @@ from api.v1.exams.serializers.saved import SavedQuestionsExamAnswerSerializer
 class SavedQuestionsExamAPIView(WrongQuestionsExamAPIView):
     def get_queryset(self, my_questions=False, difficulty_level=None, counts=settings.MIN_QUESTIONS):
         student = self.request.user
-        queryset = Question.objects.filter(studentsavedquestion__isnull=False)  # last
+        queryset = Question.objects.filter(studentsavedquestion__isnull=False,
+                                           questiondetail__language_id=get_language())
 
         if difficulty_level:
             queryset = queryset.filter(difficulty_level=difficulty_level)
@@ -19,7 +21,7 @@ class SavedQuestionsExamAPIView(WrongQuestionsExamAPIView):
         else:
             queryset = queryset.exclude(studentsavedquestion__student_id=student.pk)
 
-        return list(queryset.order_by('?')[:counts])
+        return queryset.order_by('?')[:counts]
 
 
 class SavedQuestionsExamAnswerAPIView(ExamAnswerAPIView):

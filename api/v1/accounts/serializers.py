@@ -42,7 +42,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            'first_name', 'last_name', 'ball', 'email', 'avatar_id', 'user_code', 'bonus_money', 'completed_lessons',
+            'name', 'ball', 'email', 'avatar_id', 'user_code', 'bonus_money', 'completed_lessons',
             'all_lessons_count', 'all_questions_count', 'correct_answers', 'tariff_expire_date', 'level', 'last_exams'
         ]
 
@@ -50,9 +50,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'avatar_id', 'password']
-        extra_kwargs = {'first_name': {'min_length': 3},
-                        'last_name': {'min_length': 3},
+        fields = ['name', 'avatar_id', 'password']
+        extra_kwargs = {'name': {'min_length': 3},
                         'password': {'write_only': True, 'style': {'input_type': 'password'}}}
 
     def update(self, instance, validated_data):

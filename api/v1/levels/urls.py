@@ -1,5 +1,4 @@
 from django.urls import path
-from django.core.cache import cache
 
 from api.v1.levels.views import LevelAPIView
 

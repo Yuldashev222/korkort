@@ -1,4 +1,3 @@
-from django.utils.translation import get_language
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
@@ -10,7 +9,7 @@ from api.v1.accounts.models import CustomUser
 class StripeCheckoutSerializer(serializers.Serializer):
     tariff_id = serializers.IntegerField()
     use_bonus_money = serializers.BooleanField(default=False)
-    user_code = serializers.CharField(required=False, allow_null=True)
+    user_code = serializers.CharField(required=False, allow_null=True, min_length=6, max_length=6)
 
     def validate(self, attrs):
         called_student = None
@@ -29,7 +28,7 @@ class StripeCheckoutSerializer(serializers.Serializer):
                 raise ValidationError({'use_bonus_money': ['choice']})
 
             if not tariff.student_discount:
-                raise ValidationError({'user_code': ['Currently, the coupon system is not working for this tariff']})
+                raise PermissionDenied({'user_code': ['Currently, the coupon system is not working for this tariff']})
 
             if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
                 raise ValidationError({'user_code': ['not found']})
@@ -37,7 +36,10 @@ class StripeCheckoutSerializer(serializers.Serializer):
             called_student = CustomUser.objects.get(user_code=user_code)
             if Order.objects.filter(called_student_email=called_student.email, student_email=student.email,
                                     is_paid=True).exists():
-                raise ValidationError({'user_code': ['You have already registered this code']})
+                raise PermissionDenied({'user_code': ['You have already registered this code']})
+
+        elif user_code and student.bonus_money <= 0:
+            raise ValidationError({'use_bonus_money': 'min limit'})
 
         order = Order.objects.create(student_id=student.pk, tariff_id=tariff.pk, called_student=called_student,
                                      use_bonus_money=use_bonus_money)
@@ -61,9 +63,7 @@ class CheckCouponSerializer(serializers.Serializer):
         if value == student.user_code or not CustomUser.user_id_exists(value):
             raise ValidationError('not valid')
 
-        called_student = CustomUser.objects.get(user_code=value)
-        if Order.objects.filter(called_student_email=called_student.email, student_email=student.email,
-                                is_paid=True).exists():
+        if Order.objects.filter(called_student__user_code=value, student_email=student.email, is_paid=True).exists():
             raise PermissionDenied('You have already registered this code')
 
         return value

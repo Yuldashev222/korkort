@@ -9,34 +9,34 @@ from .models import Order
 class OrderAdmin(admin.ModelAdmin):
     list_filter = ['tariff', 'use_bonus_money', 'is_paid', ('created_at', DateRangeFilterBuilder(title='Date'))]
     search_fields = [
-        'order_id', 'student_email', 'called_student_email', 'student_full_name', 'called_student_full_name']
+        'order_id', 'student_email', 'called_student_email', 'student_name', 'called_student_name']
 
     list_display = [
-        'ID', 'student_full_name', 'tariff', 'tariff_price', 'tariff_discount_amount', 'student_discount_amount',
+        'ID', 'student_name', 'tariff', 'tariff_price', 'tariff_discount_amount', 'student_discount_amount',
         'student_bonus_amount', 'created_at', 'purchased_price', 'is_paid']
 
     fieldsets = [
         ('Main', {
             'fields': [
-                'ID', 'expire_at', 'purchased_at', 'purchased_price', 'created_at', 'is_paid', 'stripe_id', 'pay_link',
+                'ID', 'expire_at', 'purchased_at', 'purchased_price', 'created_at', 'is_paid', 'stripe_id',
                 'stripe_link'
-            ],
-        }),
-        ('Student', {
-            'fields': ['student', 'student_email', 'student_full_name', 'student_bonus_amount'],
-        }),
-        ('Discounts', {
-            'fields': [
-                'student_discount_amount', 'student_discount_value', 'student_discount_is_percent',
-                'tariff_discount_amount', 'tariff_discount_value', 'tariff_discount_is_percent'
             ],
         }),
         ('Tariff', {
             'fields': ['tariff', 'tariff_price', 'tariff_days'],
         }),
+        ('Discounts', {
+            'fields': [
+                'tariff_discount_name', 'tariff_discount_amount', 'tariff_discount_value', 'tariff_discount_is_percent',
+                'student_discount_amount', 'student_discount_value', 'student_discount_is_percent',
+            ],
+        }),
+        ('Student', {
+            'fields': ['student', 'student_email', 'student_name', 'student_bonus_amount'],
+        }),
         ('Called Student', {
             'fields': [
-                'called_student', 'called_student_email', 'called_student_full_name', 'called_student_code',
+                'called_student', 'called_student_email', 'called_student_name', 'called_student_code',
                 'called_student_bonus_added'
             ],
         }),
@@ -47,11 +47,6 @@ class OrderAdmin(admin.ModelAdmin):
 
     def ID(self, obj):
         return '#' + obj.order_id
-
-    def pay_link(self, obj):
-        if obj.payment_link:
-            return format_html(f'<a href="{obj.payment_link}">{obj.payment_link}</a>')
-        return '-'
 
     def stripe_link(self, obj):
         if obj.stripe_url:

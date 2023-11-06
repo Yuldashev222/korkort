@@ -13,9 +13,7 @@ class BookChapterSerializer(serializers.Serializer):
     def get_is_completed(self, instance):
         sort_list = self.context['student_chapter_list']
         obj = bubble_search(instance.pk, 'chapter_id', sort_list)
-        if obj is not None:
-            return obj['is_completed']
-        return False
+        return bool(obj and obj['is_completed'])
 
 
 class BookListSerializer(serializers.Serializer):
@@ -24,16 +22,9 @@ class BookListSerializer(serializers.Serializer):
 
 
 class BookDetailSerializer(serializers.ModelSerializer):
-    is_completed = serializers.SerializerMethodField()
-
     class Meta:
         model = BookChapter
-        fields = ['pk', 'title', 'audio', 'is_completed', 'content']
-
-    def get_is_completed(self, instance):
-        obj, _ = BookChapterStudent.objects.get_or_create(chapter_id=instance.pk,
-                                                          student_id=self.context['request'].user.pk)
-        return obj.is_completed
+        fields = ['pk', 'audio', 'content']
 
 
 class BookChapterStudentSerializer(serializers.ModelSerializer):
