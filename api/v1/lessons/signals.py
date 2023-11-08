@@ -4,9 +4,14 @@ from django.db.models import Sum, Count
 from django.db.models.signals import post_save, post_delete, pre_save
 
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
-from api.v1.lessons.models import Lesson, LessonStudent
+from api.v1.lessons.models import Lesson, LessonStudent, LessonDetail
 from api.v1.accounts.models import CustomUser
 from api.v1.chapters.models import ChapterStudent
+
+
+@receiver([post_save, post_delete], sender=LessonDetail)
+def update_lesson_detail_cache(*args, **kwargs):
+    cache.clear()
 
 
 def update_chapter_time(instance, *args, **kwargs):  # last
