@@ -33,13 +33,18 @@ def custom_app_list(self, request):
 # admin.AdminSite.get_app_list = custom_app_list
 
 
-class AbstractTabularInline(admin.TabularInline):
-    min_num = len(Language.get_languages())
-    max_num = len(Language.get_languages())
-    extra = len(Language.get_languages()) - 1
+class AbstractStackedInline(admin.StackedInline):
     verbose_name = 'detail'
     verbose_name_plural = 'details'
 
+    def get_languages_count(self):
+        return len(Language.get_languages())
 
-class AbstractStackedInline(AbstractTabularInline):
-    template = "admin/edit_inline/stacked.html"
+    def get_min_num(self, request, obj=None, **kwargs):
+        return self.get_languages_count()
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return self.get_languages_count()
+
+    def get_extra(self, request, obj=None, **kwargs):
+        return self.get_languages_count() - 1

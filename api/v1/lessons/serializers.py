@@ -34,7 +34,7 @@ class LessonListSerializer(serializers.Serializer):
         if self.old_obj is None:
             temp = self.play
 
-        elif not instance.lesson.is_open and tariff_expire_date < now():
+        elif not instance.lesson.is_open and tariff_expire_date <= now().date():
             temp = self.buy_clock
 
         elif self.old_obj.is_completed:

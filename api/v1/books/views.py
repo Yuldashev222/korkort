@@ -16,8 +16,8 @@ class BookListAPIView(ListAPIView):
     serializer_class = BookListSerializer
 
     def get_queryset(self):
-        return Book.objects.filter(language_id=get_language(), bookchapter=True
-                                   ).prefetch_related('bookchapter_set').order_by('ordering_number')  # last
+        return Book.objects.filter(language_id=get_language()).prefetch_related('bookchapter_set'
+                                                                                ).order_by('ordering_number')  # last
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()

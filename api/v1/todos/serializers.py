@@ -5,7 +5,7 @@ from api.v1.todos.models import TodoStudent
 
 
 class TodoListSerializer(serializers.Serializer):
-    id = serializers.IntegerField(source='todo_id')
+    pk = serializers.IntegerField(source='todo_id')
     title = serializers.CharField()
     text = serializers.CharField()
     is_completed = serializers.SerializerMethodField()
@@ -13,7 +13,7 @@ class TodoListSerializer(serializers.Serializer):
     def get_is_completed(self, instance):
         sort_list = self.context['student_todo_list']
         obj = bubble_search(instance['todo_id'], 'todo_id', sort_list)
-        return obj and obj['is_completed']
+        return bool(obj and obj['is_completed'])
 
 
 class TodoStudentSerializer(serializers.ModelSerializer):

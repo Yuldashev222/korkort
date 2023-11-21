@@ -1,3 +1,4 @@
+import requests
 from django.core.cache import cache
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response

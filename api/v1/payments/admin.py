@@ -12,7 +12,7 @@ class OrderAdmin(admin.ModelAdmin):
         'order_id', 'student_email', 'called_student_email', 'student_name', 'called_student_name']
 
     list_display = [
-        'ID', 'student_name', 'tariff', 'tariff_price', 'tariff_discount_amount', 'student_discount_amount',
+        'ID', 'student_name', 'tariff', 'tariff_price', 'tariff_discount_amount', 'user_code_discount_amount',
         'student_bonus_amount', 'created_at', 'purchased_price', 'is_paid']
 
     fieldsets = [
@@ -28,7 +28,7 @@ class OrderAdmin(admin.ModelAdmin):
         ('Discounts', {
             'fields': [
                 'tariff_discount_name', 'tariff_discount_amount', 'tariff_discount_value', 'tariff_discount_is_percent',
-                'student_discount_amount', 'student_discount_value', 'student_discount_is_percent',
+                'user_code_discount_amount', 'user_code_discount_value', 'user_code_discount_is_percent',
             ],
         }),
         ('Student', {

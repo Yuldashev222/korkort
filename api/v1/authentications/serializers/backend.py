@@ -8,7 +8,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 
 from api.v1.accounts.models import CustomUser
-from api.v1.accounts.serializers import ProfileSerializer
+from api.v1.accounts.serializers import ProfileMinSerializer
 from api.v1.authentications.tasks import send_confirm_link_email
 from api.v1.authentications.models import CustomToken
 
@@ -17,10 +17,16 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['name', 'email', 'password']
-        extra_kwargs = {'name': {'min_length': 3},
-                        'password': {'write_only': True,
-                                     'trim_whitespace': False,
-                                     'style': {'input_type': 'password'}}}
+        extra_kwargs = {
+            'name': {
+                'min_length': 3
+            },
+            'password': {
+                'write_only': True,
+                'trim_whitespace': False,
+                'style': {'input_type': 'password'}
+            }
+        }
 
     def create(self, validated_data):
         user = CustomUser.objects.create_user(**validated_data)
@@ -58,7 +64,7 @@ class AuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True, style={'input_type': 'password'}, trim_whitespace=False)
     token = serializers.CharField(read_only=True)
-    user = ProfileSerializer(read_only=True)
+    user = ProfileMinSerializer(read_only=True)
 
     def validate(self, attrs):
         email = attrs['email']

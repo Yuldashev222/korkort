@@ -9,7 +9,7 @@ class Todo(models.Model):
     ordering_number = models.PositiveSmallIntegerField(primary_key=True, unique=True, validators=[MinValueValidator(1)])
 
     def __str__(self):
-        return f'Todo No {self.pk}'
+        return f'Todo No {self.ordering_number}'
 
 
 class TodoDetail(models.Model):
@@ -19,7 +19,7 @@ class TodoDetail(models.Model):
     text = RichTextField(max_length=500)
 
     def __str__(self):
-        return f'{self.language_id} Todo No {self.todo_id}'
+        return self.title
 
     class Meta:
         unique_together = ['todo', 'language']

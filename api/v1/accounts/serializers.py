@@ -1,24 +1,31 @@
+from django.utils.timezone import now
 from rest_framework import serializers
 from django.utils.translation import get_language
 from django.contrib.auth.hashers import make_password
 
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.levels.models import LevelDetail
-from api.v1.lessons.models import Lesson
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question
 from api.v1.exams.serializers.general import StudentLastExamResultSerializer
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    all_lessons_count = serializers.IntegerField(default=Lesson.get_all_lessons_count())
-    all_questions_count = serializers.IntegerField(default=Question.get_all_questions_count())
-    last_exams = serializers.SerializerMethodField()
+class ProfileMinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['name', 'email', 'avatar_id']
+
+
+class ProfileChapterSerializer(serializers.ModelSerializer):
     level = serializers.SerializerMethodField()
+    tariff_expire_days = serializers.SerializerMethodField()
+
+    def get_tariff_expire_days(self, obj):
+        return (now().date() - obj.tariff_expire_date).days
 
     def get_level(self, instance):
         level = {
-            'id': instance.level_id,
+            'pk': instance.level_id,
             'percent': instance.level_percent
         }
         try:
@@ -28,6 +35,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         else:
             level['name'] = obj.name
         return level
+
+    class Meta:
+        model = CustomUser
+        fields = ['name', 'avatar_id', 'ball', 'level', 'user_code', 'tariff_expire_days', 'bonus_money']
+
+
+class ProfileExamSerializer(ProfileChapterSerializer):
+    all_questions_count = serializers.SerializerMethodField()
+    last_exams = serializers.SerializerMethodField()
+
+    def get_all_questions_count(self, obj):
+        return Question.get_all_questions_count()
 
     def get_last_exams(self, instance):
         last_exams = StudentLastExamResult.objects.filter(student_id=instance.pk).order_by('-pk')[:10]
@@ -39,20 +58,24 @@ class ProfileSerializer(serializers.ModelSerializer):
         data.reverse()
         return data
 
-    class Meta:
-        model = CustomUser
-        fields = [
-            'name', 'ball', 'email', 'avatar_id', 'user_code', 'bonus_money', 'completed_lessons',
-            'all_lessons_count', 'all_questions_count', 'correct_answers', 'tariff_expire_date', 'level', 'last_exams'
-        ]
+    class Meta(ProfileChapterSerializer.Meta):
+        fields = ProfileChapterSerializer.Meta.fields + ['all_questions_count', 'correct_answers', 'last_exams']
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['name', 'avatar_id', 'password']
-        extra_kwargs = {'name': {'min_length': 3},
-                        'password': {'write_only': True, 'style': {'input_type': 'password'}}}
+        extra_kwargs = {
+            'name': {
+                'min_length': 3
+            },
+            'password': {
+                'write_only': True,
+                'trim_whitespace': False,
+                'style': {'input_type': 'password'}
+            }
+        }
 
     def update(self, instance, validated_data):
         if validated_data.get('password'):

@@ -4,16 +4,14 @@ from rest_framework.response import Response
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.todos.models import Todo, TodoDetail, TodoStudent
+from api.v1.todos.models import TodoDetail, TodoStudent
 from api.v1.general.utils import bubble_search
 from api.v1.todos.serializers import TodoListSerializer, TodoStudentSerializer
-from api.v1.general.paginations import CustomPageNumberPagination
 from api.v1.accounts.permissions import IsStudent
 
 
 class TodoListAPIView(ListAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
-    pagination_class = CustomPageNumberPagination
     serializer_class = TodoListSerializer
 
     def get_queryset(self):
@@ -33,17 +31,15 @@ class TodoListAPIView(ListAPIView):
         if page_cache:
             sort_list = TodoStudent.objects.filter(student_id=self.request.user.pk
                                                    ).values('todo_id', 'is_completed').order_by('todo__ordering_number')
-            for i in page_cache['results']:
+            for i in page_cache:
                 obj = bubble_search(i['pk'], 'todo_id', sort_list)
-                i['is_completed'] = obj and obj['is_completed']
+                i['is_completed'] = bool(obj and obj['is_completed'])
             return Response(page_cache)
 
         queryset = self.filter_queryset(self.get_queryset())
-        page_q = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page_q, many=True)
-        data = self.get_paginated_response(serializer.data)
-        cache.set(page, data.data)
-        return data
+        serializer = self.get_serializer(queryset, many=True)
+        cache.set(page, serializer.data)
+        return Response(serializer.data)
 
 
 class TodoStudentAPIView(CreateAPIView):

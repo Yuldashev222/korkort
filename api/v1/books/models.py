@@ -13,7 +13,7 @@ class Book(models.Model):
         verbose_name_plural = 'Books'
 
     def __str__(self):
-        return f'{self.language_id} Book No {self.ordering_number}'
+        return self.title
 
 
 class BookChapter(models.Model):

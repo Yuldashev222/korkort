@@ -82,7 +82,6 @@ def change_fields_pre_save(instance, *args, **kwargs):
 def generation_objects_for_student(instance, created, *args, **kwargs):
     if created and not instance.is_staff:
         create_objects_for_student.delay(instance.pk)
-        delete_not_confirmed_accounts()
 
 
 @receiver(pre_delete, sender=CustomUser)

@@ -38,7 +38,7 @@ class CustomUser(AbstractUser):
     correct_answers = models.PositiveIntegerField(default=0)
     ball = models.PositiveIntegerField(default=0)
 
-    tariff_expire_date = models.DateTimeField(default=now)
+    tariff_expire_date = models.DateField(default=now)
 
     class Meta:
         verbose_name = 'Student'

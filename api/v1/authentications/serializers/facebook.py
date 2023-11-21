@@ -2,13 +2,13 @@ import requests
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from api.v1.accounts.serializers import ProfileSerializer
+from api.v1.accounts.serializers import ProfileMinSerializer
 
 
 class FacebookSignInSerializer(serializers.Serializer):
     access_token = serializers.CharField(write_only=True)
     token = serializers.CharField(read_only=True)
-    user = ProfileSerializer(read_only=True)
+    user = ProfileMinSerializer(read_only=True)
 
     def validate(self, attrs):
         fields = 'email,first_name,last_name'

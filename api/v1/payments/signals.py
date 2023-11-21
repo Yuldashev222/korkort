@@ -7,6 +7,7 @@ from django.db.models.signals import post_delete, post_save, pre_save
 from api.v1.payments.tasks import change_student_tariff_expire_date
 from api.v1.payments.models import Order
 from api.v1.discounts.models import TariffDiscount, UserCodeDiscount
+from api.v1.swish.models import CalledStudentAndSwishTransaction
 
 
 @receiver(pre_save, sender=Order)
@@ -19,6 +20,7 @@ def check_order(instance, *args, **kwargs):
         instance.order_id = instance.generate_unique_order_id
         instance.student_email = student.email
         instance.student_name = student.name
+        instance.student_user_code = student.user_code
 
         instance.tariff_price = tariff.price
         instance.tariff_days = tariff.days
@@ -30,7 +32,10 @@ def check_order(instance, *args, **kwargs):
             instance.tariff_discount_value = tariff_discount.discount_value
             instance.tariff_discount_name = tariff_discount.name
             instance.tariff_discount_is_percent = tariff_discount.is_percent
-            instance.tariff_discount_amount = tariff.tariff_discount_amount
+            if tariff_discount.is_percent:
+                instance.tariff_discount_amount = round(instance.tariff_price * tariff_discount.discount_value / 100, 1)
+            else:
+                instance.tariff_discount_amount = tariff_discount.discount_value
 
         if instance.use_bonus_money:
             if student.bonus_money > 0:
@@ -49,11 +54,15 @@ def check_order(instance, *args, **kwargs):
             instance.called_student_email = called_student.email
             instance.called_student_code = called_student.user_code
 
-            instance.student_discount_value = student_discount.discount_value
-            instance.student_discount_amount = tariff.student_discount_amount
-            instance.student_discount_is_percent = student_discount.is_percent
+            instance.user_code_discount_value = student_discount.discount_value
+            instance.user_code_discount_is_percent = student_discount.is_percent
+            if student_discount.is_percent:
+                instance.user_code_discount_amount = round(
+                    instance.tariff_price * student_discount.discount_value / 100, 1)
+            else:
+                instance.user_code_discount_amount = student_discount.discount_value
 
-    all_discounts = instance.student_discount_amount + instance.tariff_discount_amount + instance.student_bonus_amount
+    all_discounts = instance.user_code_discount_amount + instance.tariff_discount_amount + instance.student_bonus_amount
     instance.purchased_price = instance.tariff_price - all_discounts
     if not instance.is_paid and instance.tariff_price <= all_discounts:
         instance.is_paid = True
@@ -64,13 +73,13 @@ def check_order(instance, *args, **kwargs):
 
         if not instance.expire_at:
             last_order = Order.objects.filter(student_email=student.email, is_paid=True,
-                                              expire_at__gte=instance.purchased_at).first()
+                                              expire_at__gte=instance.purchased_at.date()).first()
 
-            instance.expire_at = last_order.expire_at if last_order else instance.purchased_at
+            instance.expire_at = last_order.expire_at if last_order else instance.purchased_at.date()
             instance.expire_at += timedelta(days=instance.tariff_days)
 
         if not instance.called_student_bonus_added and instance.called_student:
-            instance.called_student.bonus_money += round(instance.student_discount_amount, 1)
+            instance.called_student.bonus_money += round(instance.user_code_discount_amount, 1)
             instance.called_student.save()
             instance.called_student_bonus_added = True
 
@@ -85,6 +94,9 @@ def change_student_tariff_expire_date_on_save(instance, *args, **kwargs):
     if instance.is_paid and instance.expire_at and student:
         change_student_tariff_expire_date(student.pk)
 
+    if instance.is_paid and instance.called_student:
+        CalledStudentAndSwishTransaction.objects.get_or_create(order_id=instance.pk)
+
 
 @receiver(post_delete, sender=Order)
 def reply_student_bonus_money(instance, *args, **kwargs):
@@ -93,7 +105,7 @@ def reply_student_bonus_money(instance, *args, **kwargs):
         return
 
     if instance.is_paid:
-        if instance.expire_at > now():
+        if instance.expire_at > now().date():
             change_student_tariff_expire_date(student.pk)
 
     elif instance.student_bonus_amount > 0:

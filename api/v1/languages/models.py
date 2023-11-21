@@ -20,7 +20,7 @@ class Language(models.Model):
     def set_redis(cls):
         cache.set(
             'languages',
-            list(map(str, cls.objects.filter(is_active=True).values_list('pk', flat=True).order_by('ordering_number')))
+            cls.objects.filter(is_active=True).values_list('pk', flat=True).order_by('ordering_number')
         )
 
     def __str__(self):

@@ -10,10 +10,16 @@ class LanguageMiddleware:
     def __call__(self, request):
         language = str(request.GET.get('language_id'))
         languages = Language.get_languages()
-        if language in languages:
-            activate(language)
+        default_language = str(languages[0])
+        try:
+            language = int(language)
+        except ValueError:
+            activate(default_language)
         else:
-            activate(languages[0])
+            if language in languages:
+                activate(str(language))
+            else:
+                activate(default_language)
 
         response = self.get_response(request)
         return response

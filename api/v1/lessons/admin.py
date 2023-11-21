@@ -1,9 +1,5 @@
-from django.contrib import admin
-from django.utils.html import format_html
-
 from .filters import LessonSourceFilter
 from .models import Lesson, LessonWordInfo, LessonSource, LessonDetail
-from api.v1.general.admin import AbstractStackedInline, AbstractTabularInline
 
 from django.contrib import admin
 from django.utils.html import format_html
@@ -40,11 +36,17 @@ class LessonAdmin(admin.ModelAdmin):
 
 class LessonSourceInline(AbstractStackedInline):
     model = LessonSource
-    min_num = None
-    max_num = None
-    extra = 5
     verbose_name = 'Source'
     verbose_name_plural = 'Sources'
+
+    def get_min_num(self, request, obj=None, **kwargs):
+        return None
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        return None
+
+    def get_extra(self, request, obj=None, **kwargs):
+        return 5
 
 
 class LessonWordInfoInline(LessonSourceInline):

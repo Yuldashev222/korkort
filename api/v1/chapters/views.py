@@ -6,6 +6,7 @@ from django.utils.translation import get_language
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 
+from api.v1.accounts.serializers import ProfileChapterSerializer
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import LessonStudent, LessonDetail, Lesson
 from api.v1.chapters.models import Chapter, ChapterDetail, ChapterStudent
@@ -20,6 +21,15 @@ class ChapterAPIView(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Chapter.objects.filter(chapterdetail__language_id=get_language()).order_by('ordering_number')
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        data = {
+            'user': ProfileChapterSerializer(self.request.user).data,
+            'chapters': serializer.data
+        }
+        return Response(data)
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
@@ -66,12 +76,11 @@ class ChapterAPIView(ReadOnlyModelViewSet):
             ):
                 raise PermissionDenied()
 
-        if student.tariff_expire_date < now():
+        if student.tariff_expire_date <= now().date():
             lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.pk, student_id=student.pk,
                                                           lesson__is_open=True, is_completed=True
-                                                          ).select_related('lesson'
-                                                                           ).order_by('lesson__ordering_number'
-                                                                                      ).last()
+                                                          ).select_related('lesson').order_by('lesson__ordering_number'
+                                                                                              ).last()
 
             if not lesson_student:
                 lesson_student = LessonStudent.objects.filter(lesson__chapter_id=chapter.pk, student_id=student.pk,

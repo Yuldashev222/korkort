@@ -69,3 +69,18 @@ class SwishCard(models.Model):
             self.paid_at = now()
 
         super().save(*args, **kwargs)
+
+
+class CalledStudentAndSwishTransaction(models.Model):
+    swish_card = models.ForeignKey(SwishCard, on_delete=models.CASCADE, null=True)
+    order = models.ForeignKey('payments.Order', on_delete=models.CASCADE, null=True)
+
+    student_email = models.EmailField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.swish_card:
+            self.student_email = self.swish_card.student_email
+        else:
+            self.student_email = self.order.called_student_email
+        super().save(*args, **kwargs)

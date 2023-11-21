@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from celery import shared_task
 from django.utils.timezone import now
 
@@ -9,7 +11,7 @@ from api.v1.payments.models import Order
 def change_student_tariff_expire_date(student_id):
     student = CustomUser.objects.get(pk=student_id)
     last_order = Order.objects.filter(student_email=student.email, is_paid=True,
-                                      expire_at__gt=student.tariff_expire_date).first()
+                                      expire_at__gt=student.tariff_expire_date).order_by('expire_at').last()
 
-    student.tariff_expire_date = last_order.expire_at if last_order else now()
+    student.tariff_expire_date = last_order.expire_at + timedelta(days=1) if last_order else now().date()
     student.save()

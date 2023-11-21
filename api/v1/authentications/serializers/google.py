@@ -8,14 +8,14 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 
 from api.v1.accounts.models import CustomUser
-from api.v1.accounts.serializers import ProfileSerializer
+from api.v1.accounts.serializers import ProfileMinSerializer
 from api.v1.authentications.models import CustomToken
 
 
 class GoogleSignInSerializer(serializers.Serializer):
     id_token = serializers.CharField(write_only=True)
     token = serializers.CharField(read_only=True, default='')
-    user = ProfileSerializer(read_only=True)
+    user = ProfileMinSerializer(read_only=True)
 
     def validate(self, attrs):
         token = attrs.get('id_token')

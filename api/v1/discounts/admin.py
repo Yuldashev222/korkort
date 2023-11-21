@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from api.v1.general.admin import AbstractTabularInline, AbstractStackedInline
+from api.v1.general.admin import AbstractStackedInline
 from api.v1.discounts.models import UserCodeDiscount, TariffDiscount, TariffDiscountDetail
 
 

@@ -47,7 +47,7 @@ class ResendEmailVerifyLinkAPIView(RegisterAPIView):
 
 
 class LinkPasswordResetView(CreateAPIView):
-    permission_classes = ()
+    permission_classes = (~IsAuthenticated,)
     serializer_class = PasswordResetSerializer
 
     def create(self, request, *args, **kwargs):
@@ -58,7 +58,7 @@ class LinkPasswordResetView(CreateAPIView):
 
 
 class CodePasswordResetView(CreateAPIView):
-    permission_classes = ()
+    permission_classes = (~IsAuthenticated,)
     serializer_class = PasswordResetCodeSerializer
 
     def create(self, request, *args, **kwargs):

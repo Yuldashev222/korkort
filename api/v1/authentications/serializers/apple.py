@@ -7,8 +7,6 @@ from rest_framework import serializers
 from jwt.exceptions import JWTDecodeError
 from rest_framework.exceptions import ValidationError
 
-from api.v1.accounts.serializers import ProfileSerializer
-
 
 class AppleSignInSerializer(serializers.Serializer):
     APPLE_PUBLIC_KEY_URL = 'https://appleid.apple.com/auth/keys'

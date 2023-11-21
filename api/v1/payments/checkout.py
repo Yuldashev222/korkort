@@ -62,11 +62,11 @@ class StripeCheckoutAPIView(CreateAPIView):
             discount_title += 'Wallet'
             discount_amount += order.student_bonus_amount
 
-        elif order.student_discount_amount > 0:
+        elif order.user_code_discount_amount > 0:
             if discount_title:
                 discount_title += ', '
             discount_title += 'Coupon'
-            discount_amount += order.student_discount_amount
+            discount_amount += order.user_code_discount_amount
 
         if discount_amount > 0:
             data = {
@@ -77,7 +77,7 @@ class StripeCheckoutAPIView(CreateAPIView):
             }
 
             stripe_coupon = stripe.Coupon.create(**data)
-            session_data['discounts'] = [{'coupon': stripe_coupon.pk}]
+            session_data['discounts'] = [{'coupon': stripe_coupon}]
 
         try:
             checkout_session = stripe.checkout.Session.create(**session_data)

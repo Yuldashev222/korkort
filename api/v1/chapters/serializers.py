@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.utils.timezone import now
 
 from api.v1.general.utils import bubble_search
-from api.v1.chapters.models import Chapter
 from api.v1.lessons.serializers import LessonListSerializer
 
 
@@ -11,7 +10,6 @@ class ChapterSerializer(serializers.Serializer):
     old_obj_completed_lessons = None
     obj_completed_lessons = None
 
-    # image = serializers.ImageField()
     pk = serializers.IntegerField()
     image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
     title = serializers.SerializerMethodField()
@@ -35,7 +33,7 @@ class ChapterSerializer(serializers.Serializer):
         if self.old_obj_completed_lessons is None:
             temp = LessonListSerializer.play
 
-        elif self.context['request'].user.tariff_expire_date < now():
+        elif self.context['request'].user.tariff_expire_date <= now().date():
             temp = LessonListSerializer.buy_clock
 
         elif self.old_obj_completed_lessons < self.old_obj_all_lessons:
