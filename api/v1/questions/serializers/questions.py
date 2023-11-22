@@ -2,16 +2,11 @@ import random
 from rest_framework import serializers
 
 from api.v1.general.utils import bubble_search
-from api.v1.questions.tests import gifs
 
 
 class QuestionSerializer(serializers.Serializer):
     pk = serializers.IntegerField()
     category_id = serializers.IntegerField()
-    # question_gif = serializers.FileField(source='gif')
-    # question_gif_last_frame_number = serializers.IntegerField(default=1302)
-    # question_gif_duration = serializers.IntegerField(default=59220)
-    # question_image = serializers.ImageField(source='image')
     image = serializers.URLField(
         default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
     is_saved = serializers.SerializerMethodField()
@@ -34,7 +29,7 @@ class QuestionSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['gif'], ret['gif_last_frame_number'], ret['gif_duration'] = random.choice(gifs)
+        ret['video'] = 'a.mp4'
         ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
         return ret
 

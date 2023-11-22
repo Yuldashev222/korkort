@@ -11,7 +11,7 @@ from api.v1.questions.models import Question, Category, QuestionDetail
 @receiver(post_delete, sender=Question)
 def delete_image(instance, *args, **kwargs):
     delete_object_file_post_delete(instance, 'image')
-    delete_object_file_post_delete(instance, 'gif')
+    delete_object_file_post_delete(instance, 'video')
     cache.clear()
     Question.set_redis()
 
@@ -19,7 +19,7 @@ def delete_image(instance, *args, **kwargs):
 @receiver(pre_save, sender=Question)
 def delete_image(instance, *args, **kwargs):
     delete_object_file_pre_save(Question, instance, 'image')
-    delete_object_file_pre_save(Question, instance, 'gif')
+    delete_object_file_pre_save(Question, instance, 'video')
 
 
 @receiver(post_save, sender=Question)

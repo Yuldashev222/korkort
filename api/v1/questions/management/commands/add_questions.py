@@ -30,7 +30,7 @@ def create_questions(self, for_lesson=False):
     def wrapper(lesson=None):
         ordering_number = randint(10000, 999999) if lesson else 0
         obj = Question.objects.create(lesson=lesson, category_id=category.pk, ordering_number=ordering_number,
-                                      gif='a.gif', difficulty_level=difficulty_level,
+                                      video='a.mp4', difficulty_level=difficulty_level,
                                       image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
 
         for language in Language.objects.all():

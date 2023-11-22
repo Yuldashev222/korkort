@@ -42,13 +42,13 @@ class QuestionDetailInline(AbstractStackedInline):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'category', 'difficulty_level', 'lesson', 'gif']
+    list_display = ['pk', 'category', 'difficulty_level', 'lesson', 'video']
     list_display_links = ['pk', 'category', 'difficulty_level', 'lesson']
     list_filter = ('category', 'difficulty_level', 'lesson__chapter', QuestionLessonFilter)
     inlines = (QuestionDetailInline,)
     list_select_related = ('lesson', 'category')
     ordering = ['-pk']
-    fields = ['category', 'difficulty_level', 'image', 'gif', 'lesson', 'ordering_number', ]
+    fields = ['category', 'difficulty_level', 'image', 'video', 'lesson', 'ordering_number', ]
 
 
 @admin.register(QuestionDetail)

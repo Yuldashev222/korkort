@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
 from api.v1.general.services import normalize_text
-from api.v1.questions.services import get_last_frame_number_and_duration
+from api.v1.questions.validators import validate_question_video_size
 
 
 class Category(models.Model):
@@ -43,14 +43,13 @@ class Question(models.Model):
     image = models.ImageField(upload_to='questions/images/', blank=True, null=True, max_length=300,
                               validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
 
-    gif = models.FileField(upload_to='questions/gifs/', blank=True, null=True, max_length=300,
-                           validators=[FileExtensionValidator(allowed_extensions=['gif'])])
-    gif_last_frame_number = models.PositiveSmallIntegerField(default=0)
-    gif_duration = models.FloatField(default=0)
+    video = models.FileField(upload_to='questions/videos/', blank=True, null=True, max_length=300,
+                             validators=[FileExtensionValidator(allowed_extensions=['mp4']),
+                                         validate_question_video_size])
 
     def clean(self):
-        if self.gif and self.image:
-            raise ValidationError('choice gif or image')
+        if self.video and self.image:
+            raise ValidationError('choice video or image')
 
     def __str__(self):
         if self.lesson:
@@ -60,14 +59,6 @@ class Question(models.Model):
     class Meta:
         unique_together = ['lesson', 'ordering_number']  # last
         verbose_name_plural = 'Questions'
-
-    def save(self, *args, **kwargs):
-        if self.gif:
-            self.gif_last_frame_number, self.gif_duration = get_last_frame_number_and_duration(self.gif.path)
-        else:
-            self.gif_last_frame_number, self.gif_duration = (0, 0)
-
-        super().save(*args, **kwargs)
 
     @classmethod
     def is_correct_question_id(cls, question_id, question_ids=None):
