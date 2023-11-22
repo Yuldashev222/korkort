@@ -29,7 +29,7 @@ class QuestionSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['video'] = 'a.mp4'
+        ret['video'] = 'https://api.lattmedkorkort.se/media/questions/videos/pexels-george-morina-5266783_1080p.mp4'
         ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
         return ret
 
