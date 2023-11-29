@@ -3,10 +3,11 @@ from rest_framework import serializers
 from django.utils.timezone import now
 from django.utils.translation import get_language
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import bubble_search
-from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent, LessonDetail
+from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent, LessonDetail, Lesson
 from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
 from api.v1.questions.models import Question
 
@@ -72,6 +73,7 @@ class LessonRetrieveSerializer(serializers.Serializer):
     video2 = 'https://api.lattmedkorkort.se/media/lessons/videos/pexels-boyan-minchev-12239830_1440p.mp4'
     image = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRClGlxrlqY7RlZZ_8PqNU0NfQOlqHUvPg9S80O8H1luMigslACzs8Aqggw1irL3tMIg1Y&usqp=CAU'
     id = serializers.IntegerField()
+    rating = serializers.SerializerMethodField()
     title = serializers.SerializerMethodField()
     text = serializers.SerializerMethodField()
     lesson_time = serializers.FloatField()
@@ -81,6 +83,11 @@ class LessonRetrieveSerializer(serializers.Serializer):
 
     def get_text(self, instance):
         return self.context['lesson_detail'].text
+
+    def get_rating(self, instance):
+        student = self.context['request'].user
+        obj, _ = LessonStudent.objects.get_or_create(lesson_id=instance.pk, student_id=student.pk)
+        return obj.rating
 
     def get_title(self, instance):
         return self.context['lesson_detail'].title
@@ -163,3 +170,22 @@ class LessonAnswerSerializer(serializers.Serializer):
                                            correct_question_ids=correct_question_id_list)
 
         return data
+
+
+class StudentLessonRatingSerializer(serializers.Serializer):
+    student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    lesson_id = serializers.IntegerField()
+    rating = serializers.ChoiceField(choices=LessonStudent.RATING)
+
+    def validate_lesson_id(self, lesson_id):
+        get_object_or_404(Lesson, pk=lesson_id)
+        return lesson_id
+
+    def save(self, **kwargs):
+        student = self.validated_data.get('student')
+        lesson_id = self.validated_data.get('lesson_id')
+        rating = self.validated_data.get('rating')
+        obj, _ = LessonStudent.objects.get_or_create(lesson_id=lesson_id, student_id=student.pk)
+        if obj.rating != rating:
+            obj.rating = rating
+            obj.save()

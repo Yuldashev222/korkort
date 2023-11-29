@@ -1,7 +1,7 @@
 from django.db import models
 from ckeditor.fields import RichTextField
 from django.core.cache import cache
-from django.core.validators import MinValueValidator, FileExtensionValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator, MaxValueValidator
 
 from api.v1.general.services import normalize_text
 
@@ -88,11 +88,13 @@ class LessonSource(models.Model):
 
 
 class LessonStudent(models.Model):
+    RATING = ((0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5))
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
 
     is_completed = models.BooleanField(default=False)
     ball = models.PositiveSmallIntegerField(default=0)
+    rating = models.PositiveSmallIntegerField(choices=RATING, default=RATING[0][0])
 
     class Meta:
         verbose_name = 'Student Lesson'

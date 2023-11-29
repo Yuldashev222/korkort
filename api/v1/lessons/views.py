@@ -5,19 +5,18 @@ from django.core.cache import cache
 from django.utils.timezone import now
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404, CreateAPIView
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
-from api.v1.accounts.services import get_student_level
 from api.v1.general.utils import bubble_search
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStudent, LessonDetail
-from api.v1.levels.models import LevelDetail
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail
+from api.v1.accounts.services import get_student_level
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
-                                        LessonAnswerSerializer, LessonListSerializer)
+                                        LessonAnswerSerializer, LessonListSerializer, StudentLessonRatingSerializer)
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.questions import QuestionSerializer
 
@@ -149,3 +148,8 @@ class LessonQuestionAPIView(GenericAPIView):
             'student_saved_question_list': student_saved_question_list,
             'question_text_list': question_text_list
         }
+
+
+class StudentLessonRatingAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = StudentLessonRatingSerializer
