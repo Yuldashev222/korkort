@@ -1,10 +1,9 @@
 import string
 import secrets
 
-from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator
 from django.db import models
 from django.utils.timezone import now
+from django.core.validators import MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.password_validation import validate_password
@@ -62,6 +61,3 @@ class CustomUser(AbstractUser):
     @classmethod
     def user_id_exists(cls, user_code):
         return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True, is_verified=True).exists()
-
-
-CustomUser = get_user_model()

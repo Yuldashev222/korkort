@@ -8,4 +8,4 @@ from api.v1.languages.models import Language
 @receiver([post_save, post_delete], sender=Language)
 def update_cache(*args, **kwargs):
     Language.set_redis()
-    cache.clear()
+    cache.clear()# last

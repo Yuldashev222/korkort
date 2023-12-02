@@ -36,8 +36,8 @@ class Order(models.Model):
     tariff_price = models.PositiveIntegerField(verbose_name='Price')
     tariff_days = models.PositiveSmallIntegerField(verbose_name='Days')
 
-    called_student = models.ForeignKey('accounts.CustomUser', verbose_name='Object', null=True,
-                                       on_delete=models.SET_NULL)
+    called_student = models.ForeignKey('accounts.CustomUser', verbose_name='Object', on_delete=models.SET_NULL,
+                                       null=True)
     called_student_code = models.CharField(verbose_name='User Code', max_length=6, default='-')
     called_student_email = models.EmailField(verbose_name='Email', blank=True)
     called_student_name = models.CharField(verbose_name='Name', max_length=200, default='-')

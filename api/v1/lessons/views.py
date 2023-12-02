@@ -3,9 +3,10 @@ from datetime import timedelta
 from django.db.models import Count
 from django.core.cache import cache
 from django.utils.timezone import now
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404, CreateAPIView
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404, ListCreateAPIView
 from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
@@ -15,8 +16,8 @@ from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStu
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail
 from api.v1.accounts.services import get_student_level
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
-from api.v1.lessons.serializers import (LessonRetrieveSerializer, StudentLessonViewStatisticsSerializer,
-                                        LessonAnswerSerializer, LessonListSerializer, StudentLessonRatingSerializer)
+from api.v1.lessons.serializers import (LessonRetrieveSerializer, LessonAnswerSerializer, LessonListSerializer,
+                                        StudentLessonRatingSerializer)
 from api.v1.accounts.permissions import IsStudent
 from api.v1.questions.serializers.questions import QuestionSerializer
 
@@ -39,7 +40,7 @@ class LessonAnswerAPIView(GenericAPIView):
         return Response(get_student_level(student, old_level_id), status=HTTP_201_CREATED)
 
 
-class LessonStudentAPIView(RetrieveAPIView):
+class LessonAPIView(RetrieveAPIView):
     permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased, OldLessonCompleted)
     serializer_class = LessonRetrieveSerializer
 
@@ -54,16 +55,19 @@ class LessonStudentAPIView(RetrieveAPIView):
 
         page_cache = cache.get(page)
         if page_cache:
-            queryset = LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
-                                                    ).select_related('lesson')
+            lessons = Lesson.objects.filter(chapter_id=instance.chapter_id).order_by('ordering_number')
             ctx = {
                 'student': student,
+                'student_completed_lesson_list': LessonStudent.objects.filter(student_id=student.pk, is_completed=True,
+                                                                              lesson__chapter_id=instance.chapter_id,
+                                                                              ).values_list('lesson_id', flat=True),
+
                 'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
-                                                                 lesson__lessonstudent__in=queryset
+                                                                 lesson__chapter_id=instance.chapter_id
                                                                  ).values('lesson_id', 'title').order_by('lesson_id')
             }
 
-            page_cache['lessons'] = LessonListSerializer(queryset, many=True, context=ctx).data
+            page_cache['lessons'] = LessonListSerializer(lessons, many=True, context=ctx).data
             return Response(page_cache)
 
         serializer = self.get_serializer(instance)
@@ -73,32 +77,52 @@ class LessonStudentAPIView(RetrieveAPIView):
         return Response(serializer.data)
 
 
-class StudentLessonViewStatisticsAPIView(GenericAPIView):
+class StudentLessonViewStatisticsAPIView(ListCreateAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
-    serializer_class = StudentLessonViewStatisticsSerializer
+    serializer_class = StudentLessonRatingSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['lesson']
 
     def get_queryset(self):
         return StudentLessonViewStatistics.objects.filter(student_id=self.request.user.pk).values(
             'viewed_date').annotate(count=Count('lesson')).order_by('-viewed_date')[:7]
 
     def get(self, request, *args, **kwargs):
+        student = self.request.user
         today_date = now().date()
         data1 = list(self.get_queryset())
         data2 = list(map(lambda el: el['viewed_date'], data1))
-        response = []
+        lesson_id = request.GET.get('lesson')
+        rating = 0
+        if lesson_id:
+            try:
+                lesson_student = LessonStudent.objects.get_or_create(lesson_id=lesson_id, student_id=student.pk)
+                rating = lesson_student.rating
+            except (LessonStudent.DoesNotExist, ValueError):
+                pass
 
+        data = {
+            'rating': rating,
+            'view_statistics': []
+        }
         for i in range(7):
             obj = today_date
 
             if obj in data2:
                 obj = data1[data2.index(obj)]
-                response.append({'weekday': obj['viewed_date'].weekday(), 'count': obj['count']})
+                data['view_statistics'].append({
+                    'weekday': obj['viewed_date'].weekday(),
+                    'count': obj['count']
+                })
             else:
-                response.append({'weekday': obj.weekday(), 'count': 0})
+                data['view_statistics'].append({
+                    'weekday': obj.weekday(),
+                    'count': 0
+                })
             today_date = today_date - timedelta(days=1)
 
-        response.reverse()
-        return Response(response)
+        data['view_statistics'].reverse()
+        return Response(data)
 
 
 class LessonQuestionAPIView(GenericAPIView):
@@ -148,8 +172,3 @@ class LessonQuestionAPIView(GenericAPIView):
             'student_saved_question_list': student_saved_question_list,
             'question_text_list': question_text_list
         }
-
-
-class StudentLessonRatingAPIView(CreateAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)
-    serializer_class = StudentLessonRatingSerializer

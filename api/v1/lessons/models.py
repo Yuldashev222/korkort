@@ -88,12 +88,11 @@ class LessonSource(models.Model):
 
 
 class LessonStudent(models.Model):
-    RATING = ((0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5))
+    RATING = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5)]
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     is_completed = models.BooleanField(default=False)
-    ball = models.PositiveSmallIntegerField(default=0)
     rating = models.PositiveSmallIntegerField(choices=RATING, default=RATING[0][0])
 
     class Meta:
@@ -103,7 +102,7 @@ class LessonStudent(models.Model):
 
 
 class StudentLessonViewStatistics(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
 
     viewed_date = models.DateField()

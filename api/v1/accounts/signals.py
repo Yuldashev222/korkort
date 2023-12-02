@@ -1,23 +1,16 @@
 from datetime import timedelta
-from django.db import transaction
 from django.conf import settings
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.contrib.auth import user_login_failed
 from django.utils.timezone import now
-from django.db.models.signals import pre_save, post_save, pre_delete
+from django.db.models.signals import pre_save
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 
-from api.v1.exams.models import CategoryExamStudentResult, CategoryExamStudent, StudentLastExamResult
 from api.v1.levels.models import Level
-from api.v1.accounts.tasks import create_objects_for_student
-from api.v1.lessons.models import LessonStudent, StudentLessonViewStatistics
 from api.v1.accounts.models import CustomUser
-from api.v1.chapters.models import ChapterStudent
 from api.v1.general.services import normalize_text
-from api.v1.questions.models import StudentSavedQuestion, StudentWrongAnswer, StudentCorrectAnswer
-from api.v1.accounts.services import delete_not_confirmed_accounts
 from api.v1.authentications.tasks import send_confirm_link_email
 
 
@@ -61,9 +54,6 @@ def check_user_verification(*args, **kwargs):
 def change_fields_pre_save(instance, *args, **kwargs):
     instance.name = normalize_text(instance.name)[0]
     if not instance.is_staff:
-        if not instance.pk:
-            instance.user_code = instance.generate_unique_user_code
-
         instance.ball = instance.correct_answers * settings.TEST_BALL + instance.completed_lessons * settings.LESSON_BALL
         instance.bonus_money = round(instance.bonus_money, 1)
 
@@ -73,26 +63,9 @@ def change_fields_pre_save(instance, *args, **kwargs):
         instance.level_id = level.ordering_number if level else 1
         instance.level_percent = int(instance.ball / gt_level.correct_answers) if gt_level else 100
 
+        if not instance.pk:
+            instance.user_code = instance.generate_unique_user_code
+
     elif not instance.pk:
         instance.user_code = instance.email
         instance.is_verified = True
-
-
-@receiver(post_save, sender=CustomUser)
-def generation_objects_for_student(instance, created, *args, **kwargs):
-    if created and not instance.is_staff:
-        create_objects_for_student.delay(instance.pk)
-
-
-@receiver(pre_delete, sender=CustomUser)
-@transaction.atomic
-def delete_relation_objects(instance, *args, **kwargs):
-    ChapterStudent.objects.filter(student_id=instance.pk).delete()
-    CategoryExamStudent.objects.filter(result__student_id=instance.pk).delete()
-    CategoryExamStudentResult.objects.filter(student_id=instance.pk).delete()
-    StudentLessonViewStatistics.objects.filter(student_id=instance.pk).delete()
-    LessonStudent.objects.filter(student_id=instance.pk).delete()
-    StudentLastExamResult.objects.filter(student_id=instance.pk).delete()
-    StudentSavedQuestion.objects.filter(student_id=instance.pk).delete()
-    StudentWrongAnswer.objects.filter(student_id=instance.pk).delete()
-    StudentCorrectAnswer.objects.filter(student_id=instance.pk).delete()

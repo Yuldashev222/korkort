@@ -1,5 +1,7 @@
 from celery import shared_task
+from django.db.models import Sum
 
+from api.v1.chapters.models import ChapterStudent
 from api.v1.questions.models import StudentWrongAnswer, StudentCorrectAnswer
 
 
@@ -9,11 +11,23 @@ def bulk_create_answers(model_class, question_ids, student_id):
         model_class.objects.bulk_create(objs)
 
 
+def update_student_completed_lessons(student):
+    completed_lessons = ChapterStudent.objects.filter(student_id=student.pk
+                                                      ).aggregate(amount=Sum('completed_lessons',
+                                                                             default=0))['amount']
+
+    if student.completed_lessons != completed_lessons:
+        student.completed_lessons = completed_lessons
+        student.save()
+
+
 def update_student_correct_answers(student, correct_question_ids, wrong_question_ids):
     StudentCorrectAnswer.objects.filter(question_id__in=wrong_question_ids + correct_question_ids, student_id=student.pk
                                         ).delete()
     bulk_create_answers(StudentCorrectAnswer, correct_question_ids, student.pk)
+
     correct_answers = StudentCorrectAnswer.objects.filter(student_id=student.pk).count()
+
     if student.correct_answers != correct_answers:
         student.correct_answers = correct_answers
         student.save()

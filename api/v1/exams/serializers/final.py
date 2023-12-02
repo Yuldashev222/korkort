@@ -1,15 +1,7 @@
 from django.db import transaction
-from django.conf import settings
-from rest_framework import serializers
-from django.core.validators import MinValueValidator, MaxValueValidator
-from rest_framework.generics import get_object_or_404
-from rest_framework.exceptions import ValidationError
 
-from api.v1.exams.models import CategoryExamStudent, CategoryExamStudentResult, StudentLastExamResult, FinalExamStudent
+from api.v1.exams.models import FinalExamStudent
 from api.v1.exams.serializers.categories import CategoryMixExamAnswerSerializer
-from api.v1.general.utils import bubble_search
-from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
-from api.v1.questions.models import Question, Category
 
 
 class FinalExamAnswerSerializer(CategoryMixExamAnswerSerializer):

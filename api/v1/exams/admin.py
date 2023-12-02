@@ -1,7 +1,5 @@
 from django.contrib import admin
 
-from api.v1.exams.models import CategoryExamStudentResult
-
 
 # @admin.register(CategoryExamStudentResult)
 # class CategoryExamStudentResultAdmin(admin.ModelAdmin):

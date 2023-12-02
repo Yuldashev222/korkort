@@ -35,7 +35,7 @@ class CategoryDetail(models.Model):
 class Question(models.Model):
     DIFFICULTY_LEVEL = [[1, 'easy'], [2, 'normal'], [3, 'hard']]
 
-    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.SET_NULL, blank=True, null=True)  # last
+    lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE, blank=True, null=True)  # last
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], default=100000)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
@@ -130,7 +130,7 @@ class QuestionDetail(models.Model):
 
 
 class StudentWrongAnswer(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     class Meta:
@@ -140,7 +140,7 @@ class StudentWrongAnswer(models.Model):
 
 
 class StudentCorrectAnswer(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     class Meta:
@@ -149,7 +149,7 @@ class StudentCorrectAnswer(models.Model):
 
 
 class StudentSavedQuestion(models.Model):
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)

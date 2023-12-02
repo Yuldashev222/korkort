@@ -6,9 +6,9 @@ from api.v1.exams.models import CategoryExamStudent, StudentLastExamResult
 
 @receiver(post_save, sender=CategoryExamStudent)
 def delete_redundant_exams(instance, *args, **kwargs):
-    if instance.result:
-        expire_objs = CategoryExamStudent.objects.filter(result_id=instance.result.pk).values_list('pk', flat=True)[10:]
-        CategoryExamStudent.objects.filter(result_id=instance.result.pk, id__in=expire_objs).delete()
+    expire_objs = CategoryExamStudent.objects.filter(category_id=instance.category_id, student_id=instance.student_id
+                                                     ).values_list('pk', flat=True).order_by('-pk')[10:]
+    CategoryExamStudent.objects.filter(id__in=expire_objs).delete()
 
 
 @receiver(post_save, sender=StudentLastExamResult)

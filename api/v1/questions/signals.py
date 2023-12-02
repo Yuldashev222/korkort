@@ -2,7 +2,6 @@ from django.dispatch import receiver
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete, pre_save
 
-from api.v1.exams.models import CategoryExamStudentResult
 from api.v1.general.utils import delete_object_file_pre_save, delete_object_file_post_delete
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question, Category, QuestionDetail
@@ -46,10 +45,4 @@ def delete_image(instance, *args, **kwargs):
 
 @receiver(post_save, sender=Category)
 def create_student_exams(instance, created, *args, **kwargs):
-    if created:
-        objs = [
-            CategoryExamStudentResult(category_id=instance.pk, student_id=student.pk)
-            for student in CustomUser.objects.filter(is_staff=False)
-        ]
-        CategoryExamStudentResult.objects.bulk_create(objs)
     cache.clear()

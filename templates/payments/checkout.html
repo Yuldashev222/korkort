@@ -1,60 +1,27 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <title>Buy Tariff - Email Template</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-    }
+  <head>
+    <meta charset="utf-8"/>
 
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #ffffff;
-      padding: 20px;
-    }
+    <title>Google Maps Solar API</title>
 
-    h1 {
-      color: #333333;
-      text-align: center;
-    }
+    <link rel="stylesheet" href="styles/global.css"/>
+  </head>
 
-    p {
-      color: #666666;
-      line-height: 1.6;
-    }
+  <body>
+    <div id="solar-panels"></div>
 
-    .cta-button {
-      display: block;
-      width: 200px;
-      margin: 20px auto;
-      padding: 10px;
-      text-align: center;
-      background-color: #3366cc;
-      color: #ffffff;
-      text-decoration: none;
-      border-radius: 4px;
-    }
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
-    .cta-button:hover {
-      background-color: #003399;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Buy Tariff</h1>
-    <p>Dear [Recipient],</p>
-    <p>Thank you for considering our tariff purchase. We are excited to have you on board!</p>
-    <p>Our tariffs offer a range of benefits including [benefit 1], [benefit 2], and [benefit 3].</p>
-    <p>To proceed with your purchase, please click the button below:</p>
-    <a href="https://google.com" class="cta-button">Buy Tariff</a>
-    <p>If you have any questions or need assistance, feel free to reply to this email.</p>
-    <p>Thank you,</p>
-    <p>The Tariff Team</p>
-  </div>
-</body>
+    <!-- prettier-ignore -->
+    <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+      ({key: "AIzaSyBgadQyILCS0Bn8WbB1N_qUFEbjQnj6-MI", v: "weekly"});</script>
+
+    <script src="scripts/client.js" type="module" defer></script>
+
+    <script type="module">
+      const element = document.getElementById("solar-panels");
+
+      const solarPanelsMap = new window.SolarPanelsMap("GOOGLE_MAPS_API_KEY", element);
+    </script>
+  </body>
 </html>

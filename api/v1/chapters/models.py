@@ -42,7 +42,7 @@ class ChapterDetail(models.Model):
 
 class ChapterStudent(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    student = models.ForeignKey('accounts.CustomUser', on_delete=models.SET_NULL, null=True)
+    student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     completed_lessons = models.PositiveSmallIntegerField(default=0)
 
     class Meta:

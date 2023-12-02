@@ -1,44 +1,51 @@
 from django.conf import settings
+from django.db.models import Sum
 from rest_framework import serializers
 from django.utils.timezone import now
 from django.utils.translation import get_language
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
+from api.v1.chapters.models import ChapterStudent
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import bubble_search
 from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent, LessonDetail, Lesson
-from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers
+from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers, \
+    update_student_completed_lessons
 from api.v1.questions.models import Question
 
 
 class LessonListSerializer(serializers.Serializer):
     old_obj = None
+
     play = 2
     clock = 3
     buy_clock = 4
 
-    id = serializers.IntegerField(source='lesson_id')
-    lesson_time = serializers.FloatField(source='lesson.lesson_time')
+    pk = serializers.IntegerField()
+    lesson_time = serializers.FloatField()
     title = serializers.SerializerMethodField()
     is_open = serializers.SerializerMethodField()
 
     def get_title(self, instance):
         sort_list = self.context['lesson_title_list']
-        obj = bubble_search(instance.lesson.pk, 'lesson_id', sort_list)
+        obj = bubble_search(instance.pk, 'lesson_id', sort_list)
         return obj['title']
 
     def get_is_open(self, instance):
+        student_completed_lesson_list = self.context['student_completed_lesson_list']
+        student = self.context['student']
+        tariff_expire_date = student.tariff_expire_date
+
         temp = self.clock
-        tariff_expire_date = self.context['student'].tariff_expire_date
 
         if self.old_obj is None:
             temp = self.play
 
-        elif not instance.lesson.is_open and tariff_expire_date <= now().date():
+        elif not instance.is_open and tariff_expire_date <= now().date():
             temp = self.buy_clock
 
-        elif self.old_obj.is_completed:
+        elif self.old_obj.pk in student_completed_lesson_list:
             temp = self.play
 
         self.old_obj = instance
@@ -57,23 +64,11 @@ class LessonSourceSerializer(serializers.ModelSerializer):
         fields = ['text', 'link']
 
 
-class StudentLessonViewStatisticsSerializer(serializers.Serializer):
-    weekday = serializers.SerializerMethodField()
-    count = serializers.SerializerMethodField()
-
-    def get_count(self, instance):
-        return instance['cnt']
-
-    def get_weekday(self, instance):
-        return instance['viewed_date'].weekday()
-
-
 class LessonRetrieveSerializer(serializers.Serializer):
     video1 = 'https://api.lattmedkorkort.se/media/lessons/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751.mp4'
     video2 = 'https://api.lattmedkorkort.se/media/lessons/videos/pexels-boyan-minchev-12239830_1440p.mp4'
     image = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRClGlxrlqY7RlZZ_8PqNU0NfQOlqHUvPg9S80O8H1luMigslACzs8Aqggw1irL3tMIg1Y&usqp=CAU'
-    id = serializers.IntegerField()
-    rating = serializers.SerializerMethodField()
+    pk = serializers.IntegerField()
     title = serializers.SerializerMethodField()
     text = serializers.SerializerMethodField()
     lesson_time = serializers.FloatField()
@@ -84,25 +79,24 @@ class LessonRetrieveSerializer(serializers.Serializer):
     def get_text(self, instance):
         return self.context['lesson_detail'].text
 
-    def get_rating(self, instance):
-        student = self.context['request'].user
-        obj, _ = LessonStudent.objects.get_or_create(lesson_id=instance.pk, student_id=student.pk)
-        return obj.rating
-
     def get_title(self, instance):
         return self.context['lesson_detail'].title
 
     def get_lessons(self, instance):
+        lessons = Lesson.objects.filter(chapter_id=instance.chapter_id).order_by('ordering_number')
         student = self.context['request'].user
-        queryset = LessonStudent.objects.filter(lesson__chapter_id=instance.chapter_id, student_id=student.pk
-                                                ).select_related('lesson').order_by('lesson__ordering_number')
         ctx = {
-            'student': self.context['request'].user,
+            'student': student,
+            'student_completed_lesson_list': LessonStudent.objects.filter(student_id=student.pk,
+                                                                          lesson__chapter_id=instance.chapter_id,
+                                                                          is_completed=True).values_list('lesson_id',
+                                                                                                         flat=True),
+
             'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
                                                              lesson__chapter_id=instance.chapter_id
                                                              ).values('lesson_id', 'title').order_by('lesson_id')
         }
-        return LessonListSerializer(queryset, many=True, context=ctx).data
+        return LessonListSerializer(lessons, many=True, context=ctx).data
 
     def get_word_infos(self, instance):
         lesson_detail = self.context['lesson_detail']
@@ -136,10 +130,8 @@ class LessonAnswerSerializer(serializers.Serializer):
         correct_question_id_list = [i for i in correct_question_id_list if i not in wrong_question_id_list]
 
         try:
-            lesson_student = LessonStudent.objects.select_related('lesson').get(lesson_id=lesson_id,
-                                                                                student_id=student.pk)
-            lesson = lesson_student.lesson
-        except LessonStudent.DoesNotExist:
+            lesson = Lesson.objects.get(pk=lesson_id)
+        except Lesson.DoesNotExist:
             raise ValidationError({'lesson_id': 'not found.'})
 
         all_student_answer_question_id_list = wrong_question_id_list + correct_question_id_list
@@ -158,11 +150,11 @@ class LessonAnswerSerializer(serializers.Serializer):
         StudentLastExamResult.objects.create(wrong_answers=wrong_question_count, student_id=student.pk,
                                              questions=wrong_question_count + correct_question_count)
 
-        if wrong_question_count == 0:
+        lesson_student, _ = LessonStudent.objects.get_or_create(lesson_id=lesson.pk, student_id=student.pk)
+        if wrong_question_count == 0 and not lesson_student.is_completed:
             lesson_student.is_completed = True
-
-        lesson_student.ball = correct_question_count * settings.TEST_BALL
-        lesson_student.save()
+            lesson_student.save()
+            update_student_completed_lessons(student=student)
 
         update_student_correct_answers(student=student, wrong_question_ids=wrong_question_id_list,
                                        correct_question_ids=correct_question_id_list)
@@ -175,7 +167,7 @@ class LessonAnswerSerializer(serializers.Serializer):
 class StudentLessonRatingSerializer(serializers.Serializer):
     student = serializers.HiddenField(default=serializers.CurrentUserDefault())
     lesson_id = serializers.IntegerField()
-    rating = serializers.ChoiceField(choices=LessonStudent.RATING)
+    rating = serializers.ChoiceField(choices=LessonStudent.RATING[1:])
 
     def validate_lesson_id(self, lesson_id):
         get_object_or_404(Lesson, pk=lesson_id)
