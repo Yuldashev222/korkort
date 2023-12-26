@@ -6,7 +6,7 @@ from api.v1.questions.models import Question
 
 
 class CategoryExamStudent(models.Model):
-    category = models.ForeignKey('questions.Category', on_delete=models.CASCADE)
+    category_id = models.PositiveSmallIntegerField(choices=settings.QUESTION_CATEGORIES)
     student = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE)
     correct_answers = models.PositiveSmallIntegerField(default=0)
     questions = models.PositiveSmallIntegerField(validators=[MaxValueValidator(settings.MAX_QUESTIONS),

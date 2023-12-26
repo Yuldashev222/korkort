@@ -1,35 +1,12 @@
+from django.conf import settings
 from django.db import models
-from ckeditor.fields import RichTextField
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
+from ckeditor_uploader.fields import RichTextUploadingField
 
 from api.v1.general.services import normalize_text
 from api.v1.questions.validators import validate_question_video_size
-
-
-class Category(models.Model):
-    ordering_number = models.PositiveSmallIntegerField(primary_key=True, unique=True, validators=[MinValueValidator(1)])
-    image = models.ImageField(upload_to='categories/images/', max_length=300,
-                              validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg'])])
-
-    class Meta:
-        verbose_name_plural = 'Categories'
-
-    def __str__(self):
-        return f'Category No {self.ordering_number}'
-
-
-class CategoryDetail(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    name = models.CharField(max_length=300)
-
-    class Meta:
-        unique_together = ['category', 'language']
-
-    def __str__(self):
-        return f'{self.language_id} Category No {self.category_id}'
 
 
 class Question(models.Model):
@@ -37,7 +14,7 @@ class Question(models.Model):
 
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE, blank=True, null=True)  # last
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], default=100000)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    category_id = models.PositiveSmallIntegerField(verbose_name='Category', choices=settings.QUESTION_CATEGORIES)
     difficulty_level = models.PositiveSmallIntegerField(choices=DIFFICULTY_LEVEL, default=DIFFICULTY_LEVEL[0][0])
 
     image = models.ImageField(upload_to='questions/images/', blank=True, null=True, max_length=300,
@@ -114,7 +91,7 @@ class QuestionDetail(models.Model):
     variant3 = models.CharField(max_length=300, blank=True)
     variant4 = models.CharField(max_length=300, blank=True)
 
-    answer = RichTextField(max_length=500)
+    answer = RichTextUploadingField(max_length=500)
 
     def __str__(self):
         return f'{self.language_id} {self.question}'

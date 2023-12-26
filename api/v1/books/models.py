@@ -1,5 +1,5 @@
 from django.db import models
-from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
 
@@ -23,7 +23,7 @@ class BookChapter(models.Model):
     title = models.CharField(max_length=300)
     audio = models.FileField(upload_to='books/chapters/audios/', blank=True, null=True,
                              validators=[FileExtensionValidator(allowed_extensions=['mp3'])])
-    content = RichTextField()
+    content = RichTextUploadingField()
 
     class Meta:
         ordering = ['ordering_number']

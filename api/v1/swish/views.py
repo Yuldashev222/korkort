@@ -8,12 +8,21 @@ from api.v1.general.paginations import CustomPageNumberPagination
 from api.v1.accounts.permissions import IsStudent
 
 
+def page_cache(func):
+    def wrapper(view, request, *args, **kwargs):
+        return func(view, request, *args, **kwargs)
+
+    return wrapper
+
+
 class SwishCardAPIView(ListCreateAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
     serializer_class = SwishCardSerializer
 
+    @page_cache
     def get(self, request, *args, **kwargs):
-        return Response({'min_bonus_money': MinBonusMoney.get_min_bonus_money()})
+        obj = MinBonusMoney.objects.first()
+        return Response({'min_bonus_money': obj.money if obj is not None else None})
 
 
 class CalledStudentAndSwishTransactionAPIView(ListAPIView):

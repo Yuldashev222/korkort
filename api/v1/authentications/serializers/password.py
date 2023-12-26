@@ -100,12 +100,14 @@ class CodePasswordResetConfirmSerializer(PasswordResetConfirmSerializer):
         email = attrs['email']
 
         try:
-            user = CustomUser.objects.get(email=email, is_active=True)
+            user = CustomUser.objects.get(email=email, is_staff=False, is_active=True)
         except CustomUser.DoesNotExist:
             raise ValidationError({'email': 'not found'})
 
         if cache.get(f'{email}_reset_password') != code:
             raise ValidationError({'code': 'not valid or expired'})
+        else:
+            cache.set(f'{email}_reset_password', code, 60 * 60 * 10)
 
         if new_password:
             form = SetPasswordForm(user=user, data={'new_password1': new_password, 'new_password2': new_password})

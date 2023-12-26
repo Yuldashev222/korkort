@@ -1,5 +1,5 @@
 from django.db import models
-from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
 
@@ -41,7 +41,7 @@ class TariffDiscount(DiscountMixin):
 class TariffDiscountDetail(models.Model):
     tariff_discount = models.ForeignKey(TariffDiscount, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
-    title = RichTextField(max_length=500)
+    title = RichTextUploadingField(max_length=500)
 
     def __str__(self):
         return self.title

@@ -2,11 +2,12 @@ from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator
 
+from api.v1.general.services import normalize_text
+
 
 class Language(models.Model):
     name = models.CharField(max_length=100)
     ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
-    is_active = models.BooleanField(default=True)
 
     @classmethod
     def get_languages(cls):
@@ -18,10 +19,11 @@ class Language(models.Model):
 
     @classmethod
     def set_redis(cls):
-        cache.set(
-            'languages',
-            cls.objects.filter(is_active=True).values_list('pk', flat=True).order_by('ordering_number')
-        )
+        cache.set('languages', cls.objects.values_list('pk', flat=True).order_by('ordering_number'))
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        self.name = normalize_text(self.name)[0]
+        super().save(*args, **kwargs)

@@ -11,5 +11,5 @@ class Command(BaseCommand):
             CustomUser.objects.create_user(name=f'Student No {i}',
                                            password='123123asdasd',
                                            email=str(uuid4()) + '@gmail.com',
-                                           is_verified=True,
+                                           is_verified=False,
                                            is_staff=False)

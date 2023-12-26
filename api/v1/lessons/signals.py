@@ -1,6 +1,6 @@
-from django.core.cache import cache
 from django.dispatch import receiver
 from django.db.models import Sum, Count
+from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete, pre_save
 
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
@@ -17,7 +17,7 @@ def update_chapter_time(instance, *args, **kwargs):  # last
     if instance.chapter:
         chapter = instance.chapter
         data = Lesson.objects.filter(chapter_id=chapter.pk).aggregate(time=Sum('lesson_time', default=0),
-                                                                      cnt=Count('pk', default=0))
+                                                                      cnt=Count('pk'))
         time_in_minute, lessons = data['time'], data['cnt']
         chapter.chapter_hour, chapter.chapter_minute = (0, 0) if not time_in_minute else divmod(time_in_minute, 60)
         chapter.lessons = lessons

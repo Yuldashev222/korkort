@@ -12,7 +12,6 @@ CUSTOM_ADMIN_ORDERING = [
     ('questions', ['Question', 'QuestionDetail', 'Category']),
     ('tariffs', ['Tariff']),
     ('discounts', ['TariffDiscount', 'UserCodeDiscount']),
-    ('levels', ['Level']),
     ('payments', ['Order']),
     ('swish', ['MinBonusMoney', 'SwishCard']),
     ('accounts', ['CustomUser']),

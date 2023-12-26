@@ -1,10 +1,9 @@
-from django.utils.timezone import now
+from django.conf import settings
 from rest_framework import serializers
-from django.utils.translation import get_language
+from django.utils.timezone import now
 from django.contrib.auth.hashers import make_password
 
 from api.v1.exams.models import StudentLastExamResult
-from api.v1.levels.models import LevelDetail
 from api.v1.accounts.models import CustomUser
 from api.v1.questions.models import Question
 from api.v1.exams.serializers.general import StudentLastExamResultSerializer
@@ -17,28 +16,14 @@ class ProfileMinSerializer(serializers.ModelSerializer):
 
 
 class ProfileChapterSerializer(serializers.ModelSerializer):
-    level = serializers.SerializerMethodField()
     tariff_expire_days = serializers.SerializerMethodField()
 
     def get_tariff_expire_days(self, obj):
         return (now().date() - obj.tariff_expire_date).days
 
-    def get_level(self, instance):
-        level = {
-            'pk': instance.level_id,
-            'percent': instance.level_percent
-        }
-        try:
-            obj = LevelDetail.objects.get(language_id=get_language(), level__ordering_number=instance.level_id)
-        except LevelDetail.DoesNotExist:
-            level['name'] = '-'
-        else:
-            level['name'] = obj.name
-        return level
-
     class Meta:
         model = CustomUser
-        fields = ['name', 'avatar_id', 'ball', 'level', 'user_code', 'tariff_expire_days', 'bonus_money']
+        fields = ['name', 'avatar_id', 'level_id', 'ball', 'user_code', 'tariff_expire_days', 'bonus_money']
 
 
 class ProfileExamSerializer(ProfileChapterSerializer):

@@ -1,12 +1,11 @@
+from django.conf import settings
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
-from django.utils.translation import get_language
 from rest_framework.permissions import IsAuthenticated
 
 from api.v1.exams.models import CategoryExamStudent
-from api.v1.questions.models import StudentWrongAnswer, CategoryDetail, StudentSavedQuestion, Category
-from api.v1.accounts.services import get_student_level
+from api.v1.questions.models import StudentWrongAnswer, StudentSavedQuestion
 from api.v1.accounts.permissions import IsStudent
 from api.v1.accounts.serializers import ProfileExamSerializer
 from api.v1.exams.serializers.categories import CategorySerializer
@@ -17,28 +16,22 @@ class ExamAnswerAPIView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         student = self.request.user
-        old_level_id = student.level_id
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(get_student_level(student, old_level_id), status=HTTP_201_CREATED)
+        return Response(student.ball, status=HTTP_201_CREATED)
 
 
 class CategoryResultAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
     serializer_class = CategorySerializer
-
-    def get_queryset(self):
-        return Category.objects.filter(categorydetail__language_id=get_language()).order_by('ordering_number')
+    queryset = settings.QUESTION_CATEGORIES
 
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
 
-        ctx['category_name_list'] = CategoryDetail.objects.filter(language_id=get_language()
-                                                                  ).values('category_id', 'name'
-                                                                           ).order_by('category_id')
-
         ctx['category_exam_student_list'] = CategoryExamStudent.objects.filter(student_id=self.request.user.pk
-                                                                               ).values('category_id', 'questions',
+                                                                               ).values('category_id',
+                                                                                        'questions',
                                                                                         'percent').order_by('-pk')
         return ctx
 

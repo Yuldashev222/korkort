@@ -1,4 +1,6 @@
+from django.utils.timezone import now
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from api.v1.books.models import BookChapterStudent, BookChapter
 from api.v1.general.utils import bubble_search
@@ -27,12 +29,19 @@ class BookDetailSerializer(serializers.ModelSerializer):
         fields = ['pk', 'audio', 'content']
 
 
-class BookChapterStudentSerializer(serializers.ModelSerializer):
+class BookChapterStudentSerializer(serializers.Serializer):
     student = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    chapter_id = serializers.IntegerField()
+    is_completed = serializers.BooleanField()
 
-    class Meta:
-        model = BookChapterStudent
-        fields = ['chapter', 'student', 'is_completed']
+    def validate_chapter_id(self, value):
+        try:
+            chapter = BookChapter.objects.get(pk=value)
+        except BookChapter.DoesNotExist:
+            raise ValidationError('chapter_id does not exist')
+        if not chapter.is_open and self.context['request'].user.tariff_expire_date <= now().date():
+            raise PermissionDenied('You do not have permission to')
+        return value
 
     def create(self, validated_data):
         is_completed = validated_data.pop('is_completed')

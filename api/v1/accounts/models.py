@@ -5,10 +5,9 @@ from django.db import models
 from django.utils.timezone import now
 from django.core.validators import MaxValueValidator
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 
-from api.v1.levels.models import Level, LevelDetail
 from api.v1.questions.models import Question
 from api.v1.accounts.managers import CustomUserManager
 
@@ -31,7 +30,6 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
     level_id = models.PositiveSmallIntegerField(default=1)
-    level_percent = models.PositiveSmallIntegerField(default=0)
     auth_provider = models.CharField(max_length=100, default='backend')
 
     completed_lessons = models.PositiveSmallIntegerField(default=0)
@@ -56,8 +54,9 @@ class CustomUser(AbstractUser):
 
     @property
     def is_active_user(self):
-        return self.is_active and self.is_verified
+        return self.is_active  # and self.is_verified
 
     @classmethod
     def user_id_exists(cls, user_code):
-        return CustomUser.objects.filter(user_code=user_code, is_staff=False, is_active=True, is_verified=True).exists()
+        return CustomUser.objects.filter(user_code=user_code, is_staff=False,  # is_verified=True,
+                                         is_active=True).exists()

@@ -15,22 +15,6 @@ class MinBonusMoney(models.Model):
         if not self.pk and MinBonusMoney.objects.exists():
             raise ValidationError('obj exist')
 
-    @classmethod
-    def get_min_bonus_money(cls):
-        temp = cache.get('min_bonus_money')
-        if temp is None:
-            cls.set_redis()
-            temp = cache.get('min_bonus_money')
-        return temp
-
-    @classmethod
-    def set_redis(cls):
-        obj = cls.objects.first()
-        if obj:
-            cache.set('min_bonus_money', obj.money)
-        else:
-            cache.delete('min_bonus_money')
-
 
 class SwishCard(models.Model):
     number = models.CharField(max_length=50, verbose_name='Swish Account')

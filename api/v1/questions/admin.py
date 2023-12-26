@@ -1,28 +1,10 @@
 from django import forms
 from django.contrib import admin
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from api.v1.general.admin import AbstractStackedInline
-from api.v1.lessons.models import Lesson
+from api.v1.questions.models import Question, QuestionDetail
 from api.v1.questions.filters import QuestionLessonFilter, QuestionDetailLessonFilter
-from api.v1.questions.models import Category, Question, QuestionDetail, CategoryDetail
-
-
-class CategoryDetailInline(AbstractStackedInline):
-    model = CategoryDetail
-
-
-@admin.register(Category)
-class QuestionCategoryAdmin(admin.ModelAdmin):
-    list_display = ['ordering_number', 'img']
-    inlines = (CategoryDetailInline,)
-    ordering = ['ordering_number']
-
-    def img(self, obj):
-        if obj.image:
-            return format_html(f"<a href='{obj.image.url}'><img width=80 height=45 src='{obj.image.url}'></a>")
-        return '-'
 
 
 class VariantInlineFormset(forms.models.BaseInlineFormSet):
@@ -42,26 +24,26 @@ class QuestionDetailInline(AbstractStackedInline):
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'category', 'difficulty_level', 'lesson', 'video']
-    list_display_links = ['pk', 'category', 'difficulty_level', 'lesson']
-    list_filter = ('category', 'difficulty_level', 'lesson__chapter', QuestionLessonFilter)
+    list_display = ['pk', 'category_id', 'difficulty_level', 'lesson', 'video']
+    list_display_links = ['pk', 'category_id', 'difficulty_level', 'lesson']
+    list_filter = ('category_id', 'difficulty_level', 'lesson__chapter', QuestionLessonFilter)
     inlines = (QuestionDetailInline,)
-    list_select_related = ('lesson', 'category')
+    list_select_related = ('lesson',)
     ordering = ['-pk']
-    fields = ['category', 'difficulty_level', 'image', 'video', 'lesson', 'ordering_number', ]
+    fields = ['category_id', 'difficulty_level', 'image', 'video', 'lesson', 'ordering_number', ]
 
 
 @admin.register(QuestionDetail)
 class QuestionDetailAdmin(admin.ModelAdmin):
-    list_display = ['language', 'question_id', 'category', 'difficulty_level', 'lesson', 'question_text']
-    list_display_links = ['language', 'question_id', 'category', 'difficulty_level', 'lesson']
-    list_filter = ['language', 'question__category', 'question__difficulty_level', 'question__lesson__chapter',
+    list_display = ['language', 'question_id', 'difficulty_level', 'lesson', 'question_text']
+    list_display_links = ['language', 'question_id', 'difficulty_level', 'lesson']
+    list_filter = ['language', 'question__category_id', 'question__difficulty_level', 'question__lesson__chapter',
                    QuestionDetailLessonFilter
                    ]
     search_fields = ['text', 'answer', 'correct_variant', 'variant2', 'variant3', 'variant4']
     readonly_fields = ('question',)
     fields = ('question', 'language', 'text', 'correct_variant', 'variant2', 'variant3', 'variant4', 'answer')
-    list_select_related = ('question__lesson', 'question__category', 'language',)
+    list_select_related = ('question__lesson', 'question__category_id', 'language',)
 
     def question_text(self, obj):
         return mark_safe(obj.text)
@@ -69,7 +51,7 @@ class QuestionDetailAdmin(admin.ModelAdmin):
     def category(self, obj):
         return obj.question.category
 
-    category.admin_order_field = 'question__category'
+    category.admin_order_field = 'question__category_id'  # last
 
     def lesson(self, obj):
         return obj.question.lesson

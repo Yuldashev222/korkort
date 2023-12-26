@@ -1,5 +1,5 @@
 from django.db import models
-from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.core.validators import MinValueValidator
 
 from api.v1.general.services import normalize_text
@@ -16,7 +16,7 @@ class TodoDetail(models.Model):
     todo = models.ForeignKey(Todo, on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     title = models.CharField(max_length=300)
-    text = RichTextField(max_length=500)
+    text = RichTextUploadingField(max_length=500)
 
     def __str__(self):
         return self.title

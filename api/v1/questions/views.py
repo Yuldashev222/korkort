@@ -9,7 +9,7 @@ from api.v1.questions.serializers.saved import StudentSavedQuestionSerializer
 
 
 class StudentSavedQuestionAPIView(CreateAPIView):
-    permission_classes = (IsAuthenticated, IsStudent)
+    permission_classes = (IsAuthenticated, IsStudent)  # last
     serializer_class = StudentSavedQuestionSerializer
 
     def perform_create(self, serializer):

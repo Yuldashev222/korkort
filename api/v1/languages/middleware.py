@@ -10,7 +10,10 @@ class LanguageMiddleware:
     def __call__(self, request):
         language = str(request.GET.get('language_id'))
         languages = Language.get_languages()
-        default_language = str(languages[0])
+        try:
+            default_language = str(languages[0])
+        except IndexError:
+            default_language = 1
         try:
             language = int(language)
         except ValueError:

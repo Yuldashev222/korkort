@@ -1,6 +1,3 @@
-from datetime import timedelta
-
-from django.conf import settings
 from django.utils.timezone import now
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import TokenAuthentication
@@ -17,17 +14,14 @@ class CustomTokenAuthentication(TokenAuthentication):
         except model.DoesNotExist:
             raise AuthenticationFailed({'msg': 'Invalid token.'})
 
-        if not token.user.is_verified:
+        if not token.user.is_active_user:
             raise AuthenticationFailed({'msg': 'User has not confirmed email address.'})
-
-        if not token.user.is_active:
-            raise AuthenticationFailed({'msg': 'User inactive or deleted.'})
 
         if token.expires_at is not None and now() >= token.expires_at:
             token.delete()
             raise AuthenticationFailed({'msg': 'Token has expired.'})
 
-        return (token.user, token)
+        return token.user, token
 
 
 class SwaggerTokenAuthentication(TokenAuthentication):

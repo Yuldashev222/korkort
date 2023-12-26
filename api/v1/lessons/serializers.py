@@ -1,17 +1,15 @@
 from django.conf import settings
-from django.db.models import Sum
 from rest_framework import serializers
 from django.utils.timezone import now
 from django.utils.translation import get_language
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
-from api.v1.chapters.models import ChapterStudent
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.general.utils import bubble_search
 from api.v1.lessons.models import LessonWordInfo, LessonSource, LessonStudent, LessonDetail, Lesson
-from api.v1.questions.tasks import update_student_wrong_answers, update_student_correct_answers, \
-    update_student_completed_lessons
+from api.v1.questions.tasks import (update_student_wrong_answers, update_student_correct_answers,
+                                    update_student_completed_lessons)
 from api.v1.questions.models import Question
 
 

@@ -14,7 +14,6 @@ from api.v1.general.utils import bubble_search
 from api.v1.lessons.tasks import change_student_lesson_view_statistics
 from api.v1.lessons.models import StudentLessonViewStatistics, Lesson, LessonStudent, LessonDetail
 from api.v1.questions.models import StudentSavedQuestion, Question, QuestionDetail
-from api.v1.accounts.services import get_student_level
 from api.v1.lessons.permissions import OldLessonCompleted, IsOpenOrPurchased
 from api.v1.lessons.serializers import (LessonRetrieveSerializer, LessonAnswerSerializer, LessonListSerializer,
                                         StudentLessonRatingSerializer)
@@ -28,7 +27,6 @@ class LessonAnswerAPIView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         student = self.request.user
-        old_level_id = student.level_id
         try:
             obj = Lesson.objects.get(pk=request.data.get('lesson_id'))
             self.check_object_permissions(self.request, obj)
@@ -37,7 +35,7 @@ class LessonAnswerAPIView(GenericAPIView):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(get_student_level(student, old_level_id), status=HTTP_201_CREATED)
+        return Response(student.ball, status=HTTP_201_CREATED)
 
 
 class LessonAPIView(RetrieveAPIView):

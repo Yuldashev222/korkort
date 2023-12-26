@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from api.v1.books.models import BookChapterStudent, BookChapter, Book
 from api.v1.books.serializers import BookListSerializer, BookDetailSerializer, BookChapterStudentSerializer
-
 from api.v1.lessons.permissions import IsOpenOrPurchased
 from api.v1.accounts.permissions import IsStudent
 
@@ -45,4 +44,5 @@ class BookChapterDetailAPIView(RetrieveAPIView):
 
 
 class BookChapterStudentAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated, IsStudent)
     serializer_class = BookChapterStudentSerializer

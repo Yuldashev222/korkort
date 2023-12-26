@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'ckeditor',
-    # 'ckeditor_uploader',
+    'ckeditor_uploader',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -44,9 +44,7 @@ INSTALLED_APPS = [
     'api.v1.exams.apps.ExamsConfig',
     'api.v1.swish.apps.SwishConfig',
     'api.v1.languages.apps.LanguagesConfig',
-    'api.v1.levels.apps.LevelsConfig',
     'api.v1.books.apps.BooksConfig',
-    'api.v1.signs.apps.SignsConfig',
     'api.v1.todos.apps.TodosConfig'
 ]
 
@@ -56,7 +54,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'api.v1.general.middleware.LanguageMiddleware',
+    'api.v1.languages.middleware.LanguageMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -128,10 +126,10 @@ MEDIA_URL = 'media/'
 STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = '/api/v1/accounts/profile'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-#
-# STATICFILES_DIRS = [BASE_DIR / 'static']
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -240,64 +238,27 @@ JAZZMIN_SETTINGS = {
     "copyright": 'test copyright',
 }
 
-CKEDITOR_CONFIGS = {
-    'default': {
-        'skin': 'moono',
-        # 'skin': 'office2013',
-        'toolbar_Basic': [
-            ['Source', '-', 'Bold', 'Italic']
-        ],
-        'toolbar_YourCustomToolbarConfig': [
-            {'name': 'yourcustomtools',
-             'items': ['Preview', 'Find', 'Maximize', 'Source', '-', 'Replace', 'Language', '-', 'Image', 'Flash',
-                       'Table', 'Smiley', 'SpecialChar', 'Iframe', 'CreateDiv', 'Templates', 'ShowBlocks', 'Link',
-                       'Unlink', 'Anchor']},
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 
-            '/',
-
-            {'name': 'forms',
-             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
-                       'HiddenField', '-', 'NumberedList', 'HorizontalRule', 'PageBreak', 'BulletedList', '-',
-                       'Outdent', 'Indent', '-', 'Blockquote', '-', 'BidiLtr', 'BidiRtl']},
-
-            '/',
-
-            {'name': 'styles',
-             'items': ['Styles', 'Format', 'Font', 'FontSize', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight',
-                       'JustifyBlock']},
-
-            '/',
-
-            {'name': 'colors',
-             'items': ['TextColor', 'BGColor', '-', 'Bold', 'Italic', 'Underline', 'Strike', '-', 'Subscript',
-                       'Superscript', '-', 'RemoveFormat']},
-
-        ],
-        'toolbar': 'YourCustomToolbarConfig',  # put selected toolbar config here
-        # 'height': 291,
-        # 'width': '100%',
-        # 'filebrowserWindowHeight': 725,
-        # 'filebrowserWindowWidth': 940,
-        # 'mathJaxLib': '//cdn.mathjax.org/mathjax/2.2-latest/MathJax.js?config=TeX-AMS_HTML',
-        'tabSpaces': 4,
-        'extraPlugins': ','.join([
-            'uploadimage',  # the upload image feature
-            # your extra plugins here
-            'div',
-            'autolink',
-            'autoembed',
-            'embedsemantic',
-            'autogrow',
-            # 'devtools',
-            'widget',
-            'lineutils',
-            'clipboard',
-            'dialog',
-            'dialogui',
-            'elementspath'
-        ]),
-    }
+LEVELS = {
+    0: 'Nyckelknippe',
+    50: 'Startmotorn',
+    150: 'Asfaltsrookie',
+    300: 'Kopplingskung',
+    500: 'Vägkapten',
+    750: 'Kurvmästare',
+    1150: 'Gasguru',
+    1650: 'Fartfantast',
+    2350: 'Bilboss',
+    3200: 'Körkortskung',
 }
 
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor"
+QUESTION_CATEGORIES = [
+    [1, '1'],
+    [2, '2'],
+    [3, '3'],
+    [4, '4'],
+    [5, '5'],
+    [6, '6'],
+]
