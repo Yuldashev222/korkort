@@ -2,6 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 from django.utils.timezone import now
 from django.contrib.auth.hashers import make_password
+from rest_framework.exceptions import ValidationError
 
 from api.v1.exams.models import StudentLastExamResult
 from api.v1.accounts.models import CustomUser
@@ -62,7 +63,13 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             }
         }
 
+    def validate_avatar_id(self, value):
+        if not value:
+            raise ValidationError()
+        return value
+
     def update(self, instance, validated_data):
-        if validated_data.get('password'):
-            validated_data['password'] = make_password(validated_data['password'])
+        password = validated_data.get('password')
+        if password is not None:
+            validated_data['password'] = make_password(password)
         return super().update(instance, validated_data)
