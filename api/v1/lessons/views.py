@@ -3,7 +3,6 @@ from datetime import timedelta
 from django.db.models import Count
 from django.core.cache import cache
 from django.utils.timezone import now
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, RetrieveAPIView, get_object_or_404, ListCreateAPIView
@@ -78,8 +77,6 @@ class LessonAPIView(RetrieveAPIView):
 class StudentLessonViewStatisticsAPIView(ListCreateAPIView):
     permission_classes = (IsAuthenticated, IsStudent)
     serializer_class = StudentLessonRatingSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['lesson']
 
     def get_queryset(self):
         return StudentLessonViewStatistics.objects.filter(student_id=self.request.user.pk).values(
@@ -90,11 +87,11 @@ class StudentLessonViewStatisticsAPIView(ListCreateAPIView):
         today_date = now().date()
         data1 = list(self.get_queryset())
         data2 = list(map(lambda el: el['viewed_date'], data1))
-        lesson_id = request.GET.get('lesson')
+        lesson_id = request.GET.get('lesson_id')
         rating = 0
         if lesson_id:
             try:
-                lesson_student = LessonStudent.objects.get_or_create(lesson_id=lesson_id, student_id=student.pk)
+                lesson_student, _ = LessonStudent.objects.get_or_create(lesson_id=lesson_id, student_id=student.pk)
                 rating = lesson_student.rating
             except (LessonStudent.DoesNotExist, ValueError):
                 pass
