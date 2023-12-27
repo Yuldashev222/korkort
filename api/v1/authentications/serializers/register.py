@@ -79,6 +79,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
 class SocialAuthTokenSerializer(AuthTokenSerializer):
     password = None
+    avatar_id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
@@ -99,4 +100,5 @@ class SocialAuthTokenSerializer(AuthTokenSerializer):
         CustomToken.objects.filter(user=user).delete()
         token = CustomToken.objects.create(user=user)
         attrs['token'] = token.key
+        attrs['avatar_id'] = user.avatar_id
         return attrs
