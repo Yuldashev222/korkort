@@ -29,6 +29,12 @@ class RegisterAPIView(CreateAPIView):
     permission_classes = (~IsAuthenticated,)
     serializer_class = RegisterSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data | {'token': serializer.token}, status=status.HTTP_201_CREATED)
+
 
 # class ResendEmailVerifyLinkAPIView(RegisterAPIView):
 #     serializer_class = ResendEmailVerifyLinkSerializer

@@ -8,9 +8,11 @@ from api.v1.authentications.models import CustomToken
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = ['name', 'email', 'password']
+        fields = ['name', 'email', 'password', 'token']
         extra_kwargs = {
             'name': {
                 'min_length': 3
@@ -27,6 +29,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         # token = default_token_generator.make_token(user)
         # current_site = get_current_site(self.context['request'])
         # send_confirm_link_email.delay(str(user), user.pk, token, current_site.domain, user.email)
+        token = CustomToken.objects.create(user=user)
+        self.token = token.key
         return user
 
 
