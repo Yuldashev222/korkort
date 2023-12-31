@@ -65,6 +65,7 @@ class AuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True, style={'input_type': 'password'}, trim_whitespace=False)
     token = serializers.CharField(read_only=True)
+    avatar_id = serializers.IntegerField(read_only=True)
 
     def validate(self, attrs):
         email = attrs['email']
@@ -81,12 +82,12 @@ class AuthTokenSerializer(serializers.Serializer):
         CustomToken.objects.filter(user=user).delete()
         token = CustomToken.objects.create(user=user)
         attrs['token'] = token.key
+        attrs['avatar_id'] = user.avatar_id
         return attrs
 
 
 class SocialAuthTokenSerializer(AuthTokenSerializer):
     password = None
-    avatar_id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
