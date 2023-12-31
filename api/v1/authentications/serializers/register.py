@@ -12,10 +12,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['name', 'email', 'password', 'token']
+        fields = ['name', 'email', 'password', 'avatar_id', 'token']
         extra_kwargs = {
             'name': {
                 'min_length': 3
+            },
+            'avatar_id': {
+                'read_only': True
             },
             'password': {
                 'write_only': True,
