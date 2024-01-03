@@ -68,6 +68,7 @@ class LessonRetrieveSerializer(serializers.Serializer):
     image = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRClGlxrlqY7RlZZ_8PqNU0NfQOlqHUvPg9S80O8H1luMigslACzs8Aqggw1irL3tMIg1Y&usqp=CAU'
     pk = serializers.IntegerField()
     title = serializers.SerializerMethodField()
+    short_title = serializers.SerializerMethodField()
     text = serializers.SerializerMethodField()
     lesson_time = serializers.FloatField()
     lessons = serializers.SerializerMethodField()
@@ -79,6 +80,9 @@ class LessonRetrieveSerializer(serializers.Serializer):
 
     def get_title(self, instance):
         return self.context['lesson_detail'].title
+
+    def get_short_title(self, instance):
+        return self.context['lesson_detail'].short_title
 
     def get_lessons(self, instance):
         lessons = Lesson.objects.filter(chapter_id=instance.chapter_id).order_by('ordering_number')

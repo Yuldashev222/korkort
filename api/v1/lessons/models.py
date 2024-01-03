@@ -38,6 +38,7 @@ class LessonDetail(models.Model):
     lesson = models.ForeignKey('lessons.Lesson', on_delete=models.CASCADE)
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     title = models.CharField(max_length=300)
+    short_title = models.CharField(max_length=200)
     video = models.FileField(max_length=300, upload_to='lessons/videos/',
                              validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
     text = RichTextUploadingField(max_length=700, blank=True)
