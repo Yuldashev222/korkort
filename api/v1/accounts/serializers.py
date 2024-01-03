@@ -24,7 +24,7 @@ class ProfileChapterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['name', 'avatar_id', 'level_id', 'ball', 'user_code', 'tariff_expire_days', 'bonus_money']
+        fields = ['name', 'avatar_id', 'level_id', 'level_percent', 'ball', 'user_code', 'tariff_expire_days', 'bonus_money']
 
 
 class ProfileExamSerializer(ProfileChapterSerializer):

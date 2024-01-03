@@ -30,6 +30,7 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
     level_id = models.PositiveSmallIntegerField(default=1)
+    level_percent = models.PositiveSmallIntegerField(default=0)
     auth_provider = models.CharField(max_length=100, default='backend')
 
     completed_lessons = models.PositiveSmallIntegerField(default=0)

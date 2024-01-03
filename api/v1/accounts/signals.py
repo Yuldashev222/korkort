@@ -11,7 +11,14 @@ def change_fields_pre_save(instance, *args, **kwargs):
     instance.name = normalize_text(instance.name)[0]
     if not instance.is_staff:
         instance.ball = instance.correct_answers * settings.TEST_BALL + instance.completed_lessons * settings.LESSON_BALL
-        instance.level_id = len([counts for counts in settings.LEVELS if instance.ball >= counts])
+
+        balls = list(settings.LEVELS)
+        instance.level_id = len([ball for ball in balls if instance.ball >= ball])
+        if instance.level_id < len(settings.LEVELS):
+            instance.level_percent = int(balls[instance.level_id - 1] / balls[instance.level_id] * 100)
+        else:
+            instance.level_percent = 100
+
         instance.bonus_money = round(instance.bonus_money, 1)
 
         if not instance.pk:
