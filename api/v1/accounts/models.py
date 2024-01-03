@@ -22,7 +22,7 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(_("email address"), unique=True)
     password = models.CharField(_("password"), max_length=128, validators=[validate_password])
-    name = models.CharField(_("name"), max_length=12)
+    name = models.CharField(_("name"), max_length=100)
 
     avatar_id = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(500)])
     user_code = models.CharField(max_length=400, unique=True)

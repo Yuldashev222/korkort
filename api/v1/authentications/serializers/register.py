@@ -90,7 +90,7 @@ class AuthTokenSerializer(serializers.Serializer):
 
 class SocialAuthTokenSerializer(AuthTokenSerializer):
     password = None
-    name = serializers.CharField(max_length=12, min_length=3)
+    name = serializers.CharField()
 
     def validate(self, attrs):
         email = attrs['email']
