@@ -7,8 +7,7 @@ from api.v1.general.utils import bubble_search
 class QuestionSerializer(serializers.Serializer):
     pk = serializers.IntegerField()
     category_id = serializers.IntegerField()
-    image = serializers.URLField(
-        default='https://api.lattmedkorkort.se/media/chapters/1%3A_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
+    image = serializers.CharField(read_only=True)
     is_saved = serializers.SerializerMethodField()
 
     variants = serializers.SerializerMethodField()
@@ -31,6 +30,7 @@ class QuestionSerializer(serializers.Serializer):
         ret = super().to_representation(instance)
         ret['video'] = 'https://api.lattmedkorkort.se/media/questions/videos/pexels-george-morina-5266783_1080p.mp4'
         ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
+        ret['image'] = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
         return ret
 
     def get_is_saved(self, instance):
