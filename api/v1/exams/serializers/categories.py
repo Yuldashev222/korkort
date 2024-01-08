@@ -12,12 +12,17 @@ from api.v1.questions.models import Question
 
 class CategorySerializer(serializers.Serializer):
     test_image = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
-    category_id = serializers.SerializerMethodField()
+    pk = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    image = serializers.URLField(default=test_image)
 
     detail = serializers.SerializerMethodField()
 
-    def get_category_id(self, instance):
+    def get_pk(self, instance):
         return instance[0]
+
+    def get_name(self, instance):
+        return instance[1]
 
     def get_detail(self, instance):
         last_exams = list(filter(lambda item: item['category_id'] == instance[0],

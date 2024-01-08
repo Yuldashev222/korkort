@@ -255,10 +255,10 @@ LEVELS = {
 }
 
 QUESTION_CATEGORIES = [
-    [1, '1'],
-    [2, '2'],
-    [3, '3'],
-    [4, '4'],
-    [5, '5'],
-    [6, '6'],
+    [1, '1Kopplingskung'],
+    [2, '2Kopplingskung'],
+    [3, '3Kopplingskung'],
+    [4, '4Kopplingskung'],
+    [5, '5Kopplingskung'],
+    [6, '6Kopplingskung'],
 ]
