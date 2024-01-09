@@ -15,7 +15,7 @@ def change_fields_pre_save(instance, *args, **kwargs):
         balls = list(settings.LEVELS)
         instance.level_id = len([ball for ball in balls if instance.ball >= ball])
         if instance.level_id < len(settings.LEVELS):
-            instance.level_percent = int(balls[instance.level_id - 1] / balls[instance.level_id] * 100)
+            instance.level_percent = int(instance.ball / balls[instance.level_id] * 100)
         else:
             instance.level_percent = 100
 
