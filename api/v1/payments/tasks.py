@@ -13,5 +13,6 @@ def change_student_tariff_expire_date(student_id):
     last_order = Order.objects.filter(student_email=student.email, is_paid=True,
                                       expire_at__gt=student.tariff_expire_date).order_by('expire_at').last()
 
-    student.tariff_expire_date = last_order.expire_at + timedelta(days=1) if last_order else now().date()
-    student.save()
+    if last_order:
+        student.tariff_expire_date = last_order.expire_at + timedelta(days=1)
+        student.save()
