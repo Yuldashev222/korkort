@@ -55,16 +55,16 @@ class ChapterAPIView(ReadOnlyModelViewSet):
             lesson_student_filter_kwargs['lesson__is_open'] = True
             lesson_filter_kwargs['is_open'] = True
 
-        lesson_student = LessonStudent.objects.filter(**lesson_student_filter_kwargs, is_completed=False
+        lesson_student = LessonStudent.objects.filter(**lesson_student_filter_kwargs, is_completed=True
                                                       ).order_by('lesson__ordering_number').last()
 
-        if not lesson_student:
-            lesson_student = LessonStudent.objects.filter(**lesson_student_filter_kwargs, is_completed=True
-                                                          ).order_by('lesson__ordering_number').last()
-        if not lesson_student:
-            lesson = Lesson.objects.filter(**lesson_filter_kwargs).order_by('ordering_number').first()
+        if lesson_student:
+            lesson = Lesson.objects.filter(**lesson_filter_kwargs, pk__gt=lesson_student.lesson_id
+                                           ).order_by('ordering_number').first()
+            if not lesson:
+                lesson = lesson_student.lesson
         else:
-            lesson = lesson_student.lesson  # last <select_related>
+            lesson = Lesson.objects.filter(**lesson_filter_kwargs).order_by('ordering_number').first()
 
         if not lesson:
             raise PermissionDenied()
