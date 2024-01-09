@@ -3,7 +3,7 @@ from django.db import models
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, FileExtensionValidator
-from ckeditor_uploader.fields import RichTextUploadingField
+from django_ckeditor_5.fields import CKEditor5Field
 
 from api.v1.general.services import normalize_text
 from api.v1.questions.validators import validate_question_video_size
@@ -91,7 +91,7 @@ class QuestionDetail(models.Model):
     variant3 = models.CharField(max_length=300, blank=True)
     variant4 = models.CharField(max_length=300, blank=True)
 
-    answer = RichTextUploadingField(max_length=500)
+    answer = CKEditor5Field(max_length=500)
 
     def __str__(self):
         return f'{self.language_id} {self.question}'

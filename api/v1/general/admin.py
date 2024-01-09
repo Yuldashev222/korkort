@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from api.v1.general.models import General
 from api.v1.languages.models import Language
 
 admin.ModelAdmin.list_per_page = 50
@@ -47,3 +48,12 @@ class AbstractStackedInline(admin.StackedInline):
 
     def get_extra(self, request, obj=None, **kwargs):
         return self.get_languages_count() - 1
+
+
+@admin.register(General)
+class GeneralAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return not General.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

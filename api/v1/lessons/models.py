@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
-from ckeditor_uploader.fields import RichTextUploadingField
+from django_ckeditor_5.fields import CKEditor5Field
 
 from api.v1.general.services import normalize_text
 
@@ -41,7 +41,7 @@ class LessonDetail(models.Model):
     short_title = models.CharField(max_length=200)
     video = models.FileField(max_length=300, upload_to='lessons/videos/',
                              validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
-    text = RichTextUploadingField(max_length=700, blank=True)
+    text = CKEditor5Field(max_length=700, blank=True)
 
     def __str__(self):
         return f'{self.language_id} Lesson No {self.lesson}'
@@ -57,7 +57,7 @@ class LessonDetail(models.Model):
 class LessonWordInfo(models.Model):
     lesson_detail = models.ForeignKey(LessonDetail, on_delete=models.CASCADE)
     word = models.CharField(max_length=300)
-    info = RichTextUploadingField(max_length=500)
+    info = models.CharField(max_length=500)
 
     class Meta:
         verbose_name = 'Word Info'
