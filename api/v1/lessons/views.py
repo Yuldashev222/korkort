@@ -1,5 +1,7 @@
 import random
 from datetime import timedelta
+
+from django.db import IntegrityError
 from django.db.models import Count
 from django.core.cache import cache
 from django.utils.timezone import now
@@ -93,7 +95,7 @@ class StudentLessonViewStatisticsAPIView(ListCreateAPIView):
             try:
                 lesson_student, _ = LessonStudent.objects.get_or_create(lesson_id=lesson_id, student_id=student.pk)
                 rating = lesson_student.rating
-            except (LessonStudent.DoesNotExist, ValueError):
+            except (LessonStudent.DoesNotExist, ValueError, IntegrityError):
                 pass
 
         data = {

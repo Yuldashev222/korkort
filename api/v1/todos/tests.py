@@ -1,32 +1,149 @@
-from collections import Counter
+# import requests
+#
+# url = 'https://api.thecatapi.com/v1/images/search'
+# lst = []
+# for i in range(500):
+#     a = requests.get(url).json()[0]
+#     print(a.get('url'))
+from random import choice
+
+random_images = [
+    'https://cdn2.thecatapi.com/images/be9.jpg',
+    'https://cdn2.thecatapi.com/images/70r.jpg',
+    'https://cdn2.thecatapi.com/images/6hf.jpg',
+    'https://cdn2.thecatapi.com/images/b00.jpg',
+    'https://cdn2.thecatapi.com/images/MTgxOTk1Mg.jpg',
+    'https://cdn2.thecatapi.com/images/CeQSKi526.jpg',
+    'https://cdn2.thecatapi.com/images/29s.jpg',
+    'https://cdn2.thecatapi.com/images/dla.jpg',
+    'https://cdn2.thecatapi.com/images/3ra.jpg',
+    'https://cdn2.thecatapi.com/images/MTc2OTU4Ng.jpg',
+    'https://cdn2.thecatapi.com/images/ch9.jpg',
+    'https://cdn2.thecatapi.com/images/9uk.jpg',
+    'https://cdn2.thecatapi.com/images/atf.jpg',
+    'https://cdn2.thecatapi.com/images/8jc.jpg',
+    'https://cdn2.thecatapi.com/images/ds9.jpg',
+    'https://cdn2.thecatapi.com/images/8qf.jpg',
+    'https://cdn2.thecatapi.com/images/MTkzMTc2OA.jpg',
+    'https://cdn2.thecatapi.com/images/MTk2NTM4NA.jpg',
+    'https://cdn2.thecatapi.com/images/5q5.jpg',
+    'https://cdn2.thecatapi.com/images/2-AuRFDa9.jpg',
+    'https://cdn2.thecatapi.com/images/MTc5NjQ3NQ.jpg',
+    'https://cdn2.thecatapi.com/images/c0u.jpg',
+    'https://cdn2.thecatapi.com/images/aln.jpg',
+    'https://cdn2.thecatapi.com/images/c8v.jpg',
+    'https://cdn2.thecatapi.com/images/b5b.jpg',
+    'https://cdn2.thecatapi.com/images/DsrXa-v2g.jpg',
+    'https://cdn2.thecatapi.com/images/cf2.jpg',
+    'https://cdn2.thecatapi.com/images/250.jpg',
+    'https://cdn2.thecatapi.com/images/1hh.jpg',
+    'https://cdn2.thecatapi.com/images/2v7.jpg',
+    'https://cdn2.thecatapi.com/images/bkr.jpg',
+    'https://cdn2.thecatapi.com/images/a3u.jpg',
+    'https://cdn2.thecatapi.com/images/9qu.jpg',
+    'https://cdn2.thecatapi.com/images/9qe.jpg',
+    'https://cdn2.thecatapi.com/images/cb1.jpg',
+    'https://cdn2.thecatapi.com/images/MjA5MDgyOQ.jpg',
+    'https://cdn2.thecatapi.com/images/9vg.jpg',
+    'https://cdn2.thecatapi.com/images/a79.jpg',
+    'https://cdn2.thecatapi.com/images/c2i.jpg',
+    'https://cdn2.thecatapi.com/images/MjA2NDk2MQ.jpg',
+    'https://cdn2.thecatapi.com/images/e0n.jpg',
+    'https://cdn2.thecatapi.com/images/fhYh2PDcC.jpg',
+    'https://cdn2.thecatapi.com/images/MTk1OTk5OQ.jpg',
+    'https://cdn2.thecatapi.com/images/au5.jpg',
+    'https://cdn2.thecatapi.com/images/anb.jpg',
+    'https://cdn2.thecatapi.com/images/cbu.jpg',
+    'https://cdn2.thecatapi.com/images/7isAO4Cav.jpg',
+    'https://cdn2.thecatapi.com/images/dto.jpg',
+    'https://cdn2.thecatapi.com/images/e6u.jpg',
+    'https://cdn2.thecatapi.com/images/e7t.jpg',
+    'https://cdn2.thecatapi.com/images/beh.jpg',
+    'https://cdn2.thecatapi.com/images/MTc5MzA3OA.jpg',
+    'https://cdn2.thecatapi.com/images/5b7.jpg',
+    'https://cdn2.thecatapi.com/images/2fl.jpg',
+    'https://cdn2.thecatapi.com/images/6ea.jpg',
+    'https://cdn2.thecatapi.com/images/ano.jpg',
+    'https://cdn2.thecatapi.com/images/a5e.jpg',
+    'https://cdn2.thecatapi.com/images/752.jpg',
+    'https://cdn2.thecatapi.com/images/d92.jpg',
+    'https://cdn2.thecatapi.com/images/1su.jpg',
+    'https://cdn2.thecatapi.com/images/6u9.jpg',
+    'https://cdn2.thecatapi.com/images/bno.jpg',
+    'https://cdn2.thecatapi.com/images/MTk2NjI0Mw.jpg',
+    'https://cdn2.thecatapi.com/images/MjA0NTUxNg.jpg',
+    'https://cdn2.thecatapi.com/images/4m7.jpg',
+    'https://cdn2.thecatapi.com/images/5gu.jpg',
+    'https://cdn2.thecatapi.com/images/OeOUzmQIk.jpg',
+    'https://cdn2.thecatapi.com/images/AH61b9ziS.jpg',
+    'https://cdn2.thecatapi.com/images/1kp.jpg',
+    'https://cdn2.thecatapi.com/images/98e.jpg',
+    'https://cdn2.thecatapi.com/images/aq9.jpg',
+    'https://cdn2.thecatapi.com/images/alt.jpg',
+    'https://cdn2.thecatapi.com/images/a3.jpg',
+    'https://cdn2.thecatapi.com/images/MTgwMzkyNg.jpg',
+    'https://cdn2.thecatapi.com/images/a3g.jpg',
+    'https://cdn2.thecatapi.com/images/dqt.jpg',
+    'https://cdn2.thecatapi.com/images/aua.jpg',
+    'https://cdn2.thecatapi.com/images/sg.jpg',
+    'https://cdn2.thecatapi.com/images/a29.jpg',
+    'https://cdn2.thecatapi.com/images/bem.jpg',
+    'https://cdn2.thecatapi.com/images/d0j.jpg',
+    'https://cdn2.thecatapi.com/images/nK0RaZbq3.jpg',
+    'https://cdn2.thecatapi.com/images/brn.jpg',
+    'https://cdn2.thecatapi.com/images/MTUxMTkxNg.jpg',
+    'https://cdn2.thecatapi.com/images/MTYxMDIwNw.jpg',
+    'https://cdn2.thecatapi.com/images/70r.jpg',
+    'https://cdn2.thecatapi.com/images/ahl.jpg',
+    'https://cdn2.thecatapi.com/images/MjAzNzg1Nw.jpg',
+    'https://cdn2.thecatapi.com/images/MTcxNTc1MA.jpg',
+    'https://cdn2.thecatapi.com/images/ahv.jpg',
+    'https://cdn2.thecatapi.com/images/8kg.jpg',
+    'https://cdn2.thecatapi.com/images/dgk.jpg',
+    'https://cdn2.thecatapi.com/images/d00.jpg',
+    'https://cdn2.thecatapi.com/images/9vg.jpg',
+    'https://cdn2.thecatapi.com/images/-tm9-znzl.jpg',
+    'https://cdn2.thecatapi.com/images/Qjb0fsrDo.jpg',
+    'https://cdn2.thecatapi.com/images/7g4.jpg',
+    'https://cdn2.thecatapi.com/images/acv.jpg',
+    'https://cdn2.thecatapi.com/images/ahi.jpg',
+    'https://cdn2.thecatapi.com/images/c5r.jpg',
+    'https://cdn2.thecatapi.com/images/d02.jpg',
+    'https://cdn2.thecatapi.com/images/dub.jpg',
+    'https://cdn2.thecatapi.com/images/MTQ5OTg1Mw.jpg',
+    'https://cdn2.thecatapi.com/images/MTUwNTQxOQ.jpg',
+    'https://cdn2.thecatapi.com/images/5lo.jpg',
+    'https://cdn2.thecatapi.com/images/91a.jpg',
+    'https://cdn2.thecatapi.com/images/aoh.jpg',
+    'https://cdn2.thecatapi.com/images/eer.jpg',
+    'https://cdn2.thecatapi.com/images/9va.jpg',
+    'https://cdn2.thecatapi.com/images/bcv.jpg',
+    'https://cdn2.thecatapi.com/images/di5.jpg',
+    'https://cdn2.thecatapi.com/images/MjA0MDUxMA.jpg',
+    'https://cdn2.thecatapi.com/images/5l2.jpg',
+    'https://cdn2.thecatapi.com/images/chn.jpg',
+    'https://cdn2.thecatapi.com/images/b6r.jpg',
+    'https://cdn2.thecatapi.com/images/aju.jpg',
+    'https://cdn2.thecatapi.com/images/9gp.jpg',
+    'https://cdn2.thecatapi.com/images/ats.jpg',
+    'https://cdn2.thecatapi.com/images/MTU4MTA1Mg.jpg',
+    'https://cdn2.thecatapi.com/images/9q2.jpg',
+    'https://28.media.tumblr.com/tumblr_lt95ovYgPG1r4xjo2o1_1280.jpg',
+    'https://cdn2.thecatapi.com/images/l-LrP1VY4.jpg',
+    'https://cdn2.thecatapi.com/images/xNuSF5YWY.jpg',
+    'https://cdn2.thecatapi.com/images/MTczNTkwNA.jpg',
+    'https://cdn2.thecatapi.com/images/bth.jpg',
+    'https://cdn2.thecatapi.com/images/auj.jpg',
+    'https://cdn2.thecatapi.com/images/MTkwMDc4Mw.jpg',
+    'https://cdn2.thecatapi.com/images/b2n.jpg',
+    'https://cdn2.thecatapi.com/images/efr.jpg',
+    'https://cdn2.thecatapi.com/images/286.jpg',
+    'https://cdn2.thecatapi.com/images/a31.jpg',
+    'https://cdn2.thecatapi.com/images/44j.jpg',
+    'https://cdn2.thecatapi.com/images/aoh.jpg',
+    'https://cdn2.thecatapi.com/images/MTgwNzAzMg.jpg',
+]
 
 
-def get_count(nums: list[int], el):
-    cnt = 0
-    for i in nums:
-        if i == el:
-            cnt += 1
-    return cnt
-
-
-def foo(nums: list[int]):
-    set_nums = []
-    result = []
-    for i in nums:
-        if i not in set_nums:
-            set_nums.append(i)
-
-    for i in set_nums:
-        result.append((i, get_count(nums, i)))
-    return result
-
-
-def test():
-    assert foo([1, 1, 1, 4, 2, 6, 1, 6, 9]) == [(1, 4), (4, 1), (2, 1), (6, 2), (9, 1)]
-    assert foo([201, 200, 3, 49, 50, 6, 201, 8, 49]) == [(201, 2), (200, 1), (3, 1), (49, 2), (50, 1), (6, 1), (8, 1)]
-    assert foo([59, 200, 53, 44, 59, 90, 91, 1001, 29]) == [(59, 2), (200, 1), (53, 1), (44, 1), (90, 1), (91, 1),
-                                                            (1001, 1), (29, 1)]
-
-
-test()
-print(Counter('abac'))
+def get_random_image():
+    return choice(random_images)

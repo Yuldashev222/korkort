@@ -2,6 +2,7 @@ import random
 from rest_framework import serializers
 
 from api.v1.general.utils import bubble_search
+from api.v1.todos.tests import get_random_image
 
 
 class QuestionSerializer(serializers.Serializer):
@@ -28,9 +29,18 @@ class QuestionSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['video'] = 'https://api.lattmedkorkort.se/media/questions/videos/pexels-george-morina-5266783_1080p.mp4'
+        if ret['pk'] % 3 == 0:
+            ret['video'] = None
+            ret['image'] = None
+        else:
+            if ret['pk'] % 2 == 0:
+                ret['video'] = 'https://api.lattmedkorkort.se/media/questions/videos/pexels-george-morina-5266783_1080p.mp4'
+                ret['image'] = None
+            else:
+                ret['image'] = get_random_image()
+                ret['video'] = None
+
         ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
-        ret['image'] = 'https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg'
         return ret
 
     def get_is_saved(self, instance):
