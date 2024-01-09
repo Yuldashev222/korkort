@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework.generics import CreateAPIView
 
-# Create your views here.
+from api.v1.reports.models import Report
+from api.v1.reports.serializers import ReportSerializer
+
+
+class ReportAPIView(CreateAPIView):
+    queryset = Report.objects.all()
+    serializer_class = ReportSerializer

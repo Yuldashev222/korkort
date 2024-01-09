@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'api.v1.swish.apps.SwishConfig',
     'api.v1.languages.apps.LanguagesConfig',
     'api.v1.books.apps.BooksConfig',
+    'api.v1.reports.apps.ReportsConfig',
     'api.v1.todos.apps.TodosConfig'
 ]
 
@@ -261,4 +262,12 @@ QUESTION_CATEGORIES = [
     [4, '4Kopplingskung'],
     [5, '5Kopplingskung'],
     [6, '6Kopplingskung'],
+]
+
+REPORT_TYPES = [
+    [1, 'Typo'],
+    [2, 'Don\'t understand'],
+    [3, 'Image & video'],
+    [4, 'Factual error'],
+    [5, 'other'],
 ]
