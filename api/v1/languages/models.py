@@ -7,7 +7,6 @@ from api.v1.general.services import normalize_text
 
 class Language(models.Model):
     name = models.CharField(max_length=100)
-    ordering_number = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)], unique=True)
 
     @classmethod
     def get_languages(cls):
