@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework import serializers
 from django.utils.timezone import now
 from django.contrib.auth.hashers import make_password
@@ -20,6 +19,8 @@ class ProfileChapterSerializer(serializers.ModelSerializer):
     tariff_expire_days = serializers.SerializerMethodField()
 
     def get_tariff_expire_days(self, obj):
+        if obj.tariff_expire_date <= now().date():
+            return 0
         return (now().date() - obj.tariff_expire_date).days
 
     class Meta:
