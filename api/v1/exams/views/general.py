@@ -18,7 +18,8 @@ class ExamAnswerAPIView(GenericAPIView):
         student = self.request.user
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(student.ball, status=HTTP_201_CREATED)
+        data = {'ball': student.ball, 'level_id': student.level_id, 'level_percent': student.level_percent}
+        return Response(data, status=HTTP_201_CREATED)
 
 
 class CategoryResultAPIView(GenericAPIView):
