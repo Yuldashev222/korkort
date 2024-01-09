@@ -63,7 +63,7 @@ class LessonDetailAdmin(admin.ModelAdmin):
     list_filter = ['lesson__chapter', 'language']
     list_select_related = ('lesson__chapter', 'language')
     readonly_fields = ['lesson']
-    ordering = ['language__ordering_number', 'lesson__chapter__ordering_number', 'lesson__ordering_number']
+    ordering = ['lesson__chapter__ordering_number', 'lesson__ordering_number']
     inlines = (LessonSourceInline, LessonWordInfoInline)
     fields = (
         'language',
