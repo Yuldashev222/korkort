@@ -170,3 +170,8 @@ class LessonQuestionAPIView(GenericAPIView):
             'student_saved_question_list': student_saved_question_list,
             'question_text_list': question_text_list
         }
+
+
+class HTTPLiveStream(GenericAPIView):
+    def get(self, request, *args, **kwargs):
+        return Response({'m3u8_url': 'https://api.lattmedkorkort.se/media/hls/y2mateis_-_varning_for_vagkorsning_10_korkortsfragor-2je8t-ziwdc-1080pp-1696332751.m3u8'})

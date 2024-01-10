@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, FileExtensionValidator
 from django_ckeditor_5.fields import CKEditor5Field
 
 from api.v1.general.services import normalize_text
+from api.v1.lessons.services import m3u8_file_location
 
 
 class Lesson(models.Model):
@@ -39,6 +40,7 @@ class LessonDetail(models.Model):
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     title = models.CharField(max_length=300)
     short_title = models.CharField(max_length=200)
+    # m3u8_file = models.FileField(upload_to=m3u8_file_location, null=True)  # last
     video = models.FileField(max_length=300, upload_to='lessons/videos/',
                              validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
     text = CKEditor5Field(max_length=700, blank=True)
