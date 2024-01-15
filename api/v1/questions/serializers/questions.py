@@ -10,6 +10,7 @@ class QuestionSerializer(serializers.Serializer):
     category_id = serializers.IntegerField()
     image = serializers.CharField(read_only=True)
     is_saved = serializers.SerializerMethodField()
+    video = serializers.FileField()
 
     variants = serializers.SerializerMethodField()
 
@@ -34,6 +35,7 @@ class QuestionSerializer(serializers.Serializer):
         ret = super().to_representation(instance)
         ret['image'] = get_random_image()
         ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
+        ret['video'] = 'https://api.lattmedkorkort.se/media/questions/videos/GR_10_sec_ad.mp4'
         return ret
 
     def get_is_saved(self, instance):

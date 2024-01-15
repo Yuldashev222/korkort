@@ -1,9 +1,21 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.urls import path, include
 from django.contrib import admin
 from django.conf.urls.static import static
+from django.views.static import serve
 
 from .yasg import schema_view
+
+
+@login_required
+def custom_serve(*args, **kwargs):
+    return serve(*args, **kwargs)
+
+
+def custom_static(*args, **kwargs):
+    return static(view=custom_serve, *args, **kwargs)
+
 
 urlpatterns = [
 
@@ -30,5 +42,5 @@ urlpatterns = [
 ]
 
 urlpatterns += [path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file")]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += custom_static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += [path('asdasdasd/', include('rest_framework.urls'))]  # last
