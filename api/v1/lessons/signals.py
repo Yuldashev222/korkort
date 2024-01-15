@@ -1,3 +1,6 @@
+import shutil
+
+from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 from django.db.models import Sum, Count
 from django.core.cache import cache
@@ -6,11 +9,8 @@ from django.db.models.signals import post_save, post_delete, pre_save
 from api.v1.general.utils import delete_object_file_post_delete, delete_object_file_pre_save
 from api.v1.lessons.models import Lesson, LessonStudent, LessonDetail
 from api.v1.chapters.models import ChapterStudent
-
-
-@receiver([post_save, post_delete], sender=LessonDetail)
-def update_lesson_detail_cache(*args, **kwargs):
-    cache.clear()
+from api.v1.lessons.services import extract_m3u8_zip_file, get_m3u8_directory_location
+from api.v1.lessons.validators import validate_m3u8_zip_file
 
 
 def update_chapter_time(instance, *args, **kwargs):  # last
@@ -52,3 +52,26 @@ def update_student_chapter_completed_lessons(instance, *args, **kwargs):
         if chapter_student.completed_lessons != completed_lessons:
             chapter_student.completed_lessons = completed_lessons
             chapter_student.save()
+
+
+@receiver(post_delete, sender=LessonDetail)
+def delete_zip_file(instance, *args, **kwargs):
+    try:
+        shutil.rmtree(get_m3u8_directory_location(lesson_detail=instance))
+    except FileNotFoundError:
+        pass
+    cache.clear()  # last
+
+
+@receiver(post_save, sender=LessonDetail)
+def update_lesson_detail_cache(instance, *args, **kwargs):
+    try:
+        validate_m3u8_zip_file(m3u8_zip_file_url=instance.m3u8_zip.path)
+        extract_m3u8_zip_file(lesson_detail=instance)
+    except ValidationError:
+        instance.delete()
+    except FileNotFoundError:
+        print(2)
+        pass
+
+    cache.clear()  # last

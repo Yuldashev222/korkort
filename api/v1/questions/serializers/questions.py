@@ -16,6 +16,9 @@ class QuestionSerializer(serializers.Serializer):
     def get_variants(self, instance):
         sort_list = self.context['question_text_list']
         obj = bubble_search(instance.pk, 'question_id', sort_list)
+        if not obj:
+            return []
+
         variants = [
             {'text': obj['correct_variant'], 'is_correct': True}, {'text': obj['variant2'], 'is_correct': False}
         ]
@@ -29,17 +32,7 @@ class QuestionSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        if ret['pk'] % 3 == 0:
-            ret['video'] = None
-            ret['image'] = None
-        else:
-            if ret['pk'] % 2 == 0:
-                ret['video'] = 'https://api.lattmedkorkort.se/media/questions/videos/pexels-george-morina-5266783_1080p.mp4'
-                ret['image'] = None
-            else:
-                ret['image'] = get_random_image()
-                ret['video'] = None
-
+        ret['image'] = get_random_image()
         ret['text'], ret['answer'] = self.get_question_text_and_answer(instance)
         return ret
 
@@ -51,4 +44,6 @@ class QuestionSerializer(serializers.Serializer):
     def get_question_text_and_answer(self, instance):
         sort_list = self.context['question_text_list']
         obj = bubble_search(instance.pk, 'question_id', sort_list)
+        if not obj:
+            return '', None  # last
         return obj['text'], obj.get('answer', None)

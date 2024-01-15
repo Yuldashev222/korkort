@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 
-from api.v1.chapters.models import Chapter
 from api.v1.general.enums import title, desc
-from api.v1.languages.models import Language
 from api.v1.lessons.models import Lesson, LessonWordInfo, LessonSource, LessonDetail
+from api.v1.chapters.models import Chapter
+from api.v1.languages.models import Language
 
 
 class Command(BaseCommand):
@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
                 for language in Language.objects.all():
                     lesson_detail = LessonDetail.objects.create(lesson_id=lesson.pk, language_id=language.pk,
-                                                                title=title, text=desc, video='d.mp4')
+                                                                title=title, text=desc)
                     for j in range(10):
                         lst1.append(LessonWordInfo(lesson_detail_id=lesson_detail.pk, word=title, info=desc))
                         lst2.append(LessonSource(lesson_detail_id=lesson_detail.pk, text=title,

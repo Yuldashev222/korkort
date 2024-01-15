@@ -46,7 +46,7 @@ class ChapterSerializer(serializers.Serializer):
     def get_title(self, instance):
         sort_list = self.context['details']
         obj = bubble_search(instance.pk, 'chapter_id', sort_list)
-        return obj['title']
+        return obj['title'] if obj else ''
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

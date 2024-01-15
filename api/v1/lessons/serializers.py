@@ -28,7 +28,7 @@ class LessonListSerializer(serializers.Serializer):
     def get_title(self, instance):
         sort_list = self.context['lesson_title_list']
         obj = bubble_search(instance.pk, 'lesson_id', sort_list)
-        return obj['title']
+        return obj['title'] if obj else ''
 
     def get_is_open(self, instance):
         student_completed_lesson_list = self.context['student_completed_lesson_list']
@@ -63,8 +63,6 @@ class LessonSourceSerializer(serializers.ModelSerializer):
 
 
 class LessonRetrieveSerializer(serializers.Serializer):
-    video1 = 'https://api.lattmedkorkort.se/media/lessons/videos/y2mate.is_-_Varning_f%C3%B6r_v%C3%A4gkorsning_10_k%C3%B6rkortsfr%C3%A5gor-2Je8t-zIWDc-1080pp-1696332751.mp4'
-    video2 = 'https://api.lattmedkorkort.se/media/lessons/videos/pexels-boyan-minchev-12239830_1440p.mp4'
     image = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRClGlxrlqY7RlZZ_8PqNU0NfQOlqHUvPg9S80O8H1luMigslACzs8Aqggw1irL3tMIg1Y&usqp=CAU'
     pk = serializers.IntegerField()
     title = serializers.SerializerMethodField()
@@ -74,9 +72,13 @@ class LessonRetrieveSerializer(serializers.Serializer):
     lessons = serializers.SerializerMethodField()
     word_infos = serializers.SerializerMethodField()
     sources = serializers.SerializerMethodField()
+    m3u8_url = serializers.SerializerMethodField()
 
     def get_text(self, instance):
         return self.context['lesson_detail'].text
+
+    def get_m3u8_url(self, instance):
+        return self.context['request'].build_absolute_uri(f'/media/{self.context["lesson_detail"].m3u8_url()}')
 
     def get_title(self, instance):
         return self.context['lesson_detail'].title
@@ -113,7 +115,6 @@ class LessonRetrieveSerializer(serializers.Serializer):
     def to_representation(self, instance):  # last
         ret = super().to_representation(instance)
         ret['image'] = self.image
-        ret['video'] = self.video2
         return ret
 
 

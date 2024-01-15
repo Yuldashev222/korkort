@@ -1,10 +1,13 @@
+import os
+
+from django.conf import settings
 from django.db import models
 from django.core.cache import cache
 from django.core.validators import MinValueValidator, FileExtensionValidator
 from django_ckeditor_5.fields import CKEditor5Field
 
 from api.v1.general.services import normalize_text
-from api.v1.lessons.services import m3u8_file_location
+from api.v1.lessons.services import m3u8_zip_file_location
 
 
 class Lesson(models.Model):
@@ -40,9 +43,12 @@ class LessonDetail(models.Model):
     language = models.ForeignKey('languages.Language', on_delete=models.PROTECT)
     title = models.CharField(max_length=300)
     short_title = models.CharField(max_length=200)
-    # m3u8_file = models.FileField(upload_to=m3u8_file_location, null=True)  # last
-    video = models.FileField(max_length=300, upload_to='lessons/videos/',
-                             validators=[FileExtensionValidator(allowed_extensions=['mp4'])])
+
+    m3u8_zip = models.FileField(max_length=300,
+                                upload_to=m3u8_zip_file_location,
+                                validators=[FileExtensionValidator(allowed_extensions=['zip'])],
+                                null=True)  # delete on change
+
     text = CKEditor5Field(max_length=700, blank=True)
 
     def __str__(self):
@@ -53,7 +59,17 @@ class LessonDetail(models.Model):
 
     def save(self, *args, **kwargs):
         self.title = normalize_text(self.title)[0]
+        self.m3u8_url = self.m3u8_zip.url
         super().save(*args, **kwargs)
+
+    def m3u8_url(self):
+        list_dir = (f'chapters/{self.lesson.chapter_id}/lessons/{self.lesson_id}/'
+                    f'videos/{self.language_id}/hls/')
+        pwd_dir = os.path.join(settings.MEDIA_ROOT, list_dir)
+        for i in os.listdir(pwd_dir):
+            if i.endswith('.m3u8'):
+                return os.path.join(list_dir, i)
+        return ''
 
 
 class LessonWordInfo(models.Model):

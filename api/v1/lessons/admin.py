@@ -10,6 +10,9 @@ from api.v1.general.admin import AbstractStackedInline
 class LessonDetailInline(AbstractStackedInline):
     model = LessonDetail
 
+    def get_min_num(self, request, obj=None, **kwargs):
+        return 1
+
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
@@ -57,7 +60,7 @@ class LessonWordInfoInline(LessonSourceInline):
 
 @admin.register(LessonDetail)
 class LessonDetailAdmin(admin.ModelAdmin):
-    list_display = ['language', 'lesson', 'title', 'video']
+    list_display = ['language', 'lesson', 'title']
     list_display_links = ['lesson', 'language', 'title']
     search_fields = ['title', 'text']
     list_filter = ['lesson__chapter', 'language']
@@ -68,8 +71,8 @@ class LessonDetailAdmin(admin.ModelAdmin):
     fields = (
         'language',
         'lesson',
+        'm3u8_zip',
         'title',
-        'video',
         'text'
     )
 

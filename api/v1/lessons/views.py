@@ -53,23 +53,23 @@ class LessonAPIView(RetrieveAPIView):
         page = str(request.build_absolute_uri())
         change_student_lesson_view_statistics.delay(student_id=student.pk, lesson_id=instance.pk)
 
-        page_cache = cache.get(page)
-        if page_cache:
-            lessons = Lesson.objects.filter(chapter_id=instance.chapter_id).order_by('ordering_number')
-            ctx = {
-                'student': student,
-                'student_completed_lesson_list': LessonStudent.objects.filter(student_id=student.pk, is_completed=True,
-                                                                              lesson__chapter_id=instance.chapter_id,
-                                                                              ).values_list('lesson_id', flat=True),
-
-                'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
-                                                                 lesson__chapter_id=instance.chapter_id
-                                                                 ).values('lesson_id', 'title').order_by('lesson_id')
-            }
-
-            page_cache['lessons'] = LessonListSerializer(lessons, many=True, context=ctx).data
-            return Response(page_cache)
-
+        # page_cache = cache.get(page)
+        # if page_cache:
+        #     lessons = Lesson.objects.filter(chapter_id=instance.chapter_id).order_by('ordering_number')
+        #     ctx = {
+        #         'student': student,
+        #         'student_completed_lesson_list': LessonStudent.objects.filter(student_id=student.pk, is_completed=True,
+        #                                                                       lesson__chapter_id=instance.chapter_id,
+        #                                                                       ).values_list('lesson_id', flat=True),
+        #
+        #         'lesson_title_list': LessonDetail.objects.filter(language_id=get_language(),
+        #                                                          lesson__chapter_id=instance.chapter_id
+        #                                                          ).values('lesson_id', 'title').order_by('lesson_id')
+        #     }
+        #
+        #     page_cache['lessons'] = LessonListSerializer(lessons, many=True, context=ctx).data
+        #     return Response(page_cache)
+        #
         serializer = self.get_serializer(instance)
         serializer.context['lesson_detail'] = get_object_or_404(LessonDetail, lesson_id=instance.pk,
                                                                 language_id=get_language())

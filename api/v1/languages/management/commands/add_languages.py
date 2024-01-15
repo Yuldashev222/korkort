@@ -4,5 +4,5 @@ from api.v1.languages.models import Language
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        for i in ['sweden', 'russian', 'uzbek', 'english', 'czech', 'latvian', 'arabic']:
+        for i in ['sweden', 'english']:
             Language.objects.create(name=i)
