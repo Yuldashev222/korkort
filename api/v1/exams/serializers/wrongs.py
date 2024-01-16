@@ -13,7 +13,7 @@ from api.v1.exams.serializers.categories import CategoryExamAnswerSerializer
 class WrongQuestionsExamSerializer(serializers.Serializer):
     my_questions = serializers.BooleanField(default=False)
     difficulty_level = serializers.ChoiceField(choices=Question.DIFFICULTY_LEVEL, allow_null=True)
-    counts = serializers.IntegerField(validators=[MinValueValidator(settings.MIN_QUESTIONS),
+    counts = serializers.IntegerField(validators=[MinValueValidator(1),
                                                   MaxValueValidator(settings.MAX_QUESTIONS)])
 
 
