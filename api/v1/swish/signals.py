@@ -8,7 +8,6 @@ from api.v1.swish.models import MinBonusMoney, SwishCard, CalledStudentAndSwishT
 @receiver([post_save, post_delete], sender=MinBonusMoney)
 def update_tariffs_cache(instance, *args, **kwargs):
     cache.clear()
-    instance.set_redis()
 
 
 @receiver(post_save, sender=SwishCard)
