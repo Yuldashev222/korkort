@@ -12,9 +12,10 @@ class SwishCardSerializer(serializers.ModelSerializer):
         fields = ['number', 'student']
 
     def validate(self, attrs):
-        min_bonus_money = MinBonusMoney.get_min_bonus_money()
+        min_bonus_money = MinBonusMoney.objects.first()
         if not min_bonus_money:
             raise ValidationError('Does not work.')
+        min_bonus_money = min_bonus_money.money
         if self.context['request'].user.bonus_money < min_bonus_money:
             raise PermissionDenied()
 
