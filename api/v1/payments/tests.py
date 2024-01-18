@@ -1,47 +1,59 @@
+# app.py
+#
+# Use this sample code to handle webhook events in your integration.
+#
+# 1) Paste this code into a new file (app.py)
+#
+# 2) Install dependencies
+#   pip3 install flask
+#   pip3 install stripe
+#
+# 3) Run the server on http://localhost:4242
+#   python3 -m flask run --port=4242
+
+import json
+import os
 import stripe
-from django.conf import settings
-from django.http import HttpResponse
-from django.views import View
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
 
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from flask import Flask, jsonify, request
 
-from .models import Order
+# The library needs to be configured with your account's secret key.
+# Ensure the key is kept out of any version control system you might be using.
+stripe.api_key = "sk_test_..."
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+# This is your Stripe CLI webhook secret for testing your endpoint locally.
+endpoint_secret = 'whsec_5d36da4d78a84fa832e4b92d78b56cc383b748549a95fda80b9b6b92da5385a3'
 
+app = Flask(__name__)
 
-@method_decorator(csrf_exempt, name="dispatch")
-class StripeWebhookView(View):
-    def post(self, request, *args, **kwargs):
-        payload = request.body
-        endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
-        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
-        try:
-            event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        except ValueError as e:
-            # Invalid payload
-            return HttpResponse(content=str(e), status=400)
-        except stripe.error.SignatureVerificationError as e:
-            # Invalid signature
-            return HttpResponse(content=str(e), status=400)
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    event = None
+    payload = request.data
+    sig_header = request.headers['STRIPE_SIGNATURE']
 
-        if event.type == "checkout.session.completed":
-            session = event.data.object
-            if session.mode == 'payment' and session.payment_status == 'paid':
-                try:
-                    order = Order.objects.select_related('student').get(pk=session.client_reference_id, is_paid=False)
-                except Order.DoesNotExist as e:
-                    return HttpResponse(content=str(e), status=400)
-                order.is_paid = True
-                order.stripe_id = session.payment_intent
-                order.save()
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        raise e
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        raise e
 
-                student = order.student
-                message = render_to_string('payments/checkout.html')
-                send_mail(subject='Hello Everyone', message=message, from_email=None, recipient_list=[student.email],
-                          html_message=message)
+    # Handle the event
+    if event['type'] == 'checkout.session.async_payment_failed':
+      session = event['data']['object']
+    elif event['type'] == 'checkout.session.async_payment_succeeded':
+      session = event['data']['object']
+    elif event['type'] == 'checkout.session.completed':
+      session = event['data']['object']
+    elif event['type'] == 'checkout.session.expired':
+      session = event['data']['object']
+    # ... handle other event types
+    else:
+      print('Unhandled event type {}'.format(event['type']))
 
-        return HttpResponse(status=200)
+    return jsonify(success=True)

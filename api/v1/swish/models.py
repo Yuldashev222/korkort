@@ -38,11 +38,8 @@ class SwishCard(models.Model):
 
     def save(self, *args, **kwargs):
         if self.student:
-            if not self.student_name:
-                self.student_name = self.student.name
-
-            if not self.student_email:
-                self.student_email = self.student.email
+            self.student_name = self.student.name
+            self.student_email = self.student.email
 
             if self.student_money == 0:
                 self.student_money = self.student.bonus_money
