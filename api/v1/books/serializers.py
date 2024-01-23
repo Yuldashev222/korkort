@@ -28,7 +28,7 @@ class BookDetailSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['audio'] = 'https://api.lattmedkorkort.se/media/books/chapters/audios/David_Guetta_-__Hey_Mama_ERS_REMIX____LONG_VERSION.mp3'
-        return
+        return ret
 
     class Meta:
         model = BookChapter

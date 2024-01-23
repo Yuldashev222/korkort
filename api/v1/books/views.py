@@ -27,7 +27,7 @@ class BookListAPIView(ListAPIView):
 
 
 class BookChapterDetailAPIView(RetrieveAPIView):
-    permission_classes = (IsAuthenticated, IsStudent, IsOpenOrPurchased)
+    permission_classes = (IsAuthenticated, IsStudent)#, IsOpenOrPurchased)
     queryset = BookChapter.objects.all()
     serializer_class = BookDetailSerializer
 
