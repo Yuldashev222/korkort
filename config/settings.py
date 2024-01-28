@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'api.v1.languages.apps.LanguagesConfig',
     'api.v1.books.apps.BooksConfig',
     'api.v1.reports.apps.ReportsConfig',
+    # 'api.v1.notifications.apps.NotificationsConfig',
     'api.v1.todos.apps.TodosConfig'
 ]
 

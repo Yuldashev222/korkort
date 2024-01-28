@@ -22,7 +22,7 @@ class SwishCardAPIView(ListCreateAPIView):
     @page_cache
     def get(self, request, *args, **kwargs):
         obj = MinBonusMoney.objects.first()
-        return Response({'min_bonus_money': obj.money if obj is not None else None})
+        return Response({'min_bonus_money': obj.money if obj else None})
 
 
 class CalledStudentAndSwishTransactionAPIView(ListAPIView):

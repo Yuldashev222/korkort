@@ -9,8 +9,13 @@ from api.v1.general.utils import bubble_search
 class BookChapterSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
-    is_open = serializers.BooleanField()
+    is_open = serializers.SerializerMethodField()
     is_completed = serializers.SerializerMethodField()
+
+    def get_is_open(self, is_open):
+        if is_open:
+            return True
+        return self.context['request'].user.tariff_expire_date > now().date()
 
     def get_is_completed(self, instance):
         sort_list = self.context['student_chapter_list']

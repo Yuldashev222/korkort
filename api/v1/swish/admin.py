@@ -24,5 +24,8 @@ class SwishCardAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = self.fields
         if obj and not obj.is_paid:
-            readonly_fields.remove('is_paid')
+            try:
+                readonly_fields.remove('is_paid')
+            except ValueError:
+                pass
         return readonly_fields
