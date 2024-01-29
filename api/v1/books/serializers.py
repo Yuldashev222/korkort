@@ -15,7 +15,7 @@ class BookChapterSerializer(serializers.Serializer):
     def get_is_open(self, is_open):
         if is_open:
             return True
-        return self.context['request'].user.tariff_expire_date > now().date()
+        return self.context['request'].user.tariff_expire_date >= now().date()
 
     def get_is_completed(self, instance):
         sort_list = self.context['student_chapter_list']
@@ -50,7 +50,7 @@ class BookChapterStudentSerializer(serializers.Serializer):
             chapter = BookChapter.objects.get(pk=value)
         except BookChapter.DoesNotExist:
             raise ValidationError('chapter_id does not exist')
-        if not chapter.is_open and self.context['request'].user.tariff_expire_date <= now().date():
+        if not chapter.is_open and self.context['request'].user.tariff_expire_date < now().date():
             raise PermissionDenied('You do not have permission to')
         return value
 

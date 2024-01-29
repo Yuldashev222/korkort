@@ -31,4 +31,4 @@ class OldLessonCompleted(BasePermission):
 
 class IsOpenOrPurchased(BasePermission):
     def has_object_permission(self, request, view, obj):
-        return obj.is_open or request.user.tariff_expire_date > now().date()
+        return obj.is_open or request.user.tariff_expire_date >= now().date()

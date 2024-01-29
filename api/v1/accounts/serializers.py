@@ -19,9 +19,9 @@ class ProfileChapterSerializer(serializers.ModelSerializer):
     tariff_expire_days = serializers.SerializerMethodField()
 
     def get_tariff_expire_days(self, obj):
-        if obj.tariff_expire_date <= now().date():
+        if obj.tariff_expire_date < now().date():
             return 0
-        return (obj.tariff_expire_date - now().date()).days
+        return (obj.tariff_expire_date - now().date()).days + 1
 
     class Meta:
         model = CustomUser

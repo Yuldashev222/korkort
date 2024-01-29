@@ -14,6 +14,6 @@ class ReportSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         lesson = attrs['lesson']
         question = attrs['question']
-        if not (lesson or question):
+        if not (lesson or question) or lesson and question:
             raise ValidationError('lesson or question is required')
         return super().validate(attrs)

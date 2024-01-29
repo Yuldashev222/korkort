@@ -1,3 +1,4 @@
+from django.db.models import F, Min
 from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
@@ -47,11 +48,20 @@ class ChapterAPIView(ReadOnlyModelViewSet):
     def get_object(self):
         student = self.request.user
         chapter = super().get_object()
-        student_tariff_exists = student.tariff_expire_date > now().date()
+
+        if (
+                Chapter.objects.aggregate(min_on=Min('ordering_number'))['min_on'] != chapter.ordering_number
+                and
+                ChapterStudent.objects.filter(student_id=student.pk,
+                                              chapter__ordering_number__lt=chapter.ordering_number,
+                                              completed_lessons=F('chapter__lessons')
+                                              ).count() != chapter.ordering_number
+        ):
+            raise PermissionDenied()
 
         lesson_student_filter_kwargs = {'student_id': student.pk, 'lesson__chapter_id': chapter.pk}
         lesson_filter_kwargs = {'chapter_id': chapter.pk}
-        if not student_tariff_exists:
+        if student.tariff_expire_date < now().date():
             lesson_student_filter_kwargs['lesson__is_open'] = True
             lesson_filter_kwargs['is_open'] = True
 
@@ -59,10 +69,9 @@ class ChapterAPIView(ReadOnlyModelViewSet):
                                                       ).order_by('lesson__ordering_number').last()
 
         if lesson_student:
-            lesson = Lesson.objects.filter(**lesson_filter_kwargs, pk__gt=lesson_student.lesson_id
-                                           ).order_by('ordering_number').first()
-            if not lesson:
-                lesson = lesson_student.lesson
+            lesson = Lesson.objects.filter(**lesson_filter_kwargs,
+                                           ordering_number__gt=lesson_student.lesson.ordering_number
+                                           ).order_by('ordering_number').first() or lesson_student.lesson
         else:
             lesson = Lesson.objects.filter(**lesson_filter_kwargs).order_by('ordering_number').first()
 

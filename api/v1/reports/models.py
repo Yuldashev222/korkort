@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from config import settings
@@ -11,3 +12,11 @@ class Report(models.Model):
     desc = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_completed = models.BooleanField(default=False)
+    answer = models.CharField(max_length=500, blank=True)
+
+    def clean(self):
+        if self.pk and not self.is_completed and Report.objects.get(pk=self.pk).is_completed:
+            raise ValidationError({'is_completed': 'not change'})
+
+    def __str__(self):
+        return str(self.get_report_type_display())

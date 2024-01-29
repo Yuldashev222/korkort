@@ -35,7 +35,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         return CustomUser.objects.filter(is_staff=False)
 
     def has_delete_permission(self, request, obj=None):
-        return obj and obj.tariff_expire_date <= now().date()
+        return obj and obj.tariff_expire_date < now().date()
 
     def has_add_permission(self, request):
         return False

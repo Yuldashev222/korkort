@@ -4,6 +4,7 @@ from celery import shared_task
 from django.utils.timezone import now
 
 from api.v1.accounts.models import CustomUser
+from api.v1.notifications.models import Notification
 from api.v1.payments.models import Order
 
 
@@ -14,5 +15,6 @@ def change_student_tariff_expire_date(student_id):
                                       expire_at__gt=student.tariff_expire_date).order_by('expire_at').last()
 
     if last_order:
-        student.tariff_expire_date = last_order.expire_at + timedelta(days=1)
+        student.tariff_expire_date = last_order.expire_at
         student.save()
+        Notification.objects.create(notification_type=Notification.NOTIFICATION_TYPE[0][0], order_id=last_order.id)

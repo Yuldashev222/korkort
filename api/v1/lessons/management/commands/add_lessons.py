@@ -20,7 +20,8 @@ class Command(BaseCommand):
                                                image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
 
                 for language in Language.objects.all():
-                    lesson_detail = LessonDetail.objects.create(lesson_id=lesson.pk, language_id=language.pk,
+                    lesson_detail = LessonDetail.objects.create(m3u8_zip='files/piles', lesson_id=lesson.pk,
+                                                                language_id=language.pk,
                                                                 title=title, text=desc)
                     for j in range(10):
                         lst1.append(LessonWordInfo(lesson_detail_id=lesson_detail.pk, word=title, info=desc))

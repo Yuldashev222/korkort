@@ -73,7 +73,7 @@ def check_order(instance, *args, **kwargs):
 
         if not instance.expire_at:
             last_order = Order.objects.filter(student_email=student.email, is_paid=True,
-                                              expire_at__gte=instance.purchased_at.date()).first()
+                                              expire_at__gt=instance.purchased_at.date()).order_by('expire_at').last()
 
             instance.expire_at = last_order.expire_at if last_order else instance.purchased_at.date()
             instance.expire_at += timedelta(days=instance.tariff_days)

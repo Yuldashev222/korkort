@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/v1/books/', include('api.v1.books.urls')),
     path('api/v1/todos/', include('api.v1.todos.urls')),
     path('api/v1/reports/', include('api.v1.reports.urls')),
+    path('api/v1/notifications/', include('api.v1.notifications.urls')),
 
     path("__debug__/", include("debug_toolbar.urls"))
 

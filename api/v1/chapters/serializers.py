@@ -33,7 +33,7 @@ class ChapterSerializer(serializers.Serializer):
         if self.old_obj_completed_lessons is None:
             temp = LessonListSerializer.play
 
-        elif self.context['request'].user.tariff_expire_date <= now().date():
+        elif self.context['request'].user.tariff_expire_date < now().date():
             temp = LessonListSerializer.buy_clock
 
         elif self.old_obj_completed_lessons < self.old_obj_all_lessons:

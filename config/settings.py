@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'api.v1.languages.apps.LanguagesConfig',
     'api.v1.books.apps.BooksConfig',
     'api.v1.reports.apps.ReportsConfig',
-    # 'api.v1.notifications.apps.NotificationsConfig',
+    'api.v1.notifications.apps.NotificationsConfig',
     'api.v1.todos.apps.TodosConfig'
 ]
 
@@ -192,6 +192,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY_TEST')  # last
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY_TEST')  # last
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
 STRIPE_CHECKOUT_TIMEOUT = 30 * 60  # in second
 STRIPE_CHECKOUT_CURRENCY = 'SEK'
 

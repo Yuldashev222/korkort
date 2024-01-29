@@ -11,6 +11,7 @@ from api.v1.lessons.models import Lesson, LessonStudent, LessonDetail
 from api.v1.chapters.models import ChapterStudent
 from api.v1.lessons.services import extract_m3u8_zip_file, get_m3u8_directory_location
 from api.v1.lessons.validators import validate_m3u8_zip_file
+from api.v1.notifications.models import Notification
 
 
 def update_chapter_time(instance, *args, **kwargs):  # last
@@ -52,6 +53,10 @@ def update_student_chapter_completed_lessons(instance, *args, **kwargs):
         if chapter_student.completed_lessons != completed_lessons:
             chapter_student.completed_lessons = completed_lessons
             chapter_student.save()
+        else:
+            Notification.objects.create(notification_type=Notification.NOTIFICATION_TYPE[2][0],
+                                        chapter_id=chapter_student.chapter_id,
+                                        student_id=chapter_student.student_id)
 
 
 @receiver(post_delete, sender=LessonDetail)
