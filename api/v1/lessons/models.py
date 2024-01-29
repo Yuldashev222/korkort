@@ -65,6 +65,7 @@ class LessonDetail(models.Model):
     def m3u8_url(self):
         list_dir = (f'chapters/{self.lesson.chapter_id}/lessons/{self.lesson_id}/'
                     f'videos/{self.language_id}/hls/')
+        list_dir = 'chapters/1/lessons/191/videos/1/hls'  # last
         pwd_dir = os.path.join(settings.MEDIA_ROOT, list_dir)
         if not os.path.exists(pwd_dir):
             return ''

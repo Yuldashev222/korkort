@@ -16,13 +16,13 @@ class Command(BaseCommand):
             for i in range(10):
                 is_open = True if i <= 4 and chapter.ordering_number == 1 else False
                 lesson = Lesson.objects.create(chapter_id=chapter.pk, is_open=is_open, ordering_number=i + 1,
-                                               lesson_time=i * 2,
+                                               lesson_time=(i + 1) * 2,
                                                image='chapters/1:_5663e70a-0c7b-4118-907a-be4/images/Rectangle_625.png')
 
                 for language in Language.objects.all():
                     lesson_detail = LessonDetail.objects.create(m3u8_zip='files/piles', lesson_id=lesson.pk,
                                                                 language_id=language.pk,
-                                                                title=title, text=desc)
+                                                                title=title, short_title='BRRIB', text=desc)
                     for j in range(10):
                         lst1.append(LessonWordInfo(lesson_detail_id=lesson_detail.pk, word=title, info=desc))
                         lst2.append(LessonSource(lesson_detail_id=lesson_detail.pk, text=title,
