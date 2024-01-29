@@ -35,3 +35,5 @@ def change_fields_pre_save(instance, *args, **kwargs):
     elif not instance.pk:
         instance.user_code = instance.email
         instance.is_verified = True
+        instance.tariff_expire_date = now().date() - timedelta(days=1)
+
