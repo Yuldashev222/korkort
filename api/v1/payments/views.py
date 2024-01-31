@@ -16,7 +16,7 @@ class OrderAPIView(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, IsStudent)
 
     def get_queryset(self):
-        return Order.objects.filter(student_email=self.request.user.email, is_paid=True).order_by('-created_at')
+        return Order.objects.filter(student_email=self.request.user.email).order_by('-created_at')  # , is_paid=True
 
 
 class CheckCouponAPIView(CreateAPIView):
