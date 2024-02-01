@@ -12,10 +12,9 @@ class BookChapterSerializer(serializers.Serializer):
     is_open = serializers.SerializerMethodField()
     is_completed = serializers.SerializerMethodField()
 
-    def get_is_open(self, is_open):
-        if is_open:
-            return True
-        return self.context['request'].user.tariff_expire_date >= now().date()
+    def get_is_open(self, obj):
+        print(obj.is_open)
+        return True if obj.is_open else self.context['request'].user.tariff_expire_date >= now().date()
 
     def get_is_completed(self, instance):
         sort_list = self.context['student_chapter_list']
