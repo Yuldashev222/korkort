@@ -27,9 +27,6 @@ class StripeCheckoutSerializer(serializers.Serializer):
             if use_bonus_money:
                 raise ValidationError({'use_bonus_money': ['choice']})
 
-            if not tariff.student_discount:
-                raise PermissionDenied({'user_code': ['Currently, the coupon system is not working for this tariff']})
-
             if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
                 raise ValidationError({'user_code': ['not found']})
 
