@@ -1,12 +1,9 @@
 import os
-from datetime import timedelta
-
 from celery import shared_task
-from django.utils.timezone import now
 
+from api.v1.payments.models import Order
 from api.v1.accounts.models import CustomUser
 from api.v1.notifications.models import Notification
-from api.v1.payments.models import Order
 
 
 @shared_task
