@@ -1,6 +1,8 @@
 import string
 import secrets
+
 from django.db import models
+from django.conf import settings
 
 
 class Order(models.Model):
@@ -13,6 +15,7 @@ class Order(models.Model):
     student_bonus_amount = models.FloatField(verbose_name='bonus discount', default=0)
     use_bonus_money = models.BooleanField(verbose_name='Use Bonus', default=False)
     purchased_price = models.FloatField(default=0)
+    moms = models.PositiveSmallIntegerField(default=settings.SWEDEN_MOMS)
 
     user_code_discount_amount = models.FloatField(verbose_name='User Code discount', default=0)
     user_code_discount_value = models.PositiveIntegerField(default=0)

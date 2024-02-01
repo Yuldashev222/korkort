@@ -203,6 +203,7 @@ WEB_FORGOT_PASSWORD_URL = str(FRONT_DOMAIN) + WEB_FORGOT_PASSWORD_URL
 
 SUCCESS_PAYMENT_URL = 'https://www.google.com'
 FAILURE_PAYMENT_URL = 'https://www.youtube.com'
+SWEDEN_MOMS = 25  # in percent
 
 TEST_BALL = 1
 LESSON_BALL = 10

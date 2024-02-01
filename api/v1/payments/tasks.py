@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 
 from celery import shared_task
@@ -18,3 +19,8 @@ def change_student_tariff_expire_date(student_id):
         student.tariff_expire_date = last_order.expire_at
         student.save()
         Notification.objects.create(notification_type=Notification.NOTIFICATION_TYPE[0][0], order_id=last_order.id)
+
+
+@shared_task
+def test_payment_webhook():
+    os.system('stripe listen --forward-to https://api.lattmedkorkort.se/api/v1/payments/stripe/webhooks/')
