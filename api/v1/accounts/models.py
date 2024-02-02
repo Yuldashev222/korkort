@@ -1,14 +1,11 @@
 import string
 import secrets
-
 from django.db import models
-from django.utils.timezone import now
 from django.core.validators import MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser, PermissionsMixin
 from django.contrib.auth.password_validation import validate_password
 
-from api.v1.questions.models import Question
 from api.v1.accounts.managers import CustomUserManager
 
 
@@ -58,6 +55,6 @@ class CustomUser(AbstractUser):
         return self.is_active  # and self.is_verified
 
     @classmethod
-    def user_id_exists(cls, user_code):
+    def user_code_exists(cls, user_code):
         return CustomUser.objects.filter(user_code=user_code, is_staff=False,  # is_verified=True,
                                          is_active=True).exists()

@@ -16,10 +16,13 @@ class NotificationAPIView(ModelViewSet):
         queryset = Notification.objects.filter(
             Q(order__student_id=student.pk)
             |
+            Q(swish_account__student_id=student.pk)
+            |
             Q(student_id=student.pk)
             |
             Q(report__student_id=student.pk)
             |
             Q(tariff_discount__isnull=False)
         ).order_by('-viewed_at', '-created_at')
+
         return queryset

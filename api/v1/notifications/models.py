@@ -9,12 +9,14 @@ class Notification(models.Model):
         (3, 'New Chapter'),
         (4, 'Report Response'),
         (5, 'Tariff Discount'),
+        (6, 'Swish Response'),
     )
     NEW_TARIFF_TEXT = 'Yangi tariff sotib oldingiz. Amal qilish muddati: {expire_date}'
     NEW_LEVEL_TEXT = 'Yangi levelga o\'tdingiz. Level ID: {level_id}'
     NEW_CHAPTER_TEXT = '{n}-chi chapter ochildi. Oldingi chapterlarni muvaffaqiyatli tugatdingiz'
     REPORT_RESPONSE_TEXT = 'sizning jalobangiz korib chiqildi va javobi email addresingizga jonatildi'
     TARIFF_DISCOUNT_TEXT = 'biz barcha tarifflarga {discount_name} nomli chegirma e\'lon qildik'
+    SWISH_TEXT = 'swish accountizga pul o\'tqazildi'
 
     notification_type = models.PositiveSmallIntegerField(verbose_name='Type', choices=NOTIFICATION_TYPE)
 
@@ -27,6 +29,8 @@ class Notification(models.Model):
     report = models.ForeignKey('reports.Report', on_delete=models.CASCADE, null=True)  # 4
 
     tariff_discount = models.ForeignKey('discounts.TariffDiscount', on_delete=models.CASCADE, null=True)  # 5
+
+    swish_account = models.ForeignKey('swish.SwishCard', on_delete=models.CASCADE, null=True)  # 6
 
     desc = models.CharField(max_length=255, blank=True)  # 4 + to email
     is_viewed = models.BooleanField(default=False)
@@ -42,8 +46,10 @@ class Notification(models.Model):
             self.desc = self.NEW_CHAPTER_TEXT.format(n=self.chapter_id)
         elif self.notification_type == self.NOTIFICATION_TYPE[3][0]:  # 4
             self.desc = self.REPORT_RESPONSE_TEXT
-        elif self.notification_type == self.NOTIFICATION_TYPE[4][0]:  # 4
+        elif self.notification_type == self.NOTIFICATION_TYPE[4][0]:  # 5
             self.desc = self.TARIFF_DISCOUNT_TEXT.format(discount_name=self.tariff_discount.name)
+        elif self.notification_type == self.NOTIFICATION_TYPE[5][0]:  # 6
+            self.desc = self.SWISH_TEXT
 
         if self.is_viewed and self.viewed_at is None:
             self.viewed_at = now()

@@ -78,7 +78,7 @@ def check_order(instance, *args, **kwargs):
             instance.expire_at = last_order.expire_at if last_order else instance.purchased_at.date()
             instance.expire_at += timedelta(days=instance.tariff_days)
 
-        if not instance.called_student_bonus_added and instance.called_student:
+        if instance.called_student and not instance.called_student_bonus_added:
             instance.called_student.bonus_money += round(instance.user_code_discount_amount, 1)
             instance.called_student.save()
             instance.called_student_bonus_added = True

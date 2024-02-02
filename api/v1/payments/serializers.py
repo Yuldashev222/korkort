@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.generics import get_object_or_404
 
+from api.v1.discounts.models import UserCodeDiscount
 from api.v1.tariffs.models import Tariff
 from api.v1.payments.models import Order
 from api.v1.accounts.models import CustomUser
@@ -27,16 +29,19 @@ class StripeCheckoutSerializer(serializers.Serializer):
             if use_bonus_money:
                 raise ValidationError({'use_bonus_money': ['choice']})
 
-            if user_code == student.user_code or not CustomUser.user_id_exists(user_code):
+            if not UserCodeDiscount.objects.exists():
+                raise ValidationError({'user_code': ['user_code service does not work']})
+
+            if user_code == student.user_code or not CustomUser.user_code_exists(user_code):
                 raise ValidationError({'user_code': ['not found']})
 
-            called_student = CustomUser.objects.get(user_code=user_code)
+            called_student = get_object_or_404(CustomUser, user_code=user_code)
             if Order.objects.filter(called_student_email=called_student.email, student_email=student.email,
                                     is_paid=True).exists():
                 raise PermissionDenied({'user_code': ['You have already registered this code']})
 
-        elif user_code and student.bonus_money <= 0:
-            raise ValidationError({'use_bonus_money': 'min limit'})
+        elif use_bonus_money and student.bonus_money <= 0:
+            raise ValidationError({'use_bonus_money': 'min bonus money'})
 
         order = Order.objects.create(student_id=student.pk, tariff_id=tariff.pk, called_student=called_student,
                                      use_bonus_money=use_bonus_money)
@@ -57,7 +62,7 @@ class CheckCouponSerializer(serializers.Serializer):
     def validate_user_code(self, value):
         student = self.context['request'].user
 
-        if value == student.user_code or not CustomUser.user_id_exists(value):
+        if value == student.user_code or not CustomUser.user_code_exists(value):
             raise ValidationError('not valid')
 
         if Order.objects.filter(called_student__user_code=value, student_email=student.email, is_paid=True).exists():
