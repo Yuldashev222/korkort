@@ -39,12 +39,12 @@ class CategoryResultAPIView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         student = self.request.user
-
+        other_wrong_answers_count = StudentWrongAnswer.objects.exclude(student_id=student.pk).count()
         data = {
             'user': ProfileExamSerializer(student).data,
             'student_wrong_answers_count': StudentWrongAnswer.objects.filter(student_id=student.pk).count(),
             'student_saved_answers_count': StudentSavedQuestion.objects.filter(student_id=student.pk).count(),
-            'other_wrong_answers_exists': StudentWrongAnswer.objects.exclude(student_id=student.pk).exists(),  # last
+            'other_wrong_answers_count': other_wrong_answers_count if other_wrong_answers_count <= settings.MAX_QUESTIONS else settings.MAX_QUESTIONS,
             'category_questions_count': settings.MAX_CATEGORY_QUESTIONS,
             'categories': serializer.data
         }
